@@ -1,0 +1,276 @@
+<div class="container py-5">
+  <h2 class="display-6 fw-semibold text-center mb-4">Vedic Astrology Predictions</h2>
+  <div class="card shadow-sm rounded-4 p-4 mx-auto predictions-card">
+    <h4 class="text-center mb-4">Enter Your Birth Details</h4>
+
+    <form [formGroup]="form" (ngSubmit)="getPrediction()">
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" class="form-control" formControlName="birthDate" placeholder="mm/dd/yyyy">
+        </div>
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Time of Birth</label>
+          <input type="time" class="form-control" formControlName="birthTime" placeholder="HH:MM">
+        </div>
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Birth Place</label>
+          <input type="text" class="form-control" formControlName="birthPlace" placeholder="City, State, Country">
+        </div>
+      </div>
+
+      <!-- <div class="row g-3 mb-4">
+        <div class="col-12 col-lg-6">
+          <label class="form-label">Chart Style</label>
+          <select class="form-select" formControlName="chartStyle">
+            <option>North Indian</option>
+            <option>South Indian</option>
+            <option>Western</option>
+          </select>
+        </div>
+        <div class="col-12 col-lg-6"></div>
+      </div> -->
+
+      <div class="d-flex flex-wrap justify-content-center gap-3 align-items-end">
+        <button type="button" class="btn btn-success btn-lg" (click)="generateBirthChart()" [disabled]="loading">
+          <span class="me-2">🌗</span> Generate Birth Chart
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Prediction controls (visible only after chart) -->
+  <div *ngIf="chart" [formGroup]="form" class="d-flex justify-content-center mt-3 mb-2">
+    <div class="prediction-actions glassy-panel rounded-4 shadow-sm p-3 p-md-3 d-flex flex-column flex-md-row align-items-stretch align-items-md-end gap-3">
+      <div class="form-group flex-grow-1 mb-0">
+        <label class="form-label mb-1">Prediction Type</label>
+        <div class="input-with-icon">
+          <span class="icon" aria-hidden="true">🔮</span>
+          <select class="form-select select-modern" formControlName="predictionType">
+            <option>Basic (Free)</option>
+            <option>Premium</option>
+          </select>
+        </div>
+        <small class="text-muted d-none d-md-block">Basic is free; Premium offers deeper, long-form insights.</small>
+        <small class="text-warning d-none d-md-block" *ngIf="(form.value.predictionType || '').toString().toLowerCase().startsWith('premium') && !predLoading">
+          Heads up: Premium prediction can take 1–2 minutes.
+        </small>
+      </div>
+      <button type="button" class="btn btn-gradient btn-lg px-4" (click)="getPrediction()"
+        [disabled]="predLoading || !chart">
+        <span class="me-2">✏️</span> Get Prediction
+      </button>
+    </div>
+  </div>
+
+  <!-- Chart Output -->
+  <div *ngIf="error" class="alert alert-danger mt-4">{{ error }}</div>
+
+  <div *ngIf="chart" class="card shadow-sm rounded-4 p-4 mx-auto predictions-card mt-4">
+    <h5 class="mb-3">South Indian Chart</h5>
+    <div class="small text-muted mb-3">
+      Ayanamsha: <strong>{{ chart.ayanamshaName }}</strong> ({{ chart.ayanamshaDegrees | number:'1.2-2' }}°)
+      · Ascendant: <strong>{{ chart.ascendantSign }}</strong>
+      · Birth UTC: {{ chart.birthDateTimeUtc | date:'yyyy-MM-dd HH:mm' }}
+      · Now UTC: {{ chart.currentDateTimeUtc | date:'yyyy-MM-dd HH:mm' }}
+    </div>
+
+    <div class="south-chart-grid">
+      <div *ngFor="let h of chart.houses" class="south-chart-cell" [ngClass]="'h' + h.number" [class.ascendant]="h.number === 1">
+        <div class="house-number">{{ h.number }}</div>
+        <div class="house-sign">{{ h.sign }}</div>
+        <div class="occupants">
+          <div *ngFor="let p of h.occupants" [class]="'occupant '+ planetClass(p)">
+            {{ planetAbbrev(p) }}
+          </div>
+        </div>
+      </div>
+      <div class="south-chart-center"></div>
+    </div>
+  </div>
+
+  <!-- Ask a Question (Prashna-style, limited free usage) -->
+  <div *ngIf="chart" class="card shadow-sm rounded-4 p-4 mx-auto predictions-card mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Ask a Question</h5>
+      <span class="badge bg-info-subtle text-info-emphasis small">
+        {{ remainingFreeQuestions }} free question{{ remainingFreeQuestions === 1 ? '' : 's' }} left
+      </span>
+    </div>
+    <p class="small text-muted mb-3">
+      Ask a specific question about your life. We use your birth chart and current dashas to answer.
+      Avoid medical, legal, or lottery questions.
+    </p>
+
+    <textarea class="form-control mb-2"
+              rows="3"
+              [(ngModel)]="askQuestionText"
+              placeholder="Example: Will I get a promotion if I change my job this year?"></textarea>
+
+    <div class="d-flex justify-content-end gap-2">
+      <button type="button"
+              class="btn btn-outline-secondary btn-sm"
+              [disabled]="askLoading || !askQuestionText?.trim()"
+              (click)="onAskQuestionClicked()">
+        {{ askLoading ? 'Asking…' : 'Ask Question' }}
+      </button>
+    </div>
+
+    <!-- Free-limit / payment prompt -->
+    <div *ngIf="showPaymentPrompt" class="alert alert-warning mt-3 mb-2">
+      You have used your free question.
+      To ask more questions, please upgrade to a premium plan.
+      <button type="button" class="btn btn-sm btn-primary ms-2" (click)="startPaymentFlow()">
+        View Premium Plans
+      </button>
+    </div>
+
+    <!-- Answer display -->
+    <div *ngIf="askAnswer" class="mt-3">
+      <h6 class="mb-1">Summary</h6>
+      <p class="mb-2">{{ askAnswer.summary }}</p>
+
+      <h6 class="mb-1">Answer</h6>
+      <p class="mb-2">{{ askAnswer.answer }}</p>
+
+      <h6 class="mb-1">Cautions</h6>
+      <p class="mb-0 text-warning">{{ askAnswer.cautions }}</p>
+    </div>
+  </div>
+
+  <!-- Basic Prediction Output -->
+  <div *ngIf="basicPred" #basicPredSection class="card shadow-sm rounded-4 p-4 mx-auto predictions-card mt-4">
+    <h5 class="mb-3">Basic Prediction</h5>
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <div class="mb-2"><strong>Age:</strong> {{ basicPred.ageYears }}</div>
+        <div class="mb-2"><strong>Ascendant:</strong> {{ basicPred.ascendantSummary }}</div>
+        <div class="mb-2"><strong>Current Dasha:</strong> {{ basicPred.currentDasha }}</div>
+        <div class="mb-2"><strong>Current Antardasha:</strong> {{ basicPred.currentAntarDasha }}</div>
+        <div class="text-muted small">
+          {{ basicPred.mahaStartUtc | date:'yyyy-MM-dd HH:mm' }} → {{ basicPred.mahaEndUtc | date:'yyyy-MM-dd HH:mm' }}
+          · Antar: {{ basicPred.antarStartUtc | date:'yyyy-MM-dd HH:mm' }} → {{ basicPred.antarEndUtc | date:'yyyy-MM-dd HH:mm' }}
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="mb-1"><strong>Highlights:</strong></div>
+        <ul class="mb-2 ps-3">
+          <li *ngFor="let h of basicPred.planetaryHighlights">{{ h }}</li>
+        </ul>
+        <div class="mb-2"><strong>Dasha Effects:</strong> {{ basicPred.dashaEffects }}</div>
+        <div class="mb-2"><strong>Antar Effects:</strong> {{ basicPred.antarEffects }}</div>
+      </div>
+    </div>
+    <div class="mt-2 p-3 rounded narrative-box">{{ basicPred.narrative }}</div>
+  </div>
+
+  <!-- Detailed Prediction Output -->
+  <div *ngIf="detailedPred" #detailedPredSection class="card shadow-sm rounded-4 p-4 mx-auto predictions-card mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Premium Detailed Prediction</h5>
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="downloadDetailedPdf()">Download PDF</button>
+    </div>
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <div class="mb-2"><strong>Age:</strong> {{ detailedPred.ageYears }}</div>
+        <div class="mb-2"><strong>Ascendant:</strong> {{ detailedPred.ascendantSummary }}</div>
+        <div class="mb-2"><strong>Current Dasha:</strong> {{ detailedPred.currentDasha }}</div>
+        <div class="mb-2"><strong>Current Antardasha:</strong> {{ detailedPred.currentAntarDasha }}</div>
+        <div class="text-muted small">
+          {{ detailedPred.mahaStartUtc | date:'yyyy-MM-dd HH:mm' }} → {{ detailedPred.mahaEndUtc | date:'yyyy-MM-dd HH:mm' }}
+          · Antar: {{ detailedPred.antarStartUtc | date:'yyyy-MM-dd HH:mm' }} → {{ detailedPred.antarEndUtc | date:'yyyy-MM-dd HH:mm' }}
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="mb-2"><strong>Career:</strong> {{ detailedPred.career }}</div>
+        <div class="mb-2"><strong>Finance:</strong> {{ detailedPred.finance }}</div>
+        <div class="mb-2"><strong>Relationships:</strong> {{ detailedPred.relationships }}</div>
+        <div class="mb-2"><strong>Destiny:</strong> {{ detailedPred.destiny }}</div>
+        <div class="mb-2"><strong>Job Window:</strong> {{ detailedPred.jobWindow }}</div>
+        <div class="mb-2"><strong>Marriage Window:</strong> {{ detailedPred.marriageWindow }}</div>
+      </div>
+    </div>
+    <div class="row g-3 mt-2">
+      <div class="col-12 col-lg-4">
+        <div class="mb-1"><strong>Good Yogas:</strong></div>
+        <ul class="ps-3 mb-0">
+          <li *ngFor="let y of detailedPred.goodYogas">{{ y }}</li>
+        </ul>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="mb-1"><strong>Challenging Yogas:</strong></div>
+        <ul class="ps-3 mb-0">
+          <li *ngFor="let y of detailedPred.badYogas">{{ y }}</li>
+        </ul>
+      </div>
+      <div class="col-12 col-lg-4">
+        <div class="mb-1"><strong>Suggested Remedies:</strong></div>
+        <ul class="ps-3 mb-0">
+          <li *ngFor="let r of detailedPred.remedies">{{ r }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-3 p-3 rounded narrative-box">{{ detailedPred.narrative }}</div>
+  </div>
+
+  <!-- Premium Prediction Paywall Popup -->
+  <div *ngIf="showPremiumPopup" class="premium-backdrop" (click)="closePremiumPopup()">
+    <div class="premium-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close btn-close-white premium-close" aria-label="Close" (click)="closePremiumPopup()"></button>
+      <h5 class="mb-2 text-center">Unlock Premium Detailed Prediction</h5>
+      <p class="text-center text-light small mb-4">
+        Choose a plan to unlock an in-depth reading of your career, finance, relationships and destiny.
+      </p>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <div class="plan-card" [class.selected]="selectedPlan === 'one-time'" (click)="selectPlan('one-time')">
+            <div class="plan-name">One Time</div>
+            <div class="plan-price">$3.99</div>
+            <div class="plan-note">Single detailed report</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="plan-card highlight" [class.selected]="selectedPlan === 'weekly'" (click)="selectPlan('weekly')">
+            <div class="plan-badge">Popular</div>
+            <div class="plan-name">Weekly</div>
+            <div class="plan-price">$2.99</div>
+            <div class="plan-note">Unlimited premium queries for a week</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="plan-card" [class.selected]="selectedPlan === 'monthly'" (click)="selectPlan('monthly')">
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">$5.99</div>
+            <div class="plan-note">Best value for regular guidance</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="paymentError" class="alert alert-danger py-1 small mb-2">
+        {{ paymentError }}
+      </div>
+
+      <button type="button"
+              class="btn btn-light w-100"
+              [disabled]="!selectedPlan || paymentLoading"
+              (click)="confirmPremiumPurchase()">
+        {{ paymentLoading ? 'Processing payment…' : 'Continue & Pay with Card' }}
+      </button>
+
+      <p class="mt-2 text-center text-muted small">
+        Payment is securely processed. If payment fails, you will not be charged and we will show the error here.
+      </p>
+    </div>
+  </div>
+
+  <!-- Global backdrop spinner during API calls -->
+  <div *ngIf="loading || predLoading" class="overlay-backdrop" aria-busy="true" aria-live="polite">
+    <div class="overlay-content">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="mt-3 text-white-75 small">{{ longRunningNotice ? 'Generating premium detailed prediction. This may take 1–2 minutes…' : 'Please wait…' }}</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+/* Page wrapper with animated gradient */
+.upcoming-wrapper {
+  min-height: calc(100vh - 56px - 64px);
+  background:
+    radial-gradient(60% 100% at 10% 10%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(60% 100% at 90% 20%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, #6a3fd9 0%, #392f6b 60%, #1a1633 100%);
+  color: #fff;
+}
+
+.hero { text-shadow: 0 1px 0 rgba(0,0,0,.3); }
+
+.feature-card {
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+.icon { font-size: 2rem; }
+
+.badge.bg-gradient {
+  background: linear-gradient(90deg, #ff7ab6, #ffb86b);
+  color: #1a1633;
+}

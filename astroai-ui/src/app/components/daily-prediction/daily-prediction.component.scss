@@ -1,0 +1,60 @@
+/* Page wrapper with animated gradient */
+.daily-wrapper {
+  min-height: calc(100vh - 56px - 64px); /* account for navbar/footer */
+  background:
+    radial-gradient(60% 100% at 10% 10%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(60% 100% at 90% 20%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, #5a2fd6 0%, #3a1b8a 40%, #1b173a 100%);
+  color: #fff;
+  padding-bottom: 5rem; /* add gap above footer */
+}
+
+.hero {
+  text-shadow: 0 1px 0 rgba(0,0,0,.3);
+}
+
+/* Zodiac tiles */
+.zodiac-card {
+  background: rgba(255,255,255,0.09);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.zodiac-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+.symbol {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.chips {
+  display: flex;
+  gap: .5rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .5rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  opacity: .9;
+}
+.chip-career { background: rgba(88, 207, 143, .25); border: 1px solid rgba(88,207,143,.35); }
+.chip-money  { background: rgba(255, 196, 86, .25); border: 1px solid rgba(255,196,86,.35); }
+.chip-love   { background: rgba(255, 109, 122, .25); border: 1px solid rgba(255,109,122,.35); }
+
+.desc { color: rgba(255,255,255,.92); }
+
+/* Overlay spinner reused style */
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 17, 34, .6);
+  display: grid;
+  place-items: center;
+  z-index: 1050;
+}
+.overlay-content { text-align: center; }

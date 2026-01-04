@@ -1,0 +1,21 @@
+<div class="upcoming-wrapper">
+  <section class="hero text-center py-5">
+    <h1 class="display-6 fw-semibold mb-2">Upcoming Features</h1>
+    <p class="text-white-75 mb-0">We\'re crafting powerful additions to elevate your astrology journey.</p>
+  </section>
+
+  <section class="container py-3">
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-3" *ngFor="let f of features">
+        <div class="feature-card p-4 rounded-4 shadow-sm h-100">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="icon" aria-hidden="true">{{ f.icon }}</div>
+            <span class="badge bg-gradient" *ngIf="f.tag">{{ f.tag }}</span>
+          </div>
+          <h5 class="mb-2">{{ f.title }}</h5>
+          <p class="mb-0 text-white-75">{{ f.blurb }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

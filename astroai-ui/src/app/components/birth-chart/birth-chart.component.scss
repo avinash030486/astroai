@@ -1,0 +1,189 @@
+.predictions-card { max-width: 1000px; }
+.form-label { font-weight: 500; }
+.btn-lg { padding: 0.75rem 1.25rem; }
+.narrative-box {
+	background: #f8f9fa;
+	border: 1px solid #e5e7eb;
+	color: #333;
+}
+
+/* Backdrop overlay spinner */
+.overlay-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,0.35);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1060; /* above cards */
+}
+.overlay-content { text-align: center; }
+.overlay-backdrop .spinner-border { width: 3rem; height: 3rem; }
+
+.south-chart-grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: repeat(4, 120px);
+	grid-template-areas:
+		"s12 s1  s2  s3"
+		"s11 cen cen s4"
+		"s10 cen cen s5"
+		"s9  s8  s7  s6";
+	gap: 6px;
+	background: #e2b66833;
+	/* Normalize chart typography */
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	font-size: 0.95rem;
+	line-height: 1.2;
+}
+.south-chart-cell {
+	border: 2px solid #b33;
+	border-radius: 2px;
+	padding: 6px 8px;
+	background: #efc97a;
+	position: relative;
+	/* Ensure consistent font across all houses (top row included) */
+	font-size: 0.95rem;
+	font-weight: 400;
+}
+.h1 { grid-area: s1; }
+.h2 { grid-area: s2; }
+.h3 { grid-area: s3; }
+.h4 { grid-area: s4; }
+.h5 { grid-area: s5; }
+.h6 { grid-area: s6; }
+.h7 { grid-area: s7; }
+.h8 { grid-area: s8; }
+.h9 { grid-area: s9; }
+.h10 { grid-area: s10; }
+.h11 { grid-area: s11; }
+.h12 { grid-area: s12; }
+.south-chart-cell.ascendant {
+	border-color: #0d6efd;
+	box-shadow: 0 0 0 2px rgba(13,110,253,.15);
+}
+.house-number {
+	position: absolute;
+	top: 4px;
+	left: 6px;
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+.house-sign {
+	position: absolute;
+	top: 4px;
+	right: 6px;
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+.occupants {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: flex-end;
+	gap: 2px 6px;
+	position: absolute;
+	bottom: 4px;
+	left: 6px;
+	right: 6px;
+	font-size: 0.85rem;
+	line-height: 1.1;
+}
+.planet-badge {
+	background: #f0f3f7;
+	color: #333;
+	border: 1px solid #bbb;
+}
+.south-chart-center {
+	grid-area: cen;
+	background: #efc97a;
+	border: 0;
+}
+
+/* Planet color palette inspired by screenshot */
+.occupant { font-weight: 600; }
+.p-sur { color: #c51b1b; } /* Sun */
+.p-bud { color: #7a3b22; } /* Mercury */
+.p-gur { color: #6b3fa0; } /* Jupiter */
+.p-shu { color: #2f8a3d; } /* Venus */
+.p-man { color: #b11b1b; } /* Mars */
+.p-sha { color: #3a4a5a; } /* Saturn */
+.p-rahu { color: #111; } /* Rahu */
+.p-ketu { color: #7a2d2d; } /* Ketu */
+.p-cha { color: #ffffff; text-shadow: 0 0 2px rgba(0,0,0,.6); } /* Moon white text */
+.p-generic { color: #333; }
+
+/* --- Prediction controls polish --- */
+.glassy-panel {
+	background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75));
+	border: 1px solid rgba(0,0,0,0.06);
+	backdrop-filter: blur(6px);
+}
+.prediction-actions { max-width: 1000px; }
+.input-with-icon { position: relative; }
+.input-with-icon .icon {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	font-size: 1rem;
+}
+.select-modern {
+	border-radius: 12px;
+	padding-left: 2.2rem; /* space for icon */
+	border-color: #d8dee6;
+	transition: box-shadow .15s ease, border-color .15s ease;
+}
+.select-modern:focus {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 .25rem rgba(13,110,253,.15);
+}
+.btn-gradient {
+	color: #fff;
+	background: linear-gradient(90deg, #3b6aff 0%, #4275ff 50%, #3462f1 100%);
+	border: 0;
+	box-shadow: 0 8px 18px rgba(66, 117, 255, .35);
+}
+.btn-gradient:hover { filter: brightness(1.03); box-shadow: 0 10px 22px rgba(66,117,255,.4); }
+.btn-gradient:disabled { filter: grayscale(.15) brightness(.95); box-shadow: none; }
+
+/* Premium popup styles */
+.premium-backdrop{
+	position:fixed;inset:0;
+	background:rgba(0,0,0,.8);
+	display:flex;align-items:center;justify-content:center;
+	z-index:1070
+}
+.premium-modal{
+	position:relative;
+	max-width:540px;width:100%;
+	background:#020617;
+	color:#f9fafb;
+	border-radius:1.25rem;
+	padding:1.5rem;
+	box-shadow:0 16px 35px rgba(0,0,0,.7);
+	border:1px solid rgba(148,163,184,.4)
+}
+.premium-close{position:absolute;top:.75rem;right:.75rem}
+.plan-card{
+	background:#020617;
+	border-radius:.85rem;
+	padding:.75rem .8rem;
+	border:1px solid rgba(148,163,184,.4);
+	cursor:pointer;
+	transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease
+}
+.plan-card:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.7)}
+.plan-card.selected{border-color:#fbbf24;box-shadow:0 0 0 1px rgba(251,191,36,.5)}
+.plan-card.highlight{position:relative;border-color:#38bdf8}
+.plan-badge{
+	position:absolute;top:-.55rem;right:.75rem;
+	background:#fbbf24;color:#111827;
+	font-size:.65rem;font-weight:700;
+	padding:.12rem .4rem;
+	border-radius:999px
+}
+.plan-name{font-weight:600;margin-bottom:.05rem}
+.plan-price{font-size:1.2rem;font-weight:700;color:#fbbf24;margin-bottom:.05rem}
+.plan-note{font-size:.7rem;color:#e5e7eb}

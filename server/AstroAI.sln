@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstroAI.Api", "AstroAI.Api\AstroAI.Api.csproj", "{1053542D-D547-4799-8695-5354AD2B8207}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstroAI.Core", "AstroAI.Core\AstroAI.Core.csproj", "{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AstroAI.Infrastructure", "AstroAI.Infrastructure\AstroAI.Infrastructure.csproj", "{09531B28-4379-432B-8F48-BD5FEF85D9BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|x64.Build.0 = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Debug|x86.Build.0 = Debug|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|x64.ActiveCfg = Release|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|x64.Build.0 = Release|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|x86.ActiveCfg = Release|Any CPU
+		{1053542D-D547-4799-8695-5354AD2B8207}.Release|x86.Build.0 = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|x64.Build.0 = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Debug|x86.Build.0 = Debug|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|x64.ActiveCfg = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|x64.Build.0 = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|x86.ActiveCfg = Release|Any CPU
+		{D4146C1B-FE36-4D04-9002-3C27B3FB80F9}.Release|x86.Build.0 = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|x64.Build.0 = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Debug|x86.Build.0 = Debug|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|x64.ActiveCfg = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|x64.Build.0 = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|x86.ActiveCfg = Release|Any CPU
+		{09531B28-4379-432B-8F48-BD5FEF85D9BB}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

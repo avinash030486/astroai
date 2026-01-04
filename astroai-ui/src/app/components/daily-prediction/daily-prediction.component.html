@@ -1,0 +1,44 @@
+<div class="daily-wrapper">
+  <section class="hero text-center py-5">
+    <h1 class="display-6 fw-semibold mb-2">Daily Horoscope - (Based on Moon Sign)</h1>
+    <p class="text-white-75 mb-0">Personalized insights for all zodiac signs • Updated daily</p>
+    <div class="date-row text-white-50 mt-1" *ngIf="dateUtc">Based on UTC date: {{ dateUtc | date:'yyyy-MM-dd' }}</div>
+    <div class="mt-3">
+      <button class="btn btn-outline-light btn-sm" (click)="refresh()" [disabled]="loading">Refresh</button>
+    </div>
+  </section>
+
+  <div *ngIf="error" class="container">
+    <div class="alert alert-danger">{{ error }}</div>
+  </div>
+
+  <section class="container">
+    <div class="row g-4">
+      <div class="col-12 col-sm-6 col-lg-4" *ngFor="let t of tiles">
+        <div class="zodiac-card p-4 rounded-4 shadow-sm">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="symbol" aria-hidden="true">{{ t.symbol }}</div>
+            <h5 class="mb-0">{{ t.sign }}</h5>
+          </div>
+          <div class="chips mb-2">
+            <span class="chip chip-career">💼 Career</span>
+            <span class="chip chip-money">💰 Money</span>
+            <span class="chip chip-love">❤️ Love</span>
+          </div>
+          <div class="desc">
+            <p class="mb-2"><strong>Career:</strong> {{ t.career }}</p>
+            <p class="mb-2"><strong>Money:</strong> {{ t.money }}</p>
+            <p class="mb-0"><strong>Love:</strong> {{ t.love }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="loading" class="overlay-backdrop" aria-busy="true" aria-live="polite">
+    <div class="overlay-content">
+      <div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="mt-3 text-white-75 small">Fetching today\'s horoscopes…</div>
+    </div>
+  </div>
+</div>

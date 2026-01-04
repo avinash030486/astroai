@@ -1,0 +1,39 @@
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<header>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+		<a class="navbar-brand d-flex align-items-center" routerLink="/">
+			<span class="me-2">⭐</span>
+			<span class="brand-text">AstroAI</span>
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div id="mainNav" class="collapse navbar-collapse">
+			<ul class="navbar-nav ms-auto">
+				<li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/daily-horoscope">Daily Horoscope</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/daily-panchang">Panchang</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/birth-chart">Vedic Astrology</a></li>
+				<!-- <li class="nav-item"><a class="nav-link" href="#western">Western Astrology</a></li> -->
+				<li class="nav-item"><a class="nav-link" routerLink="/upcoming">Upcoming</a></li>
+			</ul>
+		</div>
+	</nav>
+</header>
+
+<main id="main-content">
+	<router-outlet></router-outlet>
+</main>
+
+<footer class="footer text-muted">
+		<div class="container py-3 d-flex justify-content-between align-items-center">
+			<small>© {{ year }} AstroAI. All rights reserved.</small>
+		<div class="d-none d-sm-flex gap-3">
+			<a class="text-muted" href="#privacy">Privacy</a>
+			<a class="text-muted" href="#terms">Terms</a>
+			<a class="text-muted" href="#contact">Contact</a>
+		</div>
+	</div>
+</footer>

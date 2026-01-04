@@ -1,0 +1,13 @@
+namespace AstroAI.Core.Services;
+
+public interface IGptAstrologyService
+{
+    Task<string> GenerateNatalReadingAsync(string fullName, DateOnly birthDate, TimeOnly birthTime, string birthPlace, string focusArea, CancellationToken ct);
+    Task<string> GenerateHoroscopeAsync(string zodiacSign, string period, CancellationToken ct);
+    Task<BasicChartPredictionResponse> GenerateBasicChartPredictionAsync(BasicChartPredictionRequest chart, DashaStatus dasha, int ageYears, CancellationToken ct);
+    Task<DetailedChartPredictionResponse> GenerateDetailedPredictionAsync(BasicChartPredictionRequest chart, DashaStatus dasha, int ageYears, CancellationToken ct);
+    Task<DailyPredictionsResponse> GetDailyPredictionsAsync(CancellationToken ct);
+    Task<DailyPanchangResponse> GetDailyPanchangAsync(string location, DateTime? dateUtc, CancellationToken ct);
+
+    Task<AskQuestionResponse> AnswerQuestionAsync(AskQuestionPayload payload, CancellationToken ct);
+}

@@ -1,0 +1,59 @@
+/* Background and structure */
+.panchang-wrapper {
+  min-height: calc(100vh - 56px - 64px);
+  background:
+    radial-gradient(60% 100% at 10% 10%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 60%),
+    radial-gradient(60% 100% at 90% 20%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, #5a2fd6 0%, #3a1b8a 40%, #1b173a 100%);
+  color: #fff;
+  padding-bottom: 5rem;
+}
+
+.hero { text-shadow: 0 1px 0 rgba(0,0,0,.3); }
+.hero p { max-width: 760px; margin-left: auto; margin-right: auto; }
+
+/* Narrow, centered container to prevent overly wide layouts on large screens */
+.container-narrow { max-width: 980px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+
+/* Glass card */
+.glass {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #6ee7b7, #93c5fd);
+  color: #111827;
+  border: none;
+}
+.btn-gradient:focus { outline: 3px solid #ffffff; outline-offset: 2px; }
+
+.tile {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.coords { color: rgba(255,255,255,.85); }
+
+/* High-contrast helper text for accessibility */
+.assist { color: #e8edf8; font-size: .9rem; }
+.glass .form-label { color: #ffffff; }
+.glass .form-text { color: #e8edf8 !important; }
+
+/* Overlay */
+.overlay-backdrop {
+  position: fixed; inset: 0; display: grid; place-items: center; z-index: 1050;
+  background: rgba(18, 17, 34, .6);
+}
+.overlay-content { text-align: center; }
+
+/* ADA helpers */
+.form-label { font-weight: 600; }
+input.form-control:focus { box-shadow: 0 0 0 0.25rem rgba(147,197,253,.35); }
+
+/* Warm theme for result card similar to sample screenshot */
+.warm { background: rgba(255,255,255,0.10); }
+.accent-date { color: #a7f3d0; font-weight: 600; }
+.kv-item .key { text-decoration: underline; }
+.kv-item .val { color: #ffd7d7; }

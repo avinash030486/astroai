@@ -1,0 +1,51 @@
+.hero {
+	min-height: calc(100vh - 56px);
+	color: #fff;
+	position: relative;
+	overflow: hidden;
+	background: linear-gradient(135deg, #6f42c1 0%, #563d7c 50%, #392f6b 100%);
+}
+
+/* dotted pattern overlay */
+.hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px);
+	background-size: 28px 28px;
+	pointer-events: none;
+}
+
+/* moon shape on right */
+.hero::after {
+	content: "";
+	position: absolute;
+	right: 10%;
+	top: 38%;
+	width: 280px;
+	height: 280px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.18), rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.06) 70%, transparent 75%);
+	filter: blur(0.5px);
+}
+
+.lead { opacity: 0.9; }
+
+/* synopsis glass panel */
+.synopsis {
+	background: rgba(255,255,255,0.08);
+	border: 1px solid rgba(255,255,255,0.18);
+	backdrop-filter: blur(10px);
+	box-shadow: 0 8px 24px rgba(0,0,0,.25);
+	color: #fff;
+	font-size: 1.05rem;
+	line-height: 1.5;
+}
+@media (max-width: 576px) {
+	.synopsis { font-size: 0.975rem; }
+}
+
+/* responsive spacing */
+@media (max-width: 992px) {
+	.hero { min-height: auto; padding: 3rem 0; }
+}

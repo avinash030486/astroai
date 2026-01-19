@@ -1,6 +1,8 @@
 using AstroAI.Core.Services;
 using AstroAI.Core.Configuration;
 using AstroAI.Infrastructure.Services;
+using Microsoft.Azure.Cosmos;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,22 @@ builder.Services.AddSwaggerGen();
 
 // Bind AstroAI settings from configuration
 builder.Services.Configure<AstroAiSettings>(builder.Configuration.GetSection("AstroAI"));
+
+// Stripe configuration (keys stored in appsettings or environment; dummy values can be replaced)
+var stripeSection = builder.Configuration.GetSection("Stripe");
+var stripeSecret = stripeSection.GetValue<string>("SecretKey");
+if (!string.IsNullOrWhiteSpace(stripeSecret))
+{
+    StripeConfiguration.ApiKey = stripeSecret;
+}
+
+// Cosmos DB client
+var cosmosSection = builder.Configuration.GetSection("Cosmos");
+var cosmosConn = cosmosSection.GetValue<string>("ConnectionString");
+if (!string.IsNullOrWhiteSpace(cosmosConn))
+{
+    builder.Services.AddSingleton(new CosmosClient(cosmosConn));
+}
 
 // CORS: allow Angular dev server
 builder.Services.AddCors(options =>

@@ -1,18 +1,20 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse } from '../../services/horoscope.service';
 import { PredictionsService, BasicChartPredictionResponse, DetailedChartPredictionResponse } from '../../services/predictions.service';
-import { PaymentService, PaymentRequest } from '../../services/payment.service';
+import { PaymentService, PaymentRequest, PaymentResult } from '../../services/payment.service';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+
+declare const Stripe: any;
 
 @Component({
   selector: 'app-birth-chart',
   templateUrl: './birth-chart.component.html',
   styleUrls: ['./birth-chart.component.scss']
 })
-export class BirthChartComponent implements OnInit {
+export class BirthChartComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
@@ -53,11 +55,29 @@ export class BirthChartComponent implements OnInit {
   selectedPlan: PaymentRequest['plan'] | null = null;
   paymentLoading = false;
   paymentError = '';
+  paymentName = '';
+  paymentEmail = '';
+  cardError = '';
+
+  private stripe: any;
+  private cardElement: any;
 
   ngOnInit(): void {
     const usedRaw = sessionStorage.getItem('astroai_ask_used');
     this.usedAskQuestions = usedRaw ? Number(usedRaw) || 0 : 0;
     this.remainingFreeQuestions = Math.max(this.maxFreeQuestions - this.usedAskQuestions, 0);
+
+    if (typeof Stripe !== 'undefined') {
+      // TODO: replace with your real publishable key; keep test key in non-production environments only
+      this.stripe = Stripe('pk_test_51SkYaqLSgAsqBjx5YNHemyMVHXOg4SAoUId1QK48KnOVNYTit8OViLsTmGkkho9cEogLX0Xqsn9kc7AzP1CuNIph00CTpeel3M');
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.cardElement) {
+      this.cardElement.unmount();
+      this.cardElement = null;
+    }
   }
 
   generateBirthChart(): void {
@@ -135,47 +155,335 @@ export class BirthChartComponent implements OnInit {
   }
 
   async downloadDetailedPdf(): Promise<void> {
-    if (!this.detailedPredSection) return;
-    const element = this.detailedPredSection.nativeElement;
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth - 20; // 10mm margin each side
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    
-    let y = 10;
-    if (imgHeight < pageHeight - 20) {
-      pdf.addImage(imgData, 'PNG', 10, y, imgWidth, imgHeight);
-    } else {
-      // Split into pages
-      let remainingHeight = imgHeight;
-      let position = 10;
-      const pageImgHeight = pageHeight - 20;
-      const ratio = imgWidth / canvas.width;
-      const sliceHeight = (pageImgHeight / ratio);
-    
-      const ctxCanvas = document.createElement('canvas');
-      ctxCanvas.width = canvas.width;
-      ctxCanvas.height = sliceHeight;
-      const ctx = ctxCanvas.getContext('2d');
-      if (!ctx) return;
-      let sY = 0;
-      while (remainingHeight > 0) {
-        ctx.clearRect(0,0,ctxCanvas.width, ctxCanvas.height);
-        ctx.drawImage(canvas, 0, sY, canvas.width, sliceHeight, 0, 0, ctxCanvas.width, ctxCanvas.height);
-        const sliceData = ctxCanvas.toDataURL('image/png');
-        pdf.addImage(sliceData, 'PNG', 10, position, imgWidth, pageImgHeight);
-        remainingHeight -= pageImgHeight;
-        sY += sliceHeight;
-        if (remainingHeight > 0) {
-          pdf.addPage();
-          position = 10;
+    if (!this.detailedPred) {
+      return;
+    }
+
+    try {
+      // Load the template PDF from assets
+      const templateUrl = 'assets/VedicAstro.pdf';
+      const existingPdfBytes = await fetch(templateUrl).then(res => {
+        if (!res.ok) throw new Error('Template PDF not found');
+        return res.arrayBuffer();
+      });
+
+      // Load the PDF template
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pages = pdfDoc.getPages();
+      
+      // Embed fonts
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+      // Define colors
+      const goldColor = rgb(0.937, 0.749, 0.416); // #efbf6a
+      const lightTextColor = rgb(0.961, 0.961, 0.961); // #f5f5f5
+      const grayTextColor = rgb(0.7, 0.7, 0.7);
+
+      // Page 1: Cover Page - populate data
+      if (pages.length > 0) {
+        const page1 = pages[0];
+        const { width, height } = page1.getSize();
+        
+        // Name - display after "Premium Detailed Prediction for" (from payment popup)
+        const userName = this.paymentName || '';
+        if (userName) {
+          const nameY = height - 357;
+          const sanitizedName = this.sanitizeForPdf(userName.trim());
+          page1.drawText(sanitizedName, {
+            x: 119,
+            y: nameY,
+            size: 11,
+            font: font,
+            color: lightTextColor
+          });
+        }
+        
+        // Age value - positioned to align with the reference (Age: 39 on same line with label)
+        const ageY = height - 375;
+        page1.drawText(this.detailedPred.ageYears.toString(), {
+          x: 143,
+          y: ageY,
+          size: 11,
+          font: font,
+          color: lightTextColor
+        });
+
+        // Ascendant - left side below Age label
+        let ascY = height - 435;
+        const ascText = this.sanitizeForPdf(this.normalizeText(this.detailedPred.ascendantSummary || ''));
+        const ascLines = this.wrapText(ascText, 112);
+        for (let i = 0; i < Math.min(ascLines.length, 4); i++) {
+          const safeLine = this.sanitizeForPdf(ascLines[i]);
+          page1.drawText(safeLine, {
+            x: 105,
+            y: ascY,
+            size: 11,
+            font: font,
+            color: lightTextColor
+          });
+          ascY -= 10;
+        }
+
+        // Current Dasha - center area, aligned with the reference
+        const dashaY = height - 368;
+        const dashaText = this.sanitizeForPdf(this.normalizeText(this.detailedPred.currentDasha || ''));
+        page1.drawText(dashaText, {
+          x: 525,
+          y: dashaY,
+          size: 11,
+          font: font,
+          color: lightTextColor
+        });
+
+        // Current Antardasha - below Dasha, aligned with the reference
+        const antarY = height - 415;
+        const antarText = this.sanitizeForPdf(this.normalizeText(this.detailedPred.currentAntarDasha || ''));
+        page1.drawText(antarText, {
+          x: 525,
+          y: antarY,
+          size: 11,
+          font: font,
+          color: lightTextColor
+        });
+      }
+
+      // Page 2: Career
+      if (pages.length > 1) {
+        this.populateContentPage(pages[1], this.detailedPred.career, font, lightTextColor);
+      }
+
+      // Page 3: Finance
+      if (pages.length > 2) {
+        this.populateContentPage(pages[2], this.detailedPred.finance, font, lightTextColor);
+      }
+
+      // Page 4: Relationships
+      if (pages.length > 3) {
+        this.populateContentPage(pages[3], this.detailedPred.relationships, font, lightTextColor);
+      }
+
+      // Page 5: Destiny
+      if (pages.length > 4) {
+        this.populateContentPage(pages[4], this.detailedPred.destiny, font, lightTextColor);
+      }
+
+      // Page 6: Job Window
+      if (pages.length > 5) {
+        this.populateContentPage(pages[5], this.detailedPred.jobWindow, font, lightTextColor);
+      }
+
+      // Page 7: Marriage Window
+      if (pages.length > 6) {
+        this.populateContentPage(pages[6], this.detailedPred.marriageWindow, font, lightTextColor);
+      }
+
+      // Page 8: Good Yogas and Challenging Yogas (two columns)
+      if (pages.length > 7) {
+        const page8 = pages[7];
+        const { width, height } = page8.getSize();
+        let leftY = height - 250; // Start position
+        let rightY = height - 250;
+        const leftMargin = 155; // Push even more right to perfectly center in left half
+        const rightMargin = width / 2 + 40;
+        const leftColumnWidth = (width / 2) - 175; // Adjust for new margin
+        const rightColumnWidth = (width / 2) - 80;
+
+        // Good Yogas (left column)
+        if (this.detailedPred.goodYogas && this.detailedPred.goodYogas.length > 0) {
+          for (const yoga of this.detailedPred.goodYogas) {
+            if (leftY < 80) break;
+            const normalizedYoga = this.normalizeText(yoga);
+            const yogaLines = this.wrapText(`* ${normalizedYoga}`, Math.floor(leftColumnWidth / 4.5));
+            for (const line of yogaLines) {
+              const safeLine = this.sanitizeForPdf(line);
+              try {
+                page8.drawText(safeLine, {
+                  x: leftMargin,
+                  y: leftY,
+                  size: 9,
+                  font: font,
+                  color: lightTextColor
+                });
+              } catch (e) {
+                console.error('Error drawing yoga line:', e);
+              }
+              leftY -= 14;
+            }
+            leftY -= 8;
+          }
+        }
+
+        // Challenging Yogas (right column)
+        if (this.detailedPred.badYogas && this.detailedPred.badYogas.length > 0) {
+          for (const yoga of this.detailedPred.badYogas) {
+            if (rightY < 80) break;
+            const normalizedYoga = this.normalizeText(yoga);
+            const yogaLines = this.wrapText(`* ${normalizedYoga}`, Math.floor(rightColumnWidth / 5.3));
+            for (const line of yogaLines) {
+              const safeLine = this.sanitizeForPdf(line);
+              try {
+                page8.drawText(safeLine, {
+                  x: rightMargin,
+                  y: rightY,
+                  size: 9,
+                  font: font,
+                  color: lightTextColor
+                });
+              } catch (e) {
+                console.error('Error drawing yoga line:', e);
+              }
+              rightY -= 14;
+            }
+            rightY -= 8;
+          }
         }
       }
+
+      // Page 9: Suggested Remedies
+      if (pages.length > 8) {
+        const page9 = pages[8];
+        const { width, height } = page9.getSize();
+        let y = height - 260;
+        const margin = 40;
+        const contentWidth = width - (margin * 2);
+
+        if (this.detailedPred.remedies && this.detailedPred.remedies.length > 0) {
+          for (const remedy of this.detailedPred.remedies) {
+            if (y < 60) break;
+            const normalizedRemedy = this.normalizeText(remedy);
+            const remedyLines = this.wrapText(`* ${normalizedRemedy}`, Math.floor(contentWidth / 6.5));
+            for (const line of remedyLines) {
+              const safeLine = this.sanitizeForPdf(line);
+              // Center align each line
+              const lineWidth = font.widthOfTextAtSize(safeLine, 11);
+              const x = (width - lineWidth) / 2;
+              
+              page9.drawText(safeLine, {
+                x: x,
+                y: y,
+                size: 11,
+                font: font,
+                color: lightTextColor
+              });
+              y -= 14;
+            }
+            y -= 5;
+          }
+        }
+      }
+
+      // Save and download
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes as any], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'VedicAstro_Detailed_Prediction.pdf';
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      this.error = 'Failed to generate PDF. Please ensure the template file exists in assets folder.';
     }
-    pdf.save('AstroAI_Detailed_Prediction.pdf');
+  }
+
+  private populateContentPage(page: any, content: string, font: any, color: any): void {
+    const { width, height } = page.getSize();
+    let y = height - 280; // Start below the title with more space
+    const margin = 40; // More margin from sides
+    const contentWidth = width - (margin * 2);
+    
+    // Normalize and split text properly
+    const normalizedContent = this.normalizeText(content || '');
+    const lines = this.wrapText(normalizedContent, Math.floor(contentWidth / 6.5));
+    
+    for (const line of lines) {
+      if (y < 60) break; // Stop if we reach bottom of page
+      
+      // Additional safety: ensure no special chars remain
+      const safeLine = this.sanitizeForPdf(line);
+      
+      // Center align each line
+      try {
+        const lineWidth = font.widthOfTextAtSize(safeLine, 11);
+        const x = (width - lineWidth) / 2;
+        
+        page.drawText(safeLine, {
+          x: x,
+          y: y,
+          size: 11,
+          font: font,
+          color: color
+        });
+      } catch (e) {
+        console.error('Error drawing line:', e, 'Line:', safeLine);
+        // Skip this line if it fails
+      }
+      
+      y -= 16; // More line spacing
+    }
+  }
+
+  private normalizeText(text: string): string {
+    if (!text) return '';
+    
+    // Replace special Unicode characters with ASCII equivalents
+    return text
+      // Remove all line breaks and carriage returns first
+      .replace(/[\r\n\t]/g, ' ')
+      .replace(/[\u2011\u2012\u2013\u2014\u2015]/g, '-') // Various dashes and hyphens
+      .replace(/[\u2018\u2019]/g, "'") // Smart single quotes
+      .replace(/[\u201C\u201D]/g, '"') // Smart double quotes
+      .replace(/[\u2026]/g, '...') // Ellipsis
+      .replace(/[\u00A0]/g, ' ') // Non-breaking space
+      .replace(/[\u2022]/g, '*') // Bullet point
+      // Remove any remaining non-ASCII characters
+      .replace(/[^\x20-\x7E]/g, '')
+      // Normalize multiple spaces to single space
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private sanitizeForPdf(text: string): string {
+    if (!text) return '';
+    
+    // Final sanitization before drawing to PDF
+    // Keep only printable ASCII characters (space to tilde: 0x20-0x7E)
+    return text
+      .split('')
+      .filter(char => {
+        const code = char.charCodeAt(0);
+        return code >= 32 && code <= 126;
+      })
+      .join('')
+      .trim();
+  }
+
+  private wrapText(text: string, maxChars: number): string[] {
+    if (!text) return [];
+    
+    // Text should already be normalized (single line, no special chars)
+    const words = text.split(' ').filter(w => w.length > 0);
+    const lines: string[] = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine ? currentLine + ' ' + word : word;
+      if (testLine.length > maxChars && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    }
+    
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+    
+    return lines;
   }
 
   // Planet short names mapping for display
@@ -274,11 +582,40 @@ export class BirthChartComponent implements OnInit {
     this.showPremiumPopup = true;
     this.selectedPlan = 'weekly'; // default suggested plan
     this.paymentError = '';
+    this.cardError = '';
+
+    // Mount Stripe card element after the popup is rendered
+    setTimeout(() => this.mountCardElement(), 0);
   }
 
   closePremiumPopup(): void {
     if (this.paymentLoading) { return; }
     this.showPremiumPopup = false;
+  }
+
+  private mountCardElement(): void {
+    if (!this.stripe || this.cardElement) { return; }
+
+    const elements = this.stripe.elements();
+    this.cardElement = elements.create('card', {
+      style: {
+        base: {
+          color: '#e5e7eb',
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          '::placeholder': {
+            color: '#6b7280'
+          }
+        },
+        invalid: {
+          color: '#f97373'
+        }
+      }
+    });
+
+    this.cardElement.mount('#card-element');
+    this.cardElement.on('change', (event: any) => {
+      this.cardError = event.error?.message ?? '';
+    });
   }
 
   selectPlan(plan: PaymentRequest['plan']): void {
@@ -295,21 +632,60 @@ export class BirthChartComponent implements OnInit {
     }
   }
 
-  confirmPremiumPurchase(): void {
+  async confirmPremiumPurchase(): Promise<void> {
     if (!this.selectedPlan || !this.chart || this.paymentLoading) { return; }
-    const amount = this.getPlanAmount(this.selectedPlan);
+    const name = (this.paymentName || '').trim();
+    const email = (this.paymentEmail || '').trim();
+    if (!name || !email) {
+      this.paymentError = 'Please enter your name and email before continuing.';
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      this.paymentError = 'Please enter a valid email address.';
+      return;
+    }
+    if (!this.stripe || !this.cardElement) {
+      this.paymentError = 'Payment form is not ready. Please reload the page and try again.';
+      return;
+    }
+  const amount = this.getPlanAmount(this.selectedPlan);
     if (!amount) { return; }
+    this.paymentLoading = true;
+    this.paymentError = '';
+    this.cardError = '';
+
+    // 1) Ask Stripe.js to create a PaymentMethod from the card details
+    const { error, paymentMethod } = await this.stripe.createPaymentMethod({
+      type: 'card',
+      card: this.cardElement,
+      billing_details: { name, email }
+    });
+
+    if (error || !paymentMethod) {
+      this.paymentLoading = false;
+      this.cardError = error?.message || 'Unable to process card details. Please check the card information and try again.';
+      return;
+    }
+
+    const v = this.form.value;
+    const dob = (v.birthDate || '').toString();
+    const tob = (v.birthTime || '').toString();
+    const pob = (v.birthPlace || '').toString();
 
     const req: PaymentRequest = {
       plan: this.selectedPlan,
-      amountUsd: amount
+      amountUsd: amount,
+      name,
+      email,
+      paymentMethodId: paymentMethod.id,
+      dateOfBirth: dob,
+      timeOfBirth: tob,
+      placeOfBirth: pob
     };
 
-    this.paymentLoading = true;
-    this.paymentError = '';
-
+    // 2) Call backend to charge
     this.payments.charge(req).subscribe({
-      next: res => {
+      next: (res: PaymentResult) => {
         this.paymentLoading = false;
         if (!res.success) {
           this.paymentError = res.error || 'Payment failed. Please try another card or plan.';

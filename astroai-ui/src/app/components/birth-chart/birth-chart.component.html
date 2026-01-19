@@ -251,6 +251,21 @@
         {{ paymentError }}
       </div>
 
+      <div class="mb-2">
+        <label class="form-label text-light small mb-1">Name</label>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="paymentName" placeholder="Your full name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label text-light small mb-1">Email</label>
+        <input type="email" class="form-control form-control-sm" [(ngModel)]="paymentEmail" placeholder="you@example.com">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light small mb-1">Card details</label>
+        <div id="card-element" class="stripe-card-element"></div>
+        <div class="text-danger small mt-1" *ngIf="cardError">{{ cardError }}</div>
+      </div>
+
       <button type="button"
               class="btn btn-light w-100"
               [disabled]="!selectedPlan || paymentLoading"

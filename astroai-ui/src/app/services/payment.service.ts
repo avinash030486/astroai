@@ -6,6 +6,12 @@ import { environment } from 'src/environments/environment';
 export interface PaymentRequest {
   plan: 'one-time' | 'weekly' | 'monthly';
   amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+  dateOfBirth: string;
+  timeOfBirth: string;
+  placeOfBirth: string;
 }
 
 export interface PaymentResult {

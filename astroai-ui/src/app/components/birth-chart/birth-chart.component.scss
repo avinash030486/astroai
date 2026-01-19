@@ -165,6 +165,13 @@
 	box-shadow:0 16px 35px rgba(0,0,0,.7);
 	border:1px solid rgba(148,163,184,.4)
 }
+
+.stripe-card-element {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background-color: rgba(15, 23, 42, 0.9);
+}
 .premium-close{position:absolute;top:.75rem;right:.75rem}
 .plan-card{
 	background:#020617;

@@ -1,0 +1,142 @@
+<div class="landing-wrapper">
+  <div class="mandala-bg"></div>
+  
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="stars"></div>
+    <div class="firefly" *ngFor="let i of fireflies"></div>
+    
+    <div class="hero-content">
+      <img src="assets/vedicastro-logo.png" alt="Vedic Astro Logo" class="logo">
+      <h1>Listen to what the universe is telling you</h1>
+      <p>Turn movement of the Navagrahas into daily astrology insights you can actually use.</p>
+      <button class="cta-button" (click)="startJourney()">Start Your Journey</button>
+      <div class="sign-in-text">Already have an account? <a href="#" (click)="navigateToSignIn(); $event.preventDefault()">Sign in</a></div>
+      <div class="trust-line">
+        Panchang built on classical knowledge encoded in the vedas. Calculated using real planetary data.
+      </div>
+      <div class="om-symbol">ॐ</div>
+    </div>
+  </section>
+
+  <!-- SECTION 1 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-ornament">✦</div>
+      <h2>You feel it, but you can't explain it.</h2>
+      
+      <div class="problem-list">
+        <p>You work hard, yet progress feels delayed.</p>
+        <p>Relationships repeat the same patterns.</p>
+        <p>Some years flow, while others feel heavy for no clear reason.</p>
+        <p>Advice from others sounds right, but doesn't land.</p>
+      </div>
+      
+      <div class="wisdom-text">
+        This isn't bad luck. <strong>When the planets shift, life shifts with them; whether we are aware of it or not.</strong> They offer us glimpses of what is coming next.
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-ornament">☸</div>
+      <h2>Vedic Astro translates timing into understanding.</h2>
+      <img src="assets/ganesh.png" alt="Lord Ganesha" class="ganesha-image" onerror="this.style.display='none'">
+      
+      <div class="wisdom-text">
+        Using your date of birth, time of birth, and place of birth, we calculate:
+      </div>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>🔆 Your Lagna</h3>
+          <p>Your Ascendant and foundational chart structure</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌙 Planetary Placements</h3>
+          <p>Exact positions of all nine grahas</p>
+        </div>
+        <div class="feature-card">
+          <h3>⏳ Active Dashas</h3>
+          <p>Current Mahadasha and Antardasha periods</p>
+        </div>
+        <div class="feature-card">
+          <h3>✨ Yogas</h3>
+          <p>Benefic and challenging planetary combinations</p>
+        </div>
+      </div>
+      
+      <div class="wisdom-text">
+        From this, we don't tell you what to do. We show you what phase you are in, what is being tested, what is opening slowly, and what is not meant to be rushed.
+      </div>
+      
+      <div style="text-align: center; margin-top: 3rem;">
+        <button class="cta-button" (click)="getPersonalizedReading()">Get Personalized Reading</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="section">
+    <div class="container">
+      <div class="section-ornament">🪷</div>
+      <h2>What you receive is a clear, structured life reading — not vague predictions.</h2>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>🔹 Current Life Phase</h3>
+          <p>Understand which planetary period you are running and why life feels the way it does right now.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3>🔹 Career & Finance Timing</h3>
+          <p>When to push. When to consolidate. When patience is wisdom, not weakness.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3>🔹 Relationships & Marriage Windows</h3>
+          <p>Why things delay. Why certain connections feel karmic. When stability becomes possible.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3>🔹 Destiny & Long-Term Direction</h3>
+          <p>Your deeper role, beyond job titles and social pressure.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3>🔹 Good & Challenging Yogas</h3>
+          <p>Strengths you can rely on. Patterns you must handle with discipline.</p>
+        </div>
+        
+        <div class="feature-card">
+          <h3>🔹 Simple, Traditional Remedies</h3>
+          <p>No superstition. No expensive rituals. Only grounded practices aligned with Indian tradition.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section class="section">
+    <div class="container">
+      <div class="beliefs-box">
+        <h3>Vedic Astro respects your intelligence.</h3>
+        <p>For those who grew up hearing astrology but want logic and structure. Who believe in karma, but also believe in effort. Who are tired of dramatic predictions and daily fear-based content.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL SECTION -->
+  <section class="final-section">
+    <div class="container">
+      <div class="lotus-divider">🪷</div>
+      <h2>Reveal the patterns of time, so you can move with them, not against them.</h2>
+      <p>It shows you what is coming, so you can take informed action to navigate it.</p>
+      <p>Enter your birth details and location to receive a deeply Indian, classically grounded reading — designed to help you listen to the universe without noise.</p>
+      
+      <button class="cta-button" (click)="getPersonalizedReading()">Get Vedic Astro Reading</button>
+    </div>
+  </section>
+</div>

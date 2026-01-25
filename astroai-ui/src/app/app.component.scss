@@ -1,7 +1,36 @@
 header { position: sticky; top: 0; z-index: 1030; }
 .brand-text { font-weight: 600; }
 
-main { min-height: calc(100vh - 56px - 60px); }
+.navbar-logo {
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+  max-width: 300px;
+}
+
+/* Responsive logo sizing */
+@media (max-width: 768px) {
+  .navbar-logo {
+    height: 60px;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-logo {
+    height: 45px;
+  }
+}
+
+main { 
+  min-height: calc(100vh - 56px - 60px); 
+}
+
+// Remove padding/margin for landing page
+main:has(app-landing) {
+  min-height: auto;
+  padding: 0;
+  margin: 0;
+}
 
 .footer { background: #0f0f10; }
 .footer a { text-decoration: none; }

@@ -19,6 +19,9 @@ namespace AstroAI.Api.Models
         public string timeOfBirth { get; set; } = string.Empty;
         public string placeOfBirth { get; set; } = string.Empty;
 
+        // Store the generated horoscope chart data
+        public object? horoscope { get; set; }
+
         public DateTime createdUtc { get; set; } = DateTime.UtcNow;
     }
 }

@@ -6,9 +6,11 @@ import { BirthChartComponent } from './components/birth-chart/birth-chart.compon
 import { UpcomingFeaturesComponent } from './components/upcoming-features/upcoming-features.component';
 import { DailyPredictionComponent } from './components/daily-prediction/daily-prediction.component';
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
+import { LandingComponent } from './components/landing/landing.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', component: LandingComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'horoscope', component: HoroscopeComponent },
   { path: 'daily-horoscope', component: DailyPredictionComponent },
   { path: 'daily-panchang', component: DailyPanchangComponent },

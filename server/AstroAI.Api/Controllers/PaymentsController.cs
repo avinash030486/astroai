@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AstroAI.Api.Models;
+using AstroAI.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Stripe;
@@ -25,11 +28,13 @@ namespace AstroAI.Api.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly Container _subscriptions;
+        private readonly IKpHoroscopeService _kpHoroscope;
 
-        public PaymentsController(CosmosClient cosmosClient)
+        public PaymentsController(CosmosClient cosmosClient, IKpHoroscopeService kpHoroscope)
         {
             // database: vedicastro, container: vedicastroai
             _subscriptions = cosmosClient.GetContainer("vedicastro", "vedicastroai");
+            _kpHoroscope = kpHoroscope;
         }
 
         private static string MapPlanToCode(string plan) =>
@@ -96,14 +101,53 @@ namespace AstroAI.Api.Controllers
 
                 if (intent.Status == "succeeded")
                 {
+                    // Generate horoscope for the subscriber
+                    SouthIndianChart? horoscopeChart = null;
+                    try
+                    {
+                        // Parse place of birth to extract city, state, country
+                        var placeParts = request.PlaceOfBirth.Split(',')
+                            .Select(p => p.Trim())
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .ToArray();
+
+                        var city = placeParts.Length > 0 ? placeParts[0] : string.Empty;
+                        var state = placeParts.Length > 1 ? placeParts[1] : string.Empty;
+                        var country = placeParts.Length > 2 ? placeParts[2] : "India"; // Default to India
+
+                        // Parse birth date and time
+                        if (DateTime.TryParse(request.DateOfBirth, out var birthDate) &&
+                            TimeSpan.TryParse(request.TimeOfBirth, out var birthTime))
+                        {
+                            var birthChartRequest = new BirthChartRequest(
+                                City: city,
+                                State: state,
+                                Country: country,
+                                BirthDate: new DateOnly(birthDate.Year, birthDate.Month, birthDate.Day),
+                                BirthTime: new TimeOnly(birthTime.Hours, birthTime.Minutes, birthTime.Seconds),
+                                Latitude: null,
+                                Longitude: null,
+                                TimeZoneId: null
+                            );
+
+                            horoscopeChart = await _kpHoroscope.GenerateSouthIndianChartAsync(birthChartRequest, ct);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log the error but don't fail the payment - horoscope will be null
+                        Console.WriteLine($"Warning: Failed to generate horoscope for subscriber: {ex.Message}");
+                    }
+
                     var record = new SubscriptionRecord
                     {
-                        name = request.Name,
-                        email = request.Email,
+                        name = request.Name ?? string.Empty,
+                        email = request.Email ?? string.Empty,
                         subscriptionType = MapPlanToCode(request.Plan),
                         dateOfBirth = request.DateOfBirth,
                         timeOfBirth = request.TimeOfBirth,
-                        placeOfBirth = request.PlaceOfBirth 
+                        placeOfBirth = request.PlaceOfBirth,
+                        horoscope = horoscopeChart
                     };
 
                     await _subscriptions.CreateItemAsync(

@@ -12,6 +12,7 @@ import { BirthChartComponent } from './components/birth-chart/birth-chart.compon
 import { DailyPredictionComponent } from './components/daily-prediction/daily-prediction.component';
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
 import { UpcomingFeaturesComponent } from './components/upcoming-features/upcoming-features.component';
+import { LandingComponent } from './components/landing/landing.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { UpcomingFeaturesComponent } from './components/upcoming-features/upcomi
     BirthChartComponent,
     DailyPredictionComponent,
     DailyPanchangComponent,
-    UpcomingFeaturesComponent
+    UpcomingFeaturesComponent,
+    LandingComponent
   ],
   imports: [
     BrowserModule,

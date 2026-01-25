@@ -1,0 +1,434 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+
+$vedic-green: #0B4D2C;
+$light-green: #1a7a4f;
+$accent-gold: #C9A961;
+$bright-gold: #D4AF37;
+$sacred-white: #FFFFFF;
+$cream-bg: #F8F6F0;
+$text-dark: #1C3D2F;
+$border-gold: rgba(201, 169, 97, 0.3);
+
+:host {
+  display: block;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.landing-wrapper {
+  position: relative;
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.mandala-bg {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150vw;
+  height: 150vh;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, transparent 20%, $vedic-green 70%),
+              repeating-conic-gradient(from 0deg, $accent-gold 0deg 2deg, transparent 2deg 10deg);
+}
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(165deg, $vedic-green 0%, $light-green 50%, $vedic-green 100%);
+  overflow: hidden;
+  padding: 1rem 1rem 2rem;
+  margin: 0;
+  width: 100%;
+}
+
+.stars {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent);
+  background-size: 200% 200%;
+  animation: twinkle 8s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+}
+
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(212, 175, 55, 0.6) 50%, transparent 100%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: float-firefly 8s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.4);
+  
+  &:nth-child(2) { left: 15%; top: 20%; animation-delay: 0s; animation-duration: 7s; }
+  &:nth-child(3) { left: 75%; top: 30%; animation-delay: 2s; animation-duration: 9s; }
+  &:nth-child(4) { left: 40%; top: 60%; animation-delay: 4s; animation-duration: 8s; }
+  &:nth-child(5) { left: 85%; top: 50%; animation-delay: 1s; animation-duration: 10s; }
+  &:nth-child(6) { left: 25%; top: 75%; animation-delay: 3s; animation-duration: 7.5s; }
+  &:nth-child(7) { left: 60%; top: 15%; animation-delay: 5s; animation-duration: 8.5s; }
+}
+
+@keyframes float-firefly {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  25% { transform: translate(20px, -30px); opacity: 0.8; }
+  50% { transform: translate(-15px, 20px); opacity: 1; }
+  75% { transform: translate(25px, 15px); opacity: 0.6; }
+  90% { opacity: 0.3; }
+  100% { transform: translate(0, -40px); opacity: 0; }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 2rem;
+  max-width: 900px;
+}
+
+.om-symbol {
+  font-size: clamp(3rem, 8vw, 4rem);
+  color: $accent-gold;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+  text-shadow: 0 0 30px rgba(201, 169, 97, 0.5);
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.7; text-shadow: 0 0 20px rgba(201, 169, 97, 0.4); }
+  50% { opacity: 1; text-shadow: 0 0 40px rgba(201, 169, 97, 0.8); }
+}
+
+.ganesha-image {
+  width: clamp(200px, 30vw, 280px);
+  height: auto;
+  margin: 0 auto 2rem;
+  display: block;
+  filter: drop-shadow(0 10px 30px rgba(201, 169, 97, 0.4));
+  animation: float 6s ease-in-out infinite;
+}
+
+.logo {
+  width: clamp(180px, 40vw, 320px);
+  height: auto;
+  margin: 0 auto 2rem;
+  display: block;
+  filter: drop-shadow(0 5px 20px rgba(201, 169, 97, 0.3));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.75rem, 6vw, 4.5rem);
+  font-weight: 400;
+  color: $sacred-white;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  animation: slideIn 1s ease-out 0.3s both;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero p {
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-weight: 300;
+  animation: slideIn 1s ease-out 0.5s both;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, $accent-gold, $bright-gold);
+  color: $vedic-green;
+  font-weight: 600;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  text-decoration: none;
+  border-radius: 50px;
+  transition: all 0.4s ease;
+  box-shadow: 0 10px 40px rgba(201, 169, 97, 0.3);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  max-width: 90%;
+  animation: slideIn 1s ease-out 0.7s both;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 50px rgba(201, 169, 97, 0.5);
+    
+    &:before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+}
+
+.sign-in-text {
+  margin-top: 1rem;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: rgba(255, 255, 255, 0.7);
+  animation: slideIn 1s ease-out 0.8s both;
+  
+  a {
+    color: $accent-gold;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+    
+    &:hover {
+      color: $bright-gold;
+      border-bottom: 1px solid $bright-gold;
+    }
+  }
+}
+
+.trust-line {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+  animation: slideIn 1s ease-out 0.9s both;
+}
+
+.section {
+  position: relative;
+  padding: 5rem 1.5rem;
+  background: $cream-bg;
+  margin: 0;
+  width: 100%;
+  
+  &:nth-child(even) {
+    background: linear-gradient(to bottom, #ffffff, $cream-bg);
+  }
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.section-ornament {
+  text-align: center;
+  font-size: 2rem;
+  color: $accent-gold;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+h2 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  font-weight: 600;
+  color: $vedic-green;
+  margin-bottom: 2rem;
+  text-align: center;
+  line-height: 1.3;
+  padding: 0 0.5rem;
+}
+
+.problem-list {
+  max-width: 700px;
+  margin: 3rem auto;
+  line-height: 2;
+  padding: 0 1rem;
+  
+  p {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: #4a4a4a;
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+    
+    &:before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: $light-green;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.wisdom-text {
+  max-width: 850px;
+  margin: 2.5rem auto;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  line-height: 1.8;
+  color: #3a3a3a;
+  text-align: center;
+  padding: 0 1rem;
+  
+  strong {
+    color: $vedic-green;
+    font-weight: 600;
+  }
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid $border-gold;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(201, 169, 97, 0.2);
+  }
+  
+  h3 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: $vedic-green;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  p {
+    color: #5a5a5a;
+    line-height: 1.6;
+  }
+}
+
+.beliefs-box {
+  background: linear-gradient(135deg, $vedic-green, $light-green);
+  color: white;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  margin-top: 3rem;
+  text-align: center;
+  
+  h3 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.25rem, 4vw, 2rem);
+    margin-bottom: 1.5rem;
+    color: $accent-gold;
+  }
+  
+  p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+}
+
+.final-section {
+  background: linear-gradient(165deg, $vedic-green, $light-green);
+  color: white;
+  padding: 5rem 1.5rem;
+  text-align: center;
+  margin: 0;
+  width: 100%;
+  
+  h2 {
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+  
+  p {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0 1rem;
+  }
+}
+
+.lotus-divider {
+  text-align: center;
+  margin: 4rem 0;
+  font-size: 2.5rem;
+  color: $accent-gold;
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 3.5rem 1.25rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  .hero-content {
+    padding: 1.5rem;
+  }
+  
+  .beliefs-box {
+    padding: 2rem 1.25rem;
+  }
+  
+  .problem-list {
+    padding: 0 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+}

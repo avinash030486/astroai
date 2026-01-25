@@ -16,6 +16,7 @@ export class DailyPanchangComponent implements OnInit {
   result?: DailyPanchangResponse;
   statusMsg = '';
   placeName?: string;
+  private locationAttempted = false;
 
   constructor(
     private fb: FormBuilder,
@@ -39,12 +40,22 @@ export class DailyPanchangComponent implements OnInit {
   }
 
   getBrowserLocation(autoFetch: boolean = false): void {
+    if (this.locationAttempted) {
+      return; // Prevent multiple attempts
+    }
+    this.locationAttempted = true;
     this.statusMsg = 'Attempting to fetch your location…';
+    
     if (!('geolocation' in navigator)) {
       this.statusMsg = '';
       this.error = 'Geolocation is not supported by your browser. You can type a place manually.';
+      // Still try to fetch with default location
+      if (autoFetch) {
+        this.fetchWithDefaultLocation();
+      }
       return;
     }
+    
     navigator.geolocation.getCurrentPosition(
       pos => {
         console.log("Got position:", pos);
@@ -58,11 +69,29 @@ export class DailyPanchangComponent implements OnInit {
         }
       },
       err => {
-        this.statusMsg = '';
-        this.error = 'We could not access your location. You can enter a city or place manually.';
+        console.error('Geolocation error:', err);
+        this.statusMsg = 'Could not access location. Using default location.';
+        // Fallback: Use default location for India if geolocation fails
+        if (autoFetch) {
+          this.fetchWithDefaultLocation();
+        }
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { 
+        enableHighAccuracy: false, // Changed to false for faster response
+        timeout: 5000, // Reduced timeout from 10s to 5s
+        maximumAge: 300000 // Allow cached location up to 5 minutes old
+      }
     );
+  }
+
+  private fetchWithDefaultLocation(): void {
+    // Default to Delhi, India coordinates if geolocation fails
+    const defaultLat = 28.6139;
+    const defaultLon = 77.2090;
+    const loc = `${defaultLat.toFixed(5)}, ${defaultLon.toFixed(5)}`;
+    this.form.patchValue({ location: loc });
+    this.placeName = 'New Delhi, India (default)';
+    this.fetch();
   }
 
   fetch(): void {
@@ -85,7 +114,8 @@ export class DailyPanchangComponent implements OnInit {
         this.placeName = res?.coordinates?.resolvedLocation || this.placeName;
       },
       error: (e) => {
-        this.error = e?.message || 'Failed to fetch panchang.';
+        console.error('Panchang fetch error:', e);
+        this.error = e?.error?.message || e?.message || 'Failed to fetch panchang.';
         this.loading = false;
         this.statusMsg = '';
       }
@@ -97,13 +127,13 @@ export class DailyPanchangComponent implements OnInit {
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=10`;
     this.http.get<any>(url, { headers: { 'Accept-Language': 'en' } }).subscribe({
       next: (data) => {
-        
         const display = data?.display_name as string | undefined;
         if (display) {
           this.placeName = display;
         }
       },
-      error: () => {
+      error: (err) => {
+        console.error('Reverse geocoding error:', err);
         // Fail silently; we will still show lat/lon and server-resolved name after fetch
       }
     });
@@ -120,5 +150,22 @@ export class DailyPanchangComponent implements OnInit {
         this.reverseGeocode(lat, lon);
       }
     }
+  }
+
+  getDisplayDate(): Date {
+    if (!this.result?.dateUtc) {
+      return new Date();
+    }
+    // The server returns a UTC date string (e.g., "2026-01-25T00:00:00Z")
+    // We need to display it in the user's local timezone
+    const utcDate = new Date(this.result.dateUtc);
+    
+    // Create a new date in local timezone with the same calendar date
+    // This ensures January 25 UTC shows as January 25 in local time
+    const year = utcDate.getUTCFullYear();
+    const month = utcDate.getUTCMonth();
+    const day = utcDate.getUTCDate();
+    
+    return new Date(year, month, day);
   }
 }

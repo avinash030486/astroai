@@ -36,7 +36,7 @@
                  || (result?.coordinates?.latitude | number:'1.4-4') + ', ' + (result?.coordinates?.longitude | number:'1.4-4') }}
             </strong>
           </div>
-          <div class="accent-date">{{ result?.dateUtc | date:'EEEE, MMMM d, y' }}</div>
+          <div class="accent-date">{{ getDisplayDate() | date:'EEEE, MMMM d, y' }}</div>
         </div>
       </div>
 

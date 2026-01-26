@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using AstroAI.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AstroAI.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public sealed class PredictionsController : ControllerBase

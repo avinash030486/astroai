@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear AstroAI Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: green;
+            margin-top: 20px;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clear AstroAI Storage</h1>
+        
+        <div class="info">
+            <strong>Current Storage:</strong>
+            <pre id="storageInfo">Loading...</pre>
+        </div>
+
+        <button onclick="clearStorage()">🗑️ Clear All Storage</button>
+        <button onclick="refreshInfo()">🔄 Refresh Info</button>
+        <button onclick="goToApp()">🚀 Go to AstroAI</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function displayStorageInfo() {
+            const info = [];
+            info.push(`localStorage keys: ${localStorage.length}`);
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                info.push(`\n${key}: ${value.substring(0, 100)}...`);
+            }
+            document.getElementById('storageInfo').textContent = info.join('\n') || 'No items in storage';
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Also clear IndexedDB used by Supabase
+            if (window.indexedDB) {
+                indexedDB.databases().then(dbs => {
+                    dbs.forEach(db => {
+                        if (db.name && db.name.includes('supabase')) {
+                            indexedDB.deleteDatabase(db.name);
+                            console.log('Deleted database:', db.name);
+                        }
+                    });
+                });
+            }
+            
+            document.getElementById('result').innerHTML = 
+                '<div class="success">✅ All storage cleared! Refresh the page to see changes.</div>';
+            
+            setTimeout(() => {
+                displayStorageInfo();
+            }, 500);
+        }
+
+        function refreshInfo() {
+            displayStorageInfo();
+            document.getElementById('result').innerHTML = 
+                '<div class="success">✅ Storage info refreshed!</div>';
+        }
+
+        function goToApp() {
+            window.location.href = 'http://localhost:4200';
+        }
+
+        // Initial display
+        displayStorageInfo();
+    </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
@@ -13,6 +13,7 @@ import { DailyPredictionComponent } from './components/daily-prediction/daily-pr
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
 import { UpcomingFeaturesComponent } from './components/upcoming-features/upcoming-features.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { authInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,9 @@ import { LandingComponent } from './components/landing/landing.component';
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+    provideHttpClient(withInterceptors([authInterceptor]))
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

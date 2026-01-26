@@ -1,13 +1,14 @@
+using AstroAI.Api.Models;
+using AstroAI.Core.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AstroAI.Api.Models;
-using AstroAI.Core.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Stripe;
 
 namespace AstroAI.Api.Controllers
 {
@@ -23,6 +24,8 @@ namespace AstroAI.Api.Controllers
 
     public record PaymentResultDto(bool Success, string? Error);
 
+
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class PaymentsController : ControllerBase

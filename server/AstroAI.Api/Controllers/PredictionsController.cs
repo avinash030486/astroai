@@ -74,6 +74,7 @@ public sealed class PredictionsController : ControllerBase
         => Ok(await _gpt.GetDailyPredictionsAsync(ct));
 
     [HttpPost("get-daily-panchang")]
+    [ResponseCache(Duration = 1800, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "*" })]
     public async Task<IActionResult> GetDailyPanchang([FromBody] DailyPanchangRequest req, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(req.Location))

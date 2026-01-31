@@ -9,6 +9,10 @@ using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Response Caching and Memory Cache for performance
+builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
+
 // --- SUPABASE AUTHENTICATION (ES256 with EC Public Key) ---
 var supabaseUrl = builder.Configuration["Supabase:Url"];
 var supabaseAudience = builder.Configuration["Supabase:Audience"] ?? "authenticated";
@@ -163,6 +167,9 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection();
 
 app.UseCors();
+
+// Add response caching middleware
+app.UseResponseCaching();
 
 // Order matters: Authentication then Authorization
 app.UseAuthentication();

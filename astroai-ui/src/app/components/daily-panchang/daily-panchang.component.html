@@ -5,26 +5,29 @@
   </section>
 
   <section class="container-narrow py-3">
-    <!-- <form class="card glass p-3 p-md-4 rounded-4 shadow-sm" (ngSubmit)="fetch()" [formGroup]="form" aria-describedby="formHelp">
-  <div class="row g-3 align-items-end">
+    <form class="card glass p-3 p-md-4 rounded-4 shadow-sm" (ngSubmit)="fetch()" [formGroup]="form" aria-describedby="formHelp">
+      <div class="row g-3 align-items-end">
         <div class="col-12 col-lg-6">
-          <label for="loc" class="form-label">Location</label>
-          <input id="loc" class="form-control" type="text" formControlName="location" (blur)="onLocationBlur()" placeholder="City, State, Country or lat,lon" aria-required="true" />
+          <label for="loc" class="form-label">Location (optional)</label>
+          <input id="loc" class="form-control" type="text" formControlName="location" (blur)="onLocationBlur()" placeholder="City, State, Country or lat,lon" aria-required="false" />
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label for="date" class="form-label">Date (optional)</label>
           <input id="date" class="form-control" type="date" formControlName="date" />
         </div>
         <div class="col-12 col-md-6 col-lg-3 d-flex gap-2 mt-2 mt-md-0">
-          <button type="submit" class="btn btn-gradient flex-grow-1" [disabled]="loading">Get Panchang</button>
-          <button type="button" class="btn btn-outline-light" (click)="getBrowserLocation(true)" [disabled]="loading" aria-label="Detect my location">📍</button>
+          <button type="submit" class="btn btn-gradient flex-grow-1" [disabled]="loading">
+            <span *ngIf="!loading">Get Panchang</span>
+            <span *ngIf="loading">Loading...</span>
+          </button>
+          <button type="button" class="btn btn-outline-light" (click)="getBrowserLocation(true)" [disabled]="loading" aria-label="Detect my location" title="Use my current location">📍</button>
         </div>
       </div>
-      <div *ngIf="placeName" class="assist text-contrast mt-1">Resolved location: {{ placeName }}</div>
-      <div id="formHelp" class="assist mt-1">We try to auto-detect your location. You can also enter a place or coordinates.</div>
-      <div class="mt-2" aria-live="polite">{{ statusMsg }}</div>
+      <div *ngIf="placeName" class="assist text-contrast mt-1">📍 Location: {{ placeName }}</div>
+      <div id="formHelp" class="assist mt-1">Auto-detecting location... You can also manually enter a place or coordinates.</div>
+      <div *ngIf="statusMsg" class="mt-2 text-info" aria-live="polite">{{ statusMsg }}</div>
       <div *ngIf="error" class="alert alert-danger mt-3" role="alert">{{ error }}</div>
-    </form> -->
+    </form>
 
     <section *ngIf="result" class="result card glass warm rounded-4 shadow-sm p-4 mt-4" aria-label="Panchang result">
       <h2 class="h5 mb-2">Panchang for Today</h2>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PredictionsService, DailyPanchangResponse } from '../../services/predictions.service';
 import { HttpClient } from '@angular/common/http';
@@ -9,7 +9,7 @@ import { SeoFocusService } from '../../services/seo-focus.service';
   templateUrl: './daily-panchang.component.html',
   styleUrls: ['./daily-panchang.component.scss']
 })
-export class DailyPanchangComponent implements OnInit {
+export class DailyPanchangComponent implements OnInit, OnDestroy {
   form: FormGroup;
   loading = false;
   error?: string;
@@ -17,6 +17,7 @@ export class DailyPanchangComponent implements OnInit {
   statusMsg = '';
   placeName?: string;
   private locationAttempted = false;
+  private geolocationTimeout: any;
 
   constructor(
     private fb: FormBuilder,
@@ -39,6 +40,12 @@ export class DailyPanchangComponent implements OnInit {
     this.getBrowserLocation(true);
   }
 
+  ngOnDestroy(): void {
+    if (this.geolocationTimeout) {
+      clearTimeout(this.geolocationTimeout);
+    }
+  }
+
   getBrowserLocation(autoFetch: boolean = false): void {
     if (this.locationAttempted) {
       return; // Prevent multiple attempts
@@ -56,8 +63,18 @@ export class DailyPanchangComponent implements OnInit {
       return;
     }
     
+    // Set a timeout for geolocation to prevent hanging
+    this.geolocationTimeout = setTimeout(() => {
+      console.log('⏰ Geolocation timeout, using default location');
+      this.statusMsg = 'Location detection timeout. Using Delhi, India.';
+      if (autoFetch) {
+        this.fetchWithDefaultLocation();
+      }
+    }, 5000); // 5 seconds max
+    
     navigator.geolocation.getCurrentPosition(
       pos => {
+        clearTimeout(this.geolocationTimeout);
         console.log("Got position:", pos);
         const { latitude, longitude } = pos.coords;
         const loc = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
@@ -69,8 +86,9 @@ export class DailyPanchangComponent implements OnInit {
         }
       },
       err => {
+        clearTimeout(this.geolocationTimeout);
         console.error('Geolocation error:', err);
-        this.statusMsg = 'Could not access location. Using default location.';
+        this.statusMsg = 'Could not access location. Using default location (Delhi, India).';
         // Fallback: Use default location for India if geolocation fails
         if (autoFetch) {
           this.fetchWithDefaultLocation();
@@ -78,7 +96,7 @@ export class DailyPanchangComponent implements OnInit {
       },
       { 
         enableHighAccuracy: false, // Changed to false for faster response
-        timeout: 5000, // Reduced timeout from 10s to 5s
+        timeout: 4000, // Reduced timeout from 5s to 4s
         maximumAge: 300000 // Allow cached location up to 5 minutes old
       }
     );
@@ -105,16 +123,23 @@ export class DailyPanchangComponent implements OnInit {
     }
     this.loading = true;
     this.statusMsg = 'Fetching daily panchang…';
+    
+    const startTime = Date.now();
+    
     this.svc.getDailyPanchang(location, dateStr).subscribe({
       next: (res) => {
+        const duration = Date.now() - startTime;
+        console.log(`✅ Panchang received in ${duration}ms`);
+        
         this.result = res;
         this.loading = false;
-        this.statusMsg = 'Panchang loaded successfully.';
+        this.statusMsg = `Panchang loaded successfully (${duration}ms).`;
         // Use server-resolved place name when available
         this.placeName = res?.coordinates?.resolvedLocation || this.placeName;
       },
       error: (e) => {
-        console.error('Panchang fetch error:', e);
+        const duration = Date.now() - startTime;
+        console.error(`❌ Panchang fetch error after ${duration}ms:`, e);
         this.error = e?.error?.message || e?.message || 'Failed to fetch panchang.';
         this.loading = false;
         this.statusMsg = '';

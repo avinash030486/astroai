@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'home', component: HomeComponent },
   { path: 'horoscope', component: HoroscopeComponent },
-  { path: 'daily-horoscope', component: DailyPredictionComponent },
+  { path: 'daily-prediction', component: DailyPredictionComponent },
   { path: 'daily-panchang', component: DailyPanchangComponent },
   { path: 'birth-chart', component: BirthChartComponent },
   { path: 'upcoming', component: UpcomingFeaturesComponent },

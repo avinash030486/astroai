@@ -34,6 +34,6 @@ describe('LandingComponent', () => {
     
     component.startJourney();
     
-    expect(navigateSpy).toHaveBeenCalledWith(['/birth-chart']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/daily-prediction']);
   });
 });

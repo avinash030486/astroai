@@ -2,9 +2,12 @@
   <section class="hero text-center py-5">
     <h1 class="display-6 fw-semibold mb-2">Daily Horoscope - (Based on Moon Sign)</h1>
     <p class="text-white-75 mb-0">Personalized insights for all zodiac signs • Updated daily</p>
-    <div class="date-row text-white-50 mt-1" *ngIf="dateUtc">Based on UTC date: {{ dateUtc | date:'yyyy-MM-dd' }}</div>
+    <div class="date-row mt-1" *ngIf="dateUtc" style="color: #0e0e0e;">
+  Based on UTC date: {{ dateUtc | date:'yyyy-MM-dd' }}
+</div>
+
     <div class="mt-3">
-      <button class="btn btn-outline-light btn-sm" (click)="refresh()" [disabled]="loading">Refresh</button>
+      <button class="btn btn-outline-light btn-sm" (click)="refresh()" [disabled]="loading" style="color: #0e0e0e;">Refresh</button>
     </div>
   </section>
 

@@ -4,3 +4,44 @@
 
 /astroai-ui/package-lock.json
 /server/.vs/AstroAI
+
+# Build and publish outputs
+**/publish/
+**/bin/
+**/obj/
+
+# Deployment packages
+*.zip
+*.tar.gz
+api-deployment.zip
+api-deployment-fixed.zip
+angular-deployment.zip
+angular-deployment-fixed.zip
+angular-linux-deploy.tar.gz
+angular-final-deployment.tar.gz
+
+# IDE and OS files
+.vs/
+.vscode/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Node modules
+**/node_modules/
+
+# Angular build output
+**/dist/
+
+# Environment files (keep templates, ignore actual configs)
+**/appsettings.Development.json
+**/appsettings.Production.json
+# Keep appsettings.json template
+!**/appsettings.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -139,11 +139,11 @@ if (!string.IsNullOrWhiteSpace(stripeSecret)) StripeConfiguration.ApiKey = strip
 var cosmosConn = builder.Configuration.GetValue<string>("Cosmos:ConnectionString");
 if (!string.IsNullOrWhiteSpace(cosmosConn)) builder.Services.AddSingleton(new CosmosClient(cosmosConn));
 
-// CORS
+// CORS - Allow any origin
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("http://localhost:4200")
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod());
 });

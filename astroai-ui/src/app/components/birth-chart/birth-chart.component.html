@@ -15,7 +15,25 @@
         </div>
         <div class="col-12 col-lg-4">
           <label class="form-label">Birth Place</label>
-          <input type="text" class="form-control" formControlName="birthPlace" placeholder="City, State, Country">
+          <div class="position-relative">
+            <input 
+              type="text" 
+              class="form-control" 
+              formControlName="birthPlace" 
+              placeholder="City, State, Country"
+              (blur)="hideSuggestions()"
+              autocomplete="off">
+            <div 
+              *ngIf="showSuggestions && placeSuggestions.length > 0" 
+              class="place-autocomplete-dropdown">
+              <div 
+                *ngFor="let suggestion of placeSuggestions" 
+                class="place-suggestion-item"
+                (click)="onPlaceSuggestionSelected(suggestion)">
+                {{ suggestion.description }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -116,11 +134,27 @@
       </button>
     </div>
 
+    <!-- Loading progress bar -->
+    <div *ngIf="askLoading" class="mt-2">
+      <div class="progress" style="height: 4px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+             role="progressbar" 
+             style="width: 100%"
+             aria-valuenow="100" 
+             aria-valuemin="0" 
+             aria-valuemax="100"></div>
+      </div>
+      <p class="text-center text-muted small mt-2 mb-0">
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        Analyzing your birth chart and generating answer...
+      </p>
+    </div>
+
     <!-- Free-limit / payment prompt -->
     <div *ngIf="showPaymentPrompt" class="alert alert-warning mt-3 mb-2">
       You have used your free question.
       To ask more questions, please upgrade to a premium plan.
-      <button type="button" class="btn btn-sm btn-primary ms-2" (click)="startPaymentFlow()">
+      <button type="button" class="btn btn-sm btn-primary ms-2" (click)="openQnaPopup()">
         View Premium Plans
       </button>
     </div>
@@ -238,13 +272,6 @@
             <div class="plan-note">Unlimited premium queries for a week</div>
           </div>
         </div>
-        <div class="col-12 col-md-4">
-          <div class="plan-card" [class.selected]="selectedPlan === 'monthly'" (click)="selectPlan('monthly')">
-            <div class="plan-name">Monthly</div>
-            <div class="plan-price">$5.99</div>
-            <div class="plan-note">Best value for regular guidance</div>
-          </div>
-        </div>
       </div>
 
       <div *ngIf="paymentError" class="alert alert-danger py-1 small mb-2">
@@ -271,6 +298,69 @@
               [disabled]="!selectedPlan || paymentLoading"
               (click)="confirmPremiumPurchase()">
         {{ paymentLoading ? 'Processing payment…' : 'Continue & Pay with Card' }}
+      </button>
+
+      <p class="mt-2 text-center text-muted small">
+        Payment is securely processed. If payment fails, you will not be charged and we will show the error here.
+      </p>
+    </div>
+  </div>
+
+  <!-- QNA Premium Plans Modal -->
+  <div *ngIf="showQnaPopup" class="premium-backdrop" (click)="closeQnaPopup()">
+    <div class="premium-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="btn-close btn-close-white premium-close" aria-label="Close" (click)="closeQnaPopup()"></button>
+      <h5 class="mb-2 text-center">Unlock Premium Questions</h5>
+      <p class="text-center text-light small mb-2">
+        Choose a plan to ask questions about your life. We use your birth chart and current dashas to answer.
+      </p>
+      
+      <div class="alert alert-warning py-2 small mb-3">
+        <strong>⚠️ Important:</strong> All credits must be used in the current session. You cannot return later to use remaining credits.
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6">
+          <div class="plan-card" [class.selected]="selectedQnaPlan === 'qna-10'" (click)="selectQnaPlan('qna-10')">
+            <div class="plan-name">10 Questions</div>
+            <div class="plan-price">$3.00</div>
+            <div class="plan-note">Ask 10 questions</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="plan-card highlight" [class.selected]="selectedQnaPlan === 'qna-unlimited'" (click)="selectQnaPlan('qna-unlimited')">
+            <div class="plan-badge">Popular</div>
+            <div class="plan-name">Unlimited</div>
+            <div class="plan-price">$10.00</div>
+            <div class="plan-note">Ask unlimited questions</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="qnaPaymentError" class="alert alert-danger py-1 small mb-2">
+        {{ qnaPaymentError }}
+      </div>
+
+      <div class="mb-2">
+        <label class="form-label text-light small mb-1">Name</label>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="qnaPaymentName" placeholder="Your full name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label text-light small mb-1">Email</label>
+        <input type="email" class="form-control form-control-sm" [(ngModel)]="qnaPaymentEmail" placeholder="you@example.com">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light small mb-1">Card details</label>
+        <div id="qna-card-element" class="stripe-card-element"></div>
+        <div class="text-danger small mt-1" *ngIf="qnaCardError">{{ qnaCardError }}</div>
+      </div>
+
+      <button type="button"
+              class="btn btn-light w-100"
+              [disabled]="!selectedQnaPlan || qnaPaymentLoading"
+              (click)="confirmQnaPurchase()">
+        {{ qnaPaymentLoading ? 'Processing payment…' : 'Continue & Pay with Card' }}
       </button>
 
       <p class="mt-2 text-center text-muted small">

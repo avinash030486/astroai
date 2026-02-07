@@ -14,6 +14,14 @@ export interface PaymentRequest {
   placeOfBirth: string;
 }
 
+export interface QnaPaymentRequest {
+  plan: 'qna-10' | 'qna-unlimited';
+  amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+}
+
 export interface PaymentResult {
   success: boolean;
   error?: string | null;
@@ -27,5 +35,9 @@ export class PaymentService {
 
   charge(req: PaymentRequest): Observable<PaymentResult> {
     return this.http.post<PaymentResult>(`${this.baseUrl}/charge`, req);
+  }
+
+  chargeForQNA(req: QnaPaymentRequest): Observable<PaymentResult> {
+    return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForQNA`, req);
   }
 }

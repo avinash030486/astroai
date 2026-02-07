@@ -69,6 +69,11 @@ export interface AskQuestionResponse {
   cautions: string;
 }
 
+export interface PlaceSuggestion {
+  description: string;
+  placeId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class HoroscopeService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api`;
@@ -81,5 +86,9 @@ export class HoroscopeService {
 
   askQuestion(req: AskQuestionRequest): Observable<AskQuestionResponse> {
     return this.http.post<AskQuestionResponse>(`${this.baseUrl}/horoscope/ask`, req);
+  }
+
+  getPlaceSuggestions(input: string): Observable<PlaceSuggestion[]> {
+    return this.http.get<PlaceSuggestion[]>(`${this.baseUrl}/geo/autocomplete?input=${encodeURIComponent(input)}`);
   }
 }

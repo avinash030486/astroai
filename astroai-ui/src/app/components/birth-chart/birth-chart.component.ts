@@ -1,11 +1,13 @@
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse } from '../../services/horoscope.service';
+import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse, PlaceSuggestion } from '../../services/horoscope.service';
 import { PredictionsService, BasicChartPredictionResponse, DetailedChartPredictionResponse } from '../../services/predictions.service';
-import { PaymentService, PaymentRequest, PaymentResult } from '../../services/payment.service';
+import { PaymentService, PaymentRequest, PaymentResult, QnaPaymentRequest } from '../../services/payment.service';
 import jsPDF from 'jspdf';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, filter, takeUntil } from 'rxjs/operators';
 
 declare const Stripe: any;
 
@@ -41,6 +43,11 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   @ViewChild('detailedPredSection') detailedPredSection?: ElementRef<HTMLDivElement>;
   longRunningNotice = false;
 
+  // Place autocomplete state
+  placeSuggestions: PlaceSuggestion[] = [];
+  showSuggestions = false;
+  private destroy$ = new Subject<void>();
+
   // Ask-a-question state
   askQuestionText = '';
   askAnswer?: AskQuestionResponse;
@@ -59,25 +66,85 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   paymentEmail = '';
   cardError = '';
 
+  // QNA payment state
+  showQnaPopup = false;
+  selectedQnaPlan: QnaPaymentRequest['plan'] | null = null;
+  qnaPaymentLoading = false;
+  qnaPaymentError = '';
+  qnaPaymentName = '';
+  qnaPaymentEmail = '';
+  qnaCardError = '';
+
   private stripe: any;
   private cardElement: any;
+  private qnaCardElement: any;
 
   ngOnInit(): void {
-    const usedRaw = sessionStorage.getItem('astroai_ask_used');
-    this.usedAskQuestions = usedRaw ? Number(usedRaw) || 0 : 0;
-    this.remainingFreeQuestions = Math.max(this.maxFreeQuestions - this.usedAskQuestions, 0);
+    // Check if user has purchased QNA plan
+    const qnaPlan = sessionStorage.getItem('astroai_qna_plan');
+    const qnaRemaining = sessionStorage.getItem('astroai_qna_remaining');
+    
+    if (qnaPlan && qnaRemaining) {
+      // User has purchased QNA plan
+      this.remainingFreeQuestions = Number(qnaRemaining) || 0;
+      this.usedAskQuestions = 0; // Not used for QNA plans
+    } else {
+      // Default free question logic
+      const usedRaw = sessionStorage.getItem('astroai_ask_used');
+      this.usedAskQuestions = usedRaw ? Number(usedRaw) || 0 : 0;
+      this.remainingFreeQuestions = Math.max(this.maxFreeQuestions - this.usedAskQuestions, 0);
+    }
 
     if (typeof Stripe !== 'undefined') {
       // TODO: replace with your real publishable key; keep test key in non-production environments only
       this.stripe = Stripe('pk_test_51SkYaqLSgAsqBjx5YNHemyMVHXOg4SAoUId1QK48KnOVNYTit8OViLsTmGkkho9cEogLX0Xqsn9kc7AzP1CuNIph00CTpeel3M');
     }
+
+    // Set up autocomplete for birth place
+    this.form.get('birthPlace')?.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(value => typeof value === 'string' && value.length >= 3),
+      switchMap(value => this.horoscope.getPlaceSuggestions(value as string)),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (suggestions) => {
+        this.placeSuggestions = suggestions;
+        this.showSuggestions = suggestions.length > 0;
+      },
+      error: () => {
+        this.placeSuggestions = [];
+        this.showSuggestions = false;
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
     if (this.cardElement) {
       this.cardElement.unmount();
       this.cardElement = null;
     }
+    
+    if (this.qnaCardElement) {
+      this.qnaCardElement.unmount();
+      this.qnaCardElement = null;
+    }
+  }
+
+  onPlaceSuggestionSelected(suggestion: PlaceSuggestion): void {
+    this.form.patchValue({ birthPlace: suggestion.description });
+    this.placeSuggestions = [];
+    this.showSuggestions = false;
+  }
+
+  hideSuggestions(): void {
+    // Delay hiding to allow click event to fire first
+    setTimeout(() => {
+      this.showSuggestions = false;
+    }, 200);
   }
 
   generateBirthChart(): void {
@@ -522,9 +589,20 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.usedAskQuestions >= this.maxFreeQuestions) {
-      this.showPaymentPrompt = true;
-      return;
+    // Check if user has questions remaining (either free or purchased)
+    const qnaPlan = sessionStorage.getItem('astroai_qna_plan');
+    if (qnaPlan) {
+      // User has purchased QNA plan - check remaining questions
+      if (this.remainingFreeQuestions <= 0) {
+        this.showPaymentPrompt = true;
+        return;
+      }
+    } else {
+      // Free question logic
+      if (this.usedAskQuestions >= this.maxFreeQuestions) {
+        this.showPaymentPrompt = true;
+        return;
+      }
     }
 
     this.submitAskQuestion(q);
@@ -563,9 +641,19 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       next: res => {
         this.askAnswer = res;
         this.askLoading = false;
-        this.usedAskQuestions += 1;
-        sessionStorage.setItem('astroai_ask_used', this.usedAskQuestions.toString());
-        this.remainingFreeQuestions = Math.max(this.maxFreeQuestions - this.usedAskQuestions, 0);
+        
+        // Check if user has QNA plan
+        const qnaPlan = sessionStorage.getItem('astroai_qna_plan');
+        if (qnaPlan) {
+          // Decrement purchased questions
+          this.remainingFreeQuestions = Math.max(this.remainingFreeQuestions - 1, 0);
+          sessionStorage.setItem('astroai_qna_remaining', this.remainingFreeQuestions.toString());
+        } else {
+          // Increment free questions used
+          this.usedAskQuestions += 1;
+          sessionStorage.setItem('astroai_ask_used', this.usedAskQuestions.toString());
+          this.remainingFreeQuestions = Math.max(this.maxFreeQuestions - this.usedAskQuestions, 0);
+        }
       },
       error: () => {
         this.askLoading = false;
@@ -648,7 +736,7 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       this.paymentError = 'Payment form is not ready. Please reload the page and try again.';
       return;
     }
-  const amount = this.getPlanAmount(this.selectedPlan);
+    const amount = this.getPlanAmount(this.selectedPlan);
     if (!amount) { return; }
     this.paymentLoading = true;
     this.paymentError = '';
@@ -716,7 +804,157 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       error: err => {
         console.error(err);
         this.paymentLoading = false;
-        this.paymentError = 'Payment request failed. Please check your connection and try again.';
+
+        // Prefer detailed message from backend (e.g. active weekly subscription)
+        const backendError = (err && err.error) ? (
+          err.error.error ||
+          err.error.Error ||
+          err.error.message ||
+          err.error.Message
+        ) : null;
+
+        this.paymentError = backendError || 'Payment request failed. Please check your connection and try again.';
+      }
+    });
+  }
+
+  // QNA Payment Methods
+  openQnaPopup(): void {
+    this.showQnaPopup = true;
+    this.selectedQnaPlan = null;
+    this.qnaPaymentError = '';
+    this.qnaCardError = '';
+    setTimeout(() => this.mountQnaCardElement(), 100);
+  }
+
+  closeQnaPopup(): void {
+    if (this.qnaPaymentLoading) { return; }
+    this.showQnaPopup = false;
+  }
+
+  private mountQnaCardElement(): void {
+    if (!this.stripe || this.qnaCardElement) { return; }
+
+    const elements = this.stripe.elements();
+    this.qnaCardElement = elements.create('card', {
+      style: {
+        base: {
+          color: '#e5e7eb',
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          '::placeholder': {
+            color: '#6b7280'
+          }
+        },
+        invalid: {
+          color: '#f97373'
+        }
+      }
+    });
+
+    this.qnaCardElement.mount('#qna-card-element');
+    this.qnaCardElement.on('change', (event: any) => {
+      this.qnaCardError = event.error?.message ?? '';
+    });
+  }
+
+  selectQnaPlan(plan: QnaPaymentRequest['plan']): void {
+    this.selectedQnaPlan = plan;
+    this.qnaPaymentError = '';
+  }
+
+  private getQnaPlanAmount(plan: QnaPaymentRequest['plan']): number {
+    switch (plan) {
+      case 'qna-10': return 3.00;
+      case 'qna-unlimited': return 10.00;
+      default: return 0;
+    }
+  }
+
+  async confirmQnaPurchase(): Promise<void> {
+    if (!this.selectedQnaPlan || this.qnaPaymentLoading) { return; }
+    const name = (this.qnaPaymentName || '').trim();
+    const email = (this.qnaPaymentEmail || '').trim();
+    if (!name || !email) {
+      this.qnaPaymentError = 'Please enter your name and email before continuing.';
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      this.qnaPaymentError = 'Please enter a valid email address.';
+      return;
+    }
+    if (!this.stripe || !this.qnaCardElement) {
+      this.qnaPaymentError = 'Payment form is not ready. Please reload the page and try again.';
+      return;
+    }
+    const amount = this.getQnaPlanAmount(this.selectedQnaPlan);
+    if (!amount) { return; }
+    this.qnaPaymentLoading = true;
+    this.qnaPaymentError = '';
+    this.qnaCardError = '';
+
+    // 1) Ask Stripe.js to create a PaymentMethod from the card details
+    const { error, paymentMethod } = await this.stripe.createPaymentMethod({
+      type: 'card',
+      card: this.qnaCardElement,
+      billing_details: { name, email }
+    });
+
+    if (error || !paymentMethod) {
+      this.qnaPaymentLoading = false;
+      this.qnaCardError = error?.message || 'Unable to process card details. Please check the card information and try again.';
+      return;
+    }
+
+    const req: QnaPaymentRequest = {
+      plan: this.selectedQnaPlan,
+      amountUsd: amount,
+      name,
+      email,
+      paymentMethodId: paymentMethod.id
+    };
+
+    // 2) Call backend to charge for QNA
+    this.payments.chargeForQNA(req).subscribe({
+      next: (res: PaymentResult) => {
+        this.qnaPaymentLoading = false;
+        if (!res.success) {
+          this.qnaPaymentError = res.error || 'Payment failed. Please try another card or plan.';
+          return;
+        }
+
+        // Payment succeeded; update question count
+        this.showQnaPopup = false;
+        this.showPaymentPrompt = false;
+        
+        // Update question limits based on plan
+        if (this.selectedQnaPlan === 'qna-10') {
+          this.remainingFreeQuestions = 10;
+          this.usedAskQuestions = 0;
+          sessionStorage.setItem('astroai_ask_used', '0');
+          sessionStorage.setItem('astroai_qna_plan', 'qna-10');
+          sessionStorage.setItem('astroai_qna_remaining', '10');
+        } else {
+          this.remainingFreeQuestions = 999999; // Unlimited
+          this.usedAskQuestions = 0;
+          sessionStorage.setItem('astroai_ask_used', '0');
+          sessionStorage.setItem('astroai_qna_plan', 'qna-unlimited');
+          sessionStorage.setItem('astroai_qna_remaining', '999999');
+        }
+
+        alert('Payment successful! You can now ask your questions.');
+      },
+      error: err => {
+        console.error(err);
+        this.qnaPaymentLoading = false;
+
+        const backendError = (err && err.error) ? (
+          err.error.error ||
+          err.error.Error ||
+          err.error.message ||
+          err.error.Message
+        ) : null;
+
+        this.qnaPaymentError = backendError || 'Payment request failed. Please check your connection and try again.';
       }
     });
   }

@@ -5,4 +5,5 @@ public sealed class AstroAiSettings
     public string OpenAIEndpoint { get; set; } = string.Empty;
     public string OpenAIApiKey { get; set; } = string.Empty;
     public string ModelId { get; set; } = "gpt-5.2";
+    public string GoogleMapsApiKey { get; set; } = string.Empty;
 }

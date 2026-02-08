@@ -1,0 +1,185 @@
+<div class="numerology-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="cosmic-bg"></div>
+    <h1 class="hero-title">
+      <span class="mystic-icon">✨</span>
+      Discover Your Numerology
+      <span class="mystic-icon">✨</span>
+    </h1>
+    <p class="hero-subtitle">Unlock the secrets hidden in your birth date</p>
+  </div>
+
+  <!-- Input Form -->
+  <div class="input-section" *ngIf="!showResults">
+    <div class="card form-card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="birthDate" class="form-label">
+            <i class="bi bi-calendar-heart"></i> Select Your Birth Date
+          </label>
+          <input 
+            type="date" 
+            id="birthDate"
+            class="form-control date-input" 
+            [(ngModel)]="birthDate"
+            [disabled]="loading"
+            (keyup.enter)="onSubmit()"
+          />
+        </div>
+
+        <div class="alert alert-danger mt-3" *ngIf="error">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+        </div>
+
+        <button 
+          class="btn btn-primary btn-lg submit-btn" 
+          (click)="onSubmit()"
+          [disabled]="loading || !birthDate"
+        >
+          <span *ngIf="!loading">
+            <i class="bi bi-stars"></i> Reveal My Numbers
+          </span>
+          <span *ngIf="loading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Calculating...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="results-section" *ngIf="showResults && numerologyData">
+    <!-- Core Numbers -->
+    <div class="section-header">
+      <h2>Your Core Numbers</h2>
+      <p>The foundation of your numerological profile</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+      <!-- Life Path Number -->
+      <div class="col-md-4" [class.fade-in-up]="showLifePath">
+        <div class="number-card life-path-card">
+          <div class="number-icon">🌟</div>
+          <h3 class="number-title">Life Path Number</h3>
+          <div class="core-number" [style.background]="getNumberColor(numerologyData.lifePathNumber)">
+            {{ numerologyData.lifePathNumber }}
+            <span class="master-badge" *ngIf="isMasterNumber(numerologyData.lifePathNumber)">Master</span>
+          </div>
+          <p class="number-description">Your life's purpose and journey</p>
+        </div>
+      </div>
+
+      <!-- Destiny Number -->
+      <div class="col-md-4" [class.fade-in-up]="showDestiny">
+        <div class="number-card destiny-card">
+          <div class="number-icon">🎯</div>
+          <h3 class="number-title">Destiny Number</h3>
+          <div class="core-number" [style.background]="getNumberColor(numerologyData.destinyNumber)">
+            {{ numerologyData.destinyNumber }}
+            <span class="master-badge" *ngIf="isMasterNumber(numerologyData.destinyNumber)">Master</span>
+          </div>
+          <p class="number-description">Your ultimate potential</p>
+        </div>
+      </div>
+
+      <!-- Soul Urge Number -->
+      <div class="col-md-4" [class.fade-in-up]="showSoulUrge">
+        <div class="number-card soul-urge-card">
+          <div class="number-icon">💫</div>
+          <h3 class="number-title">Soul Urge Number</h3>
+          <div class="core-number" [style.background]="getNumberColor(numerologyData.soulUrgeNumber)">
+            {{ numerologyData.soulUrgeNumber }}
+            <span class="master-badge" *ngIf="isMasterNumber(numerologyData.soulUrgeNumber)">Master</span>
+          </div>
+          <p class="number-description">Your heart's deepest desire</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lucky Numbers -->
+    <div class="row mb-5" [class.fade-in-up]="showLuckyNumbers">
+      <div class="col-12">
+        <div class="prediction-card lucky-numbers-card">
+          <div class="card-icon">🍀</div>
+          <h3 class="prediction-title">Your Lucky Numbers</h3>
+          <div class="lucky-numbers-display">
+            <span class="lucky-number" *ngFor="let num of numerologyData.luckyNumbers">
+              {{ num }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Predictions Section -->
+    <div class="section-header">
+      <h2>Life Predictions</h2>
+      <p>Insights into various aspects of your life</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+      <!-- Career Direction -->
+      <div class="col-lg-6" [class.fade-in-left]="showCareer">
+        <div class="prediction-card career-card">
+          <div class="card-header-section">
+            <div class="card-icon">💼</div>
+            <h3 class="prediction-title">Career Direction</h3>
+          </div>
+          <div class="prediction-content">
+            {{ numerologyData.careerDirection }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Love Prediction -->
+      <div class="col-lg-6" [class.fade-in-right]="showLove">
+        <div class="prediction-card love-card">
+          <div class="card-header-section">
+            <div class="card-icon">💕</div>
+            <h3 class="prediction-title">Love & Relationships</h3>
+          </div>
+          <div class="prediction-content">
+            {{ numerologyData.lovePrediction }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Money Prediction -->
+      <div class="col-lg-6" [class.fade-in-left]="showMoney">
+        <div class="prediction-card money-card">
+          <div class="card-header-section">
+            <div class="card-icon">💰</div>
+            <h3 class="prediction-title">Financial Prospects</h3>
+          </div>
+          <div class="prediction-content">
+            {{ numerologyData.moneyPrediction }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Remedies -->
+      <div class="col-lg-6" [class.fade-in-right]="showRemedies">
+        <div class="prediction-card remedies-card">
+          <div class="card-header-section">
+            <div class="card-icon">🔮</div>
+            <h3 class="prediction-title">Remedies & Guidance</h3>
+          </div>
+          <div class="prediction-content">
+            <ul class="remedies-list">
+              <li *ngFor="let remedy of numerologyData.remedies">{{ remedy }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset Button -->
+    <div class="text-center mb-5">
+      <button class="btn btn-lg calculate-again-btn" (click)="reset()">
+        <i class="bi bi-arrow-counterclockwise"></i> Calculate Again
+      </button>
+    </div>
+  </div>
+</div>

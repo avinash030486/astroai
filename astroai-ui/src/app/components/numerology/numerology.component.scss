@@ -1,0 +1,535 @@
+.numerology-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem 0;
+}
+
+// Hero Section
+.hero-section {
+  position: relative;
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+  overflow: hidden;
+
+  .cosmic-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><radialGradient id="star" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:white;stop-opacity:1" /><stop offset="100%" style="stop-color:white;stop-opacity:0" /></radialGradient></defs><circle cx="100" cy="50" r="2" fill="url(%23star)" opacity="0.8"/><circle cx="300" cy="100" r="1.5" fill="url(%23star)" opacity="0.6"/><circle cx="500" cy="80" r="2" fill="url(%23star)" opacity="0.9"/><circle cx="700" cy="120" r="1" fill="url(%23star)" opacity="0.7"/><circle cx="900" cy="60" r="1.5" fill="url(%23star)" opacity="0.8"/><circle cx="1100" cy="90" r="2" fill="url(%23star)" opacity="0.6"/><circle cx="200" cy="150" r="1" fill="url(%23star)" opacity="0.5"/><circle cx="400" cy="180" r="1.5" fill="url(%23star)" opacity="0.7"/><circle cx="600" cy="140" r="1" fill="url(%23star)" opacity="0.6"/><circle cx="800" cy="170" r="2" fill="url(%23star)" opacity="0.8"/><circle cx="1000" cy="130" r="1.5" fill="url(%23star)" opacity="0.7"/></svg>') repeat;
+    animation: twinkle 3s ease-in-out infinite;
+    opacity: 0.6;
+  }
+
+  .hero-title {
+    position: relative;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    animation: glow 2s ease-in-out infinite alternate;
+
+    .mystic-icon {
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+      font-size: 2.5rem;
+    }
+  }
+
+  .hero-subtitle {
+    position: relative;
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+}
+
+// Input Section
+.input-section {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 1rem;
+
+  .form-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-body {
+      padding: 3rem;
+    }
+  }
+
+  .form-label {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 1rem;
+    display: block;
+
+    i {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .date-input {
+    font-size: 1.1rem;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      transform: scale(1.02);
+    }
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    i {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Results Section
+.results-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  .section-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+  }
+}
+
+// Number Cards
+.number-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  }
+
+  .number-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .number-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  .core-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin: 1rem auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: rotate-glow 4s linear infinite;
+
+    .master-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: gold;
+      color: #333;
+      font-size: 0.6rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+      animation: sparkle 2s ease-in-out infinite;
+    }
+  }
+
+  .number-description {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 1rem;
+    font-style: italic;
+  }
+}
+
+// Lucky Numbers
+.lucky-numbers-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+
+  .card-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .prediction-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+
+  .lucky-numbers-display {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+
+    .lucky-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border-radius: 50%;
+      box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.2) rotate(360deg);
+        box-shadow: 0 12px 30px rgba(245, 87, 108, 0.6);
+      }
+    }
+  }
+}
+
+// Prediction Cards
+.prediction-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-header-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-right: 1rem;
+    }
+
+    .prediction-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+    }
+  }
+
+  .prediction-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    text-align: justify;
+
+    .remedies-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        padding: 0.8rem 0;
+        padding-left: 2rem;
+        position: relative;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &::before {
+          content: "✨";
+          position: absolute;
+          left: 0;
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                 0 0 30px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes rotate-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.fade-in-left {
+  animation: fadeInLeft 0.6s ease-out forwards;
+}
+
+.fade-in-right {
+  animation: fadeInRight 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Calculate Again Button
+.calculate-again-btn {
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+
+    &::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  i {
+    margin-right: 0.5rem;
+    font-size: 1.3rem;
+    animation: rotate-reverse 2s linear infinite;
+  }
+}
+
+@keyframes rotate-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .hero-section .hero-title {
+    font-size: 2rem;
+
+    .mystic-icon {
+      font-size: 1.8rem;
+    }
+  }
+
+  .hero-section .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .input-section .form-card .card-body {
+    padding: 2rem;
+  }
+
+  .number-card .core-number {
+    width: 80px;
+    height: 80px;
+    font-size: 2.5rem;
+  }
+
+  .lucky-numbers-display .lucky-number {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+}

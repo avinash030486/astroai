@@ -74,6 +74,21 @@ export interface PlaceSuggestion {
   placeId: string;
 }
 
+export interface NumerologyRequest {
+  birthDate: string; // yyyy-MM-dd
+}
+
+export interface NumerologyDetailsResponse {
+  lifePathNumber: number;
+  destinyNumber: number;
+  soulUrgeNumber: number;
+  luckyNumbers: number[];
+  careerDirection: string;
+  lovePrediction: string;
+  moneyPrediction: string;
+  remedies: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class HoroscopeService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api`;
@@ -90,5 +105,9 @@ export class HoroscopeService {
 
   getPlaceSuggestions(input: string): Observable<PlaceSuggestion[]> {
     return this.http.get<PlaceSuggestion[]>(`${this.baseUrl}/geo/autocomplete?input=${encodeURIComponent(input)}`);
+  }
+
+  getNumerologyDetails(req: NumerologyRequest): Observable<NumerologyDetailsResponse> {
+    return this.http.post<NumerologyDetailsResponse>(`${this.baseUrl}/predictions/get-numerology-details`, req);
   }
 }

@@ -7,6 +7,7 @@ import { UpcomingFeaturesComponent } from './components/upcoming-features/upcomi
 import { DailyPredictionComponent } from './components/daily-prediction/daily-prediction.component';
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { NumerologyComponent } from './components/numerology/numerology.component';
 
 const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'daily-horoscope', component: DailyPredictionComponent },
   { path: 'daily-panchang', component: DailyPanchangComponent },
   { path: 'birth-chart', component: BirthChartComponent },
+  { path: 'numerology', component: NumerologyComponent },
   { path: 'upcoming', component: UpcomingFeaturesComponent },
   { path: '**', redirectTo: '' }
 ];

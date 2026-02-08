@@ -13,6 +13,7 @@ import { DailyPredictionComponent } from './components/daily-prediction/daily-pr
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
 import { UpcomingFeaturesComponent } from './components/upcoming-features/upcoming-features.component';
 import { LandingComponent } from './components/landing/landing.component';
+import { NumerologyComponent } from './components/numerology/numerology.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
@@ -24,7 +25,8 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     DailyPredictionComponent,
     DailyPanchangComponent,
     UpcomingFeaturesComponent,
-    LandingComponent
+    LandingComponent,
+    NumerologyComponent
   ],
   imports: [
     BrowserModule,

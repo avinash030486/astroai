@@ -21,11 +21,6 @@ export class UpcomingFeaturesComponent {
       tag: 'New'
     },
     {
-      icon: '🔢',
-      title: 'AI-Based Numerology',
-      blurb: 'Personal numbers mapped to life themes, cycles, and practical timing windows you can act on.'
-    },
-    {
       icon: '📅',
       title: 'Yearly Horoscopes',
       blurb: 'Big‑picture outlook for career, money, love, and health with month‑by‑month highlights and PDF export.'

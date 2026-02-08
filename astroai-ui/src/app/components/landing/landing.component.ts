@@ -24,7 +24,7 @@ export class LandingComponent {
   }
 
   startJourney(): void {
-    this.router.navigate(['/birth-chart']);
+    this.router.navigate(['/daily-prediction']);
   }
 
   getPersonalizedReading(): void {

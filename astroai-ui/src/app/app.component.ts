@@ -28,4 +28,10 @@ export class AppComponent implements OnInit {
       }
     }, 3000);
   }
+    closeNavbar() {
+    const navbar = document.getElementById('mainNav');
+    if (navbar?.classList.contains('show')) {
+      navbar.classList.remove('show');
+    }
+  }
 }

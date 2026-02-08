@@ -25,7 +25,6 @@
       </div>
       <div *ngIf="placeName" class="assist text-contrast mt-1">📍 Location: {{ placeName }}</div>
       <div id="formHelp" class="assist mt-1">Auto-detecting location... You can also manually enter a place or coordinates.</div>
-      <div *ngIf="statusMsg" class="mt-2 text-info" aria-live="polite">{{ statusMsg }}</div>
       <div *ngIf="error" class="alert alert-danger mt-3" role="alert">{{ error }}</div>
     </form>
 

@@ -1,6 +1,4 @@
 
-<a class="skip-link" href="#main-content">Skip to main content</a>
-
 <header>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
 		<a class="navbar-brand d-flex align-items-center" routerLink="/">
@@ -10,10 +8,10 @@
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div id="mainNav" class="collapse navbar-collapse">
-			<ul class="navbar-nav ms-auto">
+		<div id="mainNav" class="collapse navbar-collapse" #mainNav>
+			<ul class="navbar-nav ms-auto" (click)="closeNavbar()">
 				<li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/daily-horoscope">Daily Horoscope</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/daily-prediction">Daily Horoscope</a></li>
 				<li class="nav-item"><a class="nav-link" routerLink="/daily-panchang">Panchang</a></li>
 				<li class="nav-item"><a class="nav-link" routerLink="/birth-chart">Vedic Astrology</a></li>
 				<li class="nav-item"><a class="nav-link" routerLink="/numerology">Numerology</a></li>
@@ -34,7 +32,52 @@
 		<div class="d-none d-sm-flex gap-3">
 			<a class="text-muted" href="#privacy">Privacy</a>
 			<a class="text-muted" href="#terms">Terms</a>
-			<a class="text-muted" href="#contact">Contact</a>
-		</div>
+			<a class="text-muted" href="#contact">Contact</a><br>
+			<a 
+   href="https://www.youtube.com/@VedicAstroPredictions"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="YouTube">
+
+   <svg width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="red">
+      <path d="M23.5 6.2a2.9 2.9 0 0 0-2-2C19.7 3.7 12 3.7 12 3.7s-7.7 0-9.5.5a2.9 2.9 0 0 0-2 2A30.4 30.4 0 0 0 0 12a30.4 30.4 0 0 0 .5 5.8 2.9 2.9 0 0 0 2 2c1.8.5 9.5.5 9.5.5s7.7 0 9.5-.5a2.9 2.9 0 0 0 2-2A30.4 30.4 0 0 0 24 12a30.4 30.4 0 0 0-.5-5.8zM9.8 15.5v-7L16 12l-6.2 3.5z"/>
+   </svg>
+
+</a>
+<a 
+   href="https://www.instagram.com/vedicastroapp"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Instagram">
+
+   <svg width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="#E4405F">
+      <path d="M7.75 2C4.57 2 2 4.57 2 7.75v8.5C2 19.43 4.57 22 7.75 22h8.5C19.43 22 22 19.43 22 16.25v-8.5C22 4.57 19.43 2 16.25 2h-8.5zm0 2h8.5C18.22 4 20 5.78 20 7.75v8.5c0 1.97-1.78 3.75-3.75 3.75h-8.5C5.78 20 4 18.22 4 16.25v-8.5C4 5.78 5.78 4 7.75 4zm9.25 1.5a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z"/>
+   </svg>
+
+</a>
+<a 
+   href="https://www.facebook.com/profile.php?id=61587397383205"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Facebook">
+
+   <svg width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="#1877F2">
+      <path d="M22 12a10 10 0 10-11.63 9.88v-6.99H7.9V12h2.47V9.8c0-2.44 1.46-3.8 3.7-3.8 1.07 0 2.18.19 2.18.19v2.4h-1.23c-1.21 0-1.59.75-1.59 1.52V12h2.71l-.43 2.89h-2.28v6.99A10 10 0 0022 12z"/>
+   </svg>
+
+</a>
+
+
+			
+			</div>
 	</div>
 </footer>

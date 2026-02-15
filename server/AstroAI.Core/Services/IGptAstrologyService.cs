@@ -8,6 +8,26 @@ public interface IGptAstrologyService
     Task<DetailedChartPredictionResponse> GenerateDetailedPredictionAsync(BasicChartPredictionRequest chart, DashaStatus dasha, int ageYears, CancellationToken ct);
     Task<DailyPredictionsResponse> GetDailyPredictionsAsync(CancellationToken ct);
     Task<DailyPanchangResponse> GetDailyPanchangAsync(string location, DateTime? dateUtc, CancellationToken ct);
-
     Task<AskQuestionResponse> AnswerQuestionAsync(AskQuestionPayload payload, CancellationToken ct);
+    
+    Task<MatchmakingResponse> GenerateMatchmakingAnalysisAsync(
+        SouthIndianChart person1Chart,
+        SouthIndianChart person2Chart,
+        DashaStatus person1Dasha,
+        DashaStatus person2Dasha,
+        string person1Name,
+        string person2Name,
+        CancellationToken ct);
+    
+    Task<YearlyHoroscopeResponse> GenerateYearlyHoroscopeAsync(
+        SouthIndianChart chart,
+        DashaStatus currentDasha,
+        int targetYear,
+        CancellationToken ct);
+    
+    Task<PersonalizedRemediesResponse> GeneratePersonalizedRemediesAsync(
+        SouthIndianChart chart,
+        DashaStatus dasha,
+        IReadOnlyList<string> areasOfConcern,
+        CancellationToken ct);
 }

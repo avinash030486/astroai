@@ -10,7 +10,7 @@ export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
 
-  constructor(private authService: AuthService) {
+  constructor(public authService: AuthService) {
     console.log('🚀 AppComponent initialized, AuthService injected');
   }
 
@@ -21,14 +21,23 @@ export class AppComponent implements OnInit {
     setTimeout(() => {
       const session = this.authService.getCurrentSession();
       if (session) {
-        console.log('✅ Authentication successful');
-        console.log('🔑 Token available:', session.access_token?.substring(0, 30) + '...');
+        const user = this.authService.getCurrentUser();
+        if (user?.is_anonymous) {
+          console.log('✅ Anonymous session active');
+        } else {
+          console.log('✅ Authenticated user:', user?.email);
+        }
       } else {
         console.log('⚠️ No active session');
       }
     }, 3000);
   }
-    closeNavbar() {
+  
+  async signOut(): Promise<void> {
+    await this.authService.signOut();
+  }
+  
+  closeNavbar() {
     const navbar = document.getElementById('mainNav');
     if (navbar?.classList.contains('show')) {
       navbar.classList.remove('show');

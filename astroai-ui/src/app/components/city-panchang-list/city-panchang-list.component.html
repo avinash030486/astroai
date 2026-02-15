@@ -1,0 +1,57 @@
+<div class="city-panchang-container">
+  <div class="hero-section">
+    <h1><span class="icon">📅</span> City-Specific Panchang <span class="icon">🌏</span></h1>
+    <p>Get accurate Vedic Panchang for top cities in India and America</p>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearch()"
+        placeholder="Search for a city..."
+      >
+      <i class="bi bi-search"></i>
+    </div>
+  </div>
+
+  <div class="cities-container">
+    <section class="country-section">
+      <h2>🇮🇳 India ({{ filteredIndianCities.length }} cities)</h2>
+      <div class="cities-grid">
+        <div class="city-card" *ngFor="let city of filteredIndianCities" (click)="navigateToCity(city, 'today')">
+          <h3>{{ city.city }}</h3>
+          <p class="state">{{ city.state }}</p>
+          <div class="quick-links">
+            <button class="btn btn-sm btn-primary" (click)="navigateToCity(city, 'today'); $event.stopPropagation()">
+              Today
+            </button>
+            <button class="btn btn-sm btn-outline-primary" (click)="navigateToCity(city, 'tomorrow'); $event.stopPropagation()">
+              Tomorrow
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="country-section mt-5">
+      <h2>🇺🇸 United States ({{ filteredAmericanCities.length }} cities)</h2>
+      <div class="cities-grid">
+        <div class="city-card" *ngFor="let city of filteredAmericanCities" (click)="navigateToCity(city, 'today')">
+          <h3>{{ city.city }}</h3>
+          <p class="state">{{ city.state }}</p>
+          <div class="quick-links">
+            <button class="btn btn-sm btn-primary" (click)="navigateToCity(city, 'today'); $event.stopPropagation()">
+              Today
+            </button>
+            <button class="btn btn-sm btn-outline-primary" (click)="navigateToCity(city, 'tomorrow'); $event.stopPropagation()">
+              Tomorrow
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

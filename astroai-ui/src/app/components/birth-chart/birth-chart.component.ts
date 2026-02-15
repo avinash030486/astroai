@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse, PlaceSuggestion } from '../../services/horoscope.service';
 import { PredictionsService, BasicChartPredictionResponse, DetailedChartPredictionResponse } from '../../services/predictions.service';
 import { PaymentService, PaymentRequest, PaymentResult, QnaPaymentRequest } from '../../services/payment.service';
+import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import jsPDF from 'jspdf';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { Subject } from 'rxjs';
@@ -22,7 +23,8 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     private api: ApiService,
     private horoscope: HoroscopeService,
     private predictions: PredictionsService,
-    private payments: PaymentService
+    private payments: PaymentService,
+    private currencyService: CurrencyService
   ) {}
 
   form = this.fb.group({
@@ -79,6 +81,17 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   private cardElement: any;
   private qnaCardElement: any;
 
+  // Currency properties
+  currentCurrency: CurrencyInfo = { code: 'USD', symbol: '$', name: 'US Dollar' };
+  premiumPrices = {
+    'one-time': { usd: 3.99, converted: 3.99 },
+    'weekly': { usd: 2.99, converted: 2.99 }
+  };
+  qnaPrices = {
+    'qna-10': { usd: 3.00, converted: 3.00 },
+    'qna-unlimited': { usd: 10.00, converted: 10.00 }
+  };
+
   ngOnInit(): void {
     // Check if user has purchased QNA plan
     const qnaPlan = sessionStorage.getItem('astroai_qna_plan');
@@ -97,8 +110,17 @@ export class BirthChartComponent implements OnInit, OnDestroy {
 
     if (typeof Stripe !== 'undefined') {
       // TODO: replace with your real publishable key; keep test key in non-production environments only
-      this.stripe = Stripe('pk_test_51SkYaqLSgAsqBjx5YNHemyMVHXOg4SAoUId1QK48KnOVNYTit8OViLsTmGkkho9cEogLX0Xqsn9kc7AzP1CuNIph00CTpeel3M');
+      this.stripe = Stripe('pk_live_51SkYakPpSmZFXw4WZvXp8z7nLyOJmZReFnCtSqUnolgOWoDInuY8FhcJ0HRdbU5pKr3PLFSAj1ACkyktccWcdWmI00WrSAKFpD');
     }
+
+    // Subscribe to currency changes
+    this.currencyService.getCurrentCurrency().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(currency => {
+      console.log('💱 Currency changed to:', currency.code);
+      this.currentCurrency = currency;
+      this.updateConvertedPrices();
+    });
 
     // Set up autocomplete for birth place
     this.form.get('birthPlace')?.valueChanges.pipe(
@@ -108,7 +130,7 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       switchMap(value => this.horoscope.getPlaceSuggestions(value as string)),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (suggestions) => {
+      next: (suggestions) => { 
         this.placeSuggestions = suggestions;
         this.showSuggestions = suggestions.length > 0;
       },
@@ -957,5 +979,57 @@ export class BirthChartComponent implements OnInit, OnDestroy {
         this.qnaPaymentError = backendError || 'Payment request failed. Please check your connection and try again.';
       }
     });
+  }
+
+  /**
+   * Update all converted prices based on current currency
+   */
+  private updateConvertedPrices(): void {
+    // Convert premium prices
+    this.currencyService.convertFromUSD(this.premiumPrices['one-time'].usd)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.premiumPrices['one-time'].converted = result.amount;
+      });
+
+    this.currencyService.convertFromUSD(this.premiumPrices['weekly'].usd)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.premiumPrices['weekly'].converted = result.amount;
+      });
+
+    // Convert QNA prices
+    this.currencyService.convertFromUSD(this.qnaPrices['qna-10'].usd)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.qnaPrices['qna-10'].converted = result.amount;
+      });
+
+    this.currencyService.convertFromUSD(this.qnaPrices['qna-unlimited'].usd)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        this.qnaPrices['qna-unlimited'].converted = result.amount;
+      });
+  }
+
+  /**
+   * Format price with current currency
+   */
+  formatPrice(amount: number): string {
+    return this.currencyService.formatAmount(amount, this.currentCurrency.code);
+  }
+
+  /**
+   * Get display price for premium plan
+   */
+  getPremiumDisplayPrice(plan: 'one-time' | 'weekly'): string {
+    return this.formatPrice(this.premiumPrices[plan].converted);
+  }
+
+  /**
+   * Get display price for QNA plan
+   */
+  getQnaDisplayPrice(plan: 'qna-10' | 'qna-unlimited'): string {
+    return this.formatPrice(this.qnaPrices[plan].converted);
   }
 }

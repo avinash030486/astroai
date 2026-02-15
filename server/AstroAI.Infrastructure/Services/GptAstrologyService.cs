@@ -8,7 +8,7 @@ using AstroAI.Core.Configuration;
 
 namespace AstroAI.Infrastructure.Services;
 
-public sealed class GptAstrologyService : IGptAstrologyService
+public sealed partial class GptAstrologyService : IGptAstrologyService
 {
     private readonly HttpClient _http;
     private readonly string _endpoint;
@@ -438,6 +438,10 @@ internal static class JsonHelpers
 {
     public static string GetPropertyOrDefault(this JsonElement e, string name, string fallback)
         => e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString() ?? fallback : fallback;
+    
+    public static int GetPropertyOrDefault(this JsonElement e, string name, int fallback)
+        => e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.Number && p.TryGetInt32(out var val) ? val : fallback;
+    
     public static List<string> GetArrayOrDefault(this JsonElement e, string name)
     {
         if (e.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.Array)
@@ -450,5 +454,380 @@ internal static class JsonHelpers
             return list;
         }
         return new List<string>();
+    }
+}
+
+// Extended methods for new features
+public sealed partial class GptAstrologyService
+{
+    public async Task<MatchmakingResponse> GenerateMatchmakingAnalysisAsync(
+        SouthIndianChart person1Chart,
+        SouthIndianChart person2Chart,
+        DashaStatus person1Dasha,
+        DashaStatus person2Dasha,
+        string person1Name,
+        string person2Name,
+        CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        var systemPrompt = @"You are an expert Vedic astrology matchmaking analyst. Analyze two birth charts for marriage compatibility using:
+1. Kuta/Guna Milan system (36 points total)
+2. Synastry analysis (planetary interactions between charts)
+3. Dasha compatibility (timing of life periods)
+4. Manglik dosha considerations
+5. 7th house and Venus analysis
+
+Provide practical, encouraging guidance. Return STRICT JSON with schema:
+{
+  ""overallScore"": number (0-100),
+  ""compatibilityLevel"": string (Excellent/Very Good/Good/Fair/Challenging),
+  ""synastryAnalysis"": string (2-3 sentences),
+  ""areasOfCompatibility"": [{""name"": string, ""score"": number, ""analysis"": string}],
+  ""strengths"": [string],
+  ""challenges"": [string],
+  ""recommendations"": [string],
+  ""nextSteps"": string,
+  ""kutaScore"": string (e.g. ""28/36""),
+  ""kutaBreakdown"": [{""name"": string, ""points"": number, ""maxPoints"": number, ""description"": string}]
+}";
+
+        var person1Summary = BuildChartSummaryForMatching(person1Chart, person1Dasha, person1Name);
+        var person2Summary = BuildChartSummaryForMatching(person2Chart, person2Dasha, person2Name);
+
+        var payload = new
+        {
+            model = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = $"Person 1:\n{person1Summary}\n\nPerson 2:\n{person2Summary}\n\nAnalyze marriage compatibility." }
+            },
+            temperature = 0.3,
+            response_format = new { type = "json_object" }
+        };
+
+        using var req = CreateRequest(url, payload);
+        var res = await _http.SendAsync(req, ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"Matchmaking analysis failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        using var result = JsonDocument.Parse(content);
+        var root = result.RootElement;
+
+        return new MatchmakingResponse(
+            OverallScore: root.GetPropertyOrDefault("overallScore", 0),
+            CompatibilityLevel: root.GetPropertyOrDefault("compatibilityLevel", "Good"),
+            SynastryAnalysis: root.GetPropertyOrDefault("synastryAnalysis", ""),
+            AreasOfCompatibility: ParseCompatibilityAreas(root),
+            Strengths: root.GetArrayOrDefault("strengths"),
+            Challenges: root.GetArrayOrDefault("challenges"),
+            Recommendations: root.GetArrayOrDefault("recommendations"),
+            NextSteps: root.GetPropertyOrDefault("nextSteps", ""),
+            KutaScore: root.GetPropertyOrDefault("kutaScore", ""),
+            KutaBreakdown: ParseKutaBreakdown(root));
+    }
+
+    public async Task<YearlyHoroscopeResponse> GenerateYearlyHoroscopeAsync(
+        SouthIndianChart chart,
+        DashaStatus currentDasha,
+        int targetYear,
+        CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        var systemPrompt = @"You are a Vedic astrology expert creating comprehensive yearly horoscopes. Analyze:
+1. Natal chart with current transits for the target year
+2. Vimshottari Dasha periods active during the year
+3. Major transits (Jupiter, Saturn, Rahu/Ketu)
+4. Month-by-month predictions
+
+Provide structured, actionable insights. Return STRICT JSON with schema:
+{
+  ""year"": number,
+  ""overallTheme"": string (2-3 sentences summarizing the year),
+  ""lifeAreas"": [{""area"": string (Career/Finance/Love/Health/Spiritual), ""score"": number (1-10), ""overview"": string, ""keyPoints"": [string]}],
+  ""monthlyHighlights"": [{""month"": number, ""monthName"": string, ""careerOutlook"": string, ""financeOutlook"": string, ""relationshipOutlook"": string, ""healthOutlook"": string, ""luckyDays"": string}],
+  ""importantDates"": [{""dateUtc"": string ISO, ""event"": string, ""significance"": string, ""recommendation"": string}],
+  ""yearlyRemedies"": [string],
+  ""dashaTransitions"": string
+}";
+
+        var chartSummary = BuildYearlyChartPrompt(chart, currentDasha, targetYear);
+
+        var payload = new
+        {
+            model = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = chartSummary }
+            },
+            temperature = 0.4,
+            response_format = new { type = "json_object" }
+        };
+
+        using var req = CreateRequest(url, payload);
+        var res = await _http.SendAsync(req, ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"Yearly horoscope failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        using var result = JsonDocument.Parse(content);
+        var root = result.RootElement;
+
+        return new YearlyHoroscopeResponse(
+            Year: targetYear,
+            OverallTheme: root.GetPropertyOrDefault("overallTheme", ""),
+            LifeAreas: ParseLifeAreas(root),
+            MonthlyHighlights: ParseMonthlyHighlights(root),
+            ImportantDates: ParseKeyDates(root),
+            YearlyRemedies: root.GetArrayOrDefault("yearlyRemedies"),
+            DashaTransitions: root.GetPropertyOrDefault("dashaTransitions", ""));
+    }
+
+    public async Task<PersonalizedRemediesResponse> GeneratePersonalizedRemediesAsync(
+        SouthIndianChart chart,
+        DashaStatus dasha,
+        IReadOnlyList<string> areasOfConcern,
+        CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        var systemPrompt = @"You are a Vedic astrology remedial expert. Provide gentle, grounded, traditional remedies based on:
+1. Planetary positions and afflictions in the birth chart
+2. Current Dasha period challenges
+3. Specific areas of concern mentioned by the native
+
+Focus on: mantras, gemstones, fasting, simple puja/rituals, donations, and lifestyle adjustments.
+Be practical, affordable, and respectful of modern life constraints.
+
+Return STRICT JSON with schema:
+{
+  ""chartSummary"": string (2 sentences about key chart features),
+  ""mantras"": [{""name"": string, ""description"": string, ""benefit"": string, ""howToPractice"": string, ""frequency"": string, ""bestTime"": string, ""effectivenessScore"": number}],
+  ""gemstones"": [{same structure}],
+  ""fastingDays"": [{same structure}],
+  ""rituals"": [{same structure}],
+  ""donations"": [{same structure}],
+  ""lifestyleAdjustments"": [{same structure}],
+  ""planetaryRemedyPriority"": string (which planet needs most attention),
+  ""immediateActions"": [string] (3-5 actions to start immediately)
+}";
+
+        var concerns = string.Join(", ", areasOfConcern);
+        var chartPrompt = BuildRemediesChartPrompt(chart, dasha, concerns);
+
+        var payload = new
+        {
+            model = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = chartPrompt }
+            },
+            temperature = 0.3,
+            response_format = new { type = "json_object" }
+        };
+
+        using var req = CreateRequest(url, payload);
+        var res = await _http.SendAsync(req, ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"Personalized remedies failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        using var result = JsonDocument.Parse(content);
+        var root = result.RootElement;
+
+        return new PersonalizedRemediesResponse(
+            ChartSummary: root.GetPropertyOrDefault("chartSummary", ""),
+            Mantras: ParseRemedies(root, "mantras"),
+            Gemstones: ParseRemedies(root, "gemstones"),
+            FastingDays: ParseRemedies(root, "fastingDays"),
+            Rituals: ParseRemedies(root, "rituals"),
+            Donations: ParseRemedies(root, "donations"),
+            LifestyleAdjustments: ParseRemedies(root, "lifestyleAdjustments"),
+            PlanetaryRemedyPriority: root.GetPropertyOrDefault("planetaryRemedyPriority", ""),
+            ImmediateActions: root.GetArrayOrDefault("immediateActions"));
+    }
+
+    // Helper methods
+    private static string BuildChartSummaryForMatching(SouthIndianChart chart, DashaStatus dasha, string name)
+    {
+        var houses = string.Join("; ", chart.Houses.Select(h => 
+            $"H{h.Number} {h.Sign} [{string.Join(",", h.Occupants)}] RL:{h.RasiLord}"));
+        var planets = string.Join("; ", chart.Planets.Select(p => 
+            $"{p.Name} {p.Sign} H{p.House} Nak:{p.Nakshatra}"));
+        
+        return $"Name: {name}\n" +
+               $"Asc: {chart.AscendantSign} ({chart.AscendantSiderealLongitude:F2}°)\n" +
+               $"Houses: {houses}\n" +
+               $"Planets: {planets}\n" +
+               $"Current Dasha: {dasha.MahaDashaLord}/{dasha.AntarDashaLord}\n" +
+               $"Birth: {chart.BirthDateTimeUtc:yyyy-MM-dd}";
+    }
+
+    private static string BuildYearlyChartPrompt(SouthIndianChart chart, DashaStatus dasha, int year)
+    {
+        var houses = string.Join("; ", chart.Houses.Select(h => 
+            $"H{h.Number} {h.Sign} [{string.Join(",", h.Occupants)}]"));
+        var planets = string.Join("; ", chart.Planets.Select(p => 
+            $"{p.Name} {p.Sign} H{p.House}"));
+        
+        return $"Target Year: {year}\n" +
+               $"Ascendant: {chart.AscendantSign}\n" +
+               $"Houses: {houses}\n" +
+               $"Planets: {planets}\n" +
+               $"Current Dasha: {dasha.MahaDashaLord}/{dasha.AntarDashaLord} " +
+               $"[Maha: {dasha.MahaPeriod.StartUtc:yyyy-MM-dd} to {dasha.MahaPeriod.EndUtc:yyyy-MM-dd}]\n" +
+               $"Birth: {chart.BirthDateTimeUtc:yyyy-MM-dd}\n" +
+               $"Generate comprehensive {year} yearly horoscope with month-by-month breakdown.";
+    }
+
+    private static string BuildRemediesChartPrompt(SouthIndianChart chart, DashaStatus dasha, string concerns)
+    {
+        var planets = string.Join("; ", chart.Planets.Select(p => 
+            $"{p.Name} {p.Sign} H{p.House} Nak:{p.Nakshatra}"));
+        
+        return $"Areas of Concern: {concerns}\n" +
+               $"Ascendant: {chart.AscendantSign}\n" +
+               $"Planets: {planets}\n" +
+               $"Current Dasha: {dasha.MahaDashaLord}/{dasha.AntarDashaLord}\n" +
+               $"Generate personalized Vedic remedies focusing on the stated concerns.";
+    }
+
+    private static IReadOnlyList<CompatibilityArea> ParseCompatibilityAreas(JsonElement root)
+    {
+        if (!root.TryGetProperty("areasOfCompatibility", out var areas) || areas.ValueKind != JsonValueKind.Array)
+            return Array.Empty<CompatibilityArea>();
+
+        return areas.EnumerateArray()
+            .Select(a => new CompatibilityArea(
+                Name: a.GetPropertyOrDefault("name", ""),
+                Score: a.GetPropertyOrDefault("score", 0),
+                Analysis: a.GetPropertyOrDefault("analysis", "")))
+            .ToList();
+    }
+
+    private static IReadOnlyList<KutaDetail> ParseKutaBreakdown(JsonElement root)
+    {
+        if (!root.TryGetProperty("kutaBreakdown", out var kutas) || kutas.ValueKind != JsonValueKind.Array)
+            return Array.Empty<KutaDetail>();
+
+        return kutas.EnumerateArray()
+            .Select(k => new KutaDetail(
+                Name: k.GetPropertyOrDefault("name", ""),
+                Points: k.GetPropertyOrDefault("points", 0),
+                MaxPoints: k.GetPropertyOrDefault("maxPoints", 0),
+                Description: k.GetPropertyOrDefault("description", "")))
+            .ToList();
+    }
+
+    private static IReadOnlyList<LifeAreaPrediction> ParseLifeAreas(JsonElement root)
+    {
+        if (!root.TryGetProperty("lifeAreas", out var areas) || areas.ValueKind != JsonValueKind.Array)
+            return Array.Empty<LifeAreaPrediction>();
+
+        return areas.EnumerateArray()
+            .Select(a => new LifeAreaPrediction(
+                Area: a.GetPropertyOrDefault("area", ""),
+                Score: a.GetPropertyOrDefault("score", 5),
+                Overview: a.GetPropertyOrDefault("overview", ""),
+                KeyPoints: ParseStringArray(a, "keyPoints")))
+            .ToList();
+    }
+
+    private static IReadOnlyList<MonthlyHighlight> ParseMonthlyHighlights(JsonElement root)
+    {
+        if (!root.TryGetProperty("monthlyHighlights", out var months) || months.ValueKind != JsonValueKind.Array)
+            return Array.Empty<MonthlyHighlight>();
+
+        return months.EnumerateArray()
+            .Select(m => new MonthlyHighlight(
+                Month: m.GetPropertyOrDefault("month", 1),
+                MonthName: m.GetPropertyOrDefault("monthName", ""),
+                CareerOutlook: m.GetPropertyOrDefault("careerOutlook", ""),
+                FinanceOutlook: m.GetPropertyOrDefault("financeOutlook", ""),
+                RelationshipOutlook: m.GetPropertyOrDefault("relationshipOutlook", ""),
+                HealthOutlook: m.GetPropertyOrDefault("healthOutlook", ""),
+                LuckyDays: m.GetPropertyOrDefault("luckyDays", "")))
+            .ToList();
+    }
+
+    private static IReadOnlyList<KeyDate> ParseKeyDates(JsonElement root)
+    {
+        if (!root.TryGetProperty("importantDates", out var dates) || dates.ValueKind != JsonValueKind.Array)
+            return Array.Empty<KeyDate>();
+
+        return dates.EnumerateArray()
+            .Select(d => new KeyDate(
+                DateUtc: DateTime.TryParse(d.GetPropertyOrDefault("dateUtc", ""), out var dt) ? dt : DateTime.UtcNow,
+                Event: d.GetPropertyOrDefault("event", ""),
+                Significance: d.GetPropertyOrDefault("significance", ""),
+                Recommendation: d.GetPropertyOrDefault("recommendation", "")))
+            .ToList();
+    }
+
+    private static IReadOnlyList<Remedy> ParseRemedies(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out var remedies) || remedies.ValueKind != JsonValueKind.Array)
+            return Array.Empty<Remedy>();
+
+        return remedies.EnumerateArray()
+            .Select(r => new Remedy(
+                Name: r.GetPropertyOrDefault("name", ""),
+                Description: r.GetPropertyOrDefault("description", ""),
+                Benefit: r.GetPropertyOrDefault("benefit", ""),
+                HowToPractice: r.GetPropertyOrDefault("howToPractice", ""),
+                Frequency: r.GetPropertyOrDefault("frequency", ""),
+                BestTime: r.GetPropertyOrDefault("bestTime", ""),
+                EffectivenessScore: r.GetPropertyOrDefault("effectivenessScore", 5)))
+            .ToList();
+    }
+
+    private static IReadOnlyList<string> ParseStringArray(JsonElement element, string propertyName)
+    {
+        if (!element.TryGetProperty(propertyName, out var arr) || arr.ValueKind != JsonValueKind.Array)
+            return Array.Empty<string>();
+
+        return arr.EnumerateArray()
+            .Where(e => e.ValueKind == JsonValueKind.String)
+            .Select(e => e.GetString() ?? "")
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .ToList();
     }
 }

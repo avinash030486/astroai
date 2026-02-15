@@ -1,0 +1,195 @@
+<div class="remedies-container">
+  <div class="hero-section">
+    <h1><span class="icon">🕉️</span> Personalized Remedies <span class="icon">🕉️</span></h1>
+    <p>Vedic solutions tailored to your unique birth chart</p>
+  </div>
+
+  <div class="form-section" *ngIf="!result">
+    <div class="card input-card">
+      <div class="card-body">
+        <h3 class="mb-4">Birth Details</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <label>Name</label>
+            <input type="text" class="form-control" [(ngModel)]="birthDetails.name">
+          </div>
+          <div class="col-md-3">
+            <label>Birth Date</label>
+            <input type="date" class="form-control" [(ngModel)]="birthDetails.birthDate">
+          </div>
+          <div class="col-md-3">
+            <label>Birth Time</label>
+            <input type="time" class="form-control" [(ngModel)]="birthDetails.birthTime">
+          </div>
+          <div class="col-md-3">
+            <label>Birth Place</label>
+            <input type="text" class="form-control" [(ngModel)]="birthDetails.birthPlace" placeholder="City, State, Country">
+          </div>
+        </div>
+
+        <h3 class="mb-3">Areas of Concern</h3>
+        <p class="text-muted mb-3">Select one or more areas you'd like remedies for:</p>
+        <div class="concerns-grid">
+          <div class="concern-checkbox" *ngFor="let concern of availableConcerns">
+            <input type="checkbox" [id]="concern" [(ngModel)]="selectedConcerns[concern]">
+            <label [for]="concern">{{ concern }}</label>
+          </div>
+        </div>
+
+        <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-primary btn-lg" (click)="onGetRemedies()" [disabled]="loading">
+            <span *ngIf="!loading"><i class="bi bi-stars"></i> Get Personalized Remedies</span>
+            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Analyzing...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-section" *ngIf="result">
+    <div class="chart-summary-card">
+      <h3>Your Birth Chart Summary</h3>
+      <p>{{ result.chartSummary }}</p>
+    </div>
+
+    <div class="tabs-container">
+      <div class="tabs">
+        <button [class.active]="activeTab === 'mantras'" (click)="activeTab = 'mantras'" *ngIf="result.mantras.length > 0">
+          🔮 Mantras <span class="badge">{{ result.mantras.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'gemstones'" (click)="activeTab = 'gemstones'" *ngIf="result.gemstones.length > 0">
+          💎 Gemstones <span class="badge">{{ result.gemstones.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'fasting'" (click)="activeTab = 'fasting'" *ngIf="result.fastingDays.length > 0">
+          🌙 Fasting <span class="badge">{{ result.fastingDays.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'rituals'" (click)="activeTab = 'rituals'" *ngIf="result.rituals.length > 0">
+          🕉️ Rituals <span class="badge">{{ result.rituals.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'donations'" (click)="activeTab = 'donations'" *ngIf="result.donations.length > 0">
+          🙏 Donations <span class="badge">{{ result.donations.length }}</span>
+        </button>
+        <button [class.active]="activeTab === 'lifestyle'" (click)="activeTab = 'lifestyle'" *ngIf="result.lifestyleAdjustments.length > 0">
+          ⚖️ Lifestyle <span class="badge">{{ result.lifestyleAdjustments.length }}</span>
+        </button>
+      </div>
+
+      <div class="tab-content">
+        <div class="remedies-grid" *ngIf="activeTab === 'mantras'">
+          <div class="remedy-card" *ngFor="let remedy of result.mantras">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>How to Perform:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Best Time:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+
+        <div class="remedies-grid" *ngIf="activeTab === 'gemstones'">
+          <div class="remedy-card" *ngFor="let remedy of result.gemstones">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>How to Use:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Best Time to Wear:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+
+        <div class="remedies-grid" *ngIf="activeTab === 'fasting'">
+          <div class="remedy-card" *ngFor="let remedy of result.fastingDays">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>How to Observe:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Schedule:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+
+        <div class="remedies-grid" *ngIf="activeTab === 'rituals'">
+          <div class="remedy-card" *ngFor="let remedy of result.rituals">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>How to Perform:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Best Time:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+
+        <div class="remedies-grid" *ngIf="activeTab === 'donations'">
+          <div class="remedy-card" *ngFor="let remedy of result.donations">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>Details:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Best Time:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+
+        <div class="remedies-grid" *ngIf="activeTab === 'lifestyle'">
+          <div class="remedy-card" *ngFor="let remedy of result.lifestyleAdjustments">
+            <div class="effectiveness-badge" [style.backgroundColor]="getEffectivenessColor(remedy.effectivenessScore)">
+              {{ remedy.effectivenessScore }}/10
+            </div>
+            <h4>{{ remedy.name }}</h4>
+            <p class="description">{{ remedy.description }}</p>
+            <div class="how-to-perform">
+              <strong>How to Implement:</strong>
+              <p>{{ remedy.howToPractice }}</p>
+            </div>
+            <div class="best-time">
+              <strong>Best Time:</strong> {{ remedy.bestTime }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="immediate-actions-card">
+      <h3>⚡ Start With These</h3>
+      <ul>
+        <li *ngFor="let action of result.immediateActions">{{ action }}</li>
+      </ul>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary btn-lg" (click)="reset()"><i class="bi bi-arrow-counterclockwise"></i> New Request</button>
+    </div>
+  </div>
+</div>

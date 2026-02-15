@@ -31,6 +31,27 @@ namespace AstroAI.Api.Controllers
         string Email,
         string PaymentMethodId);
 
+    public record MatchmakingPaymentRequestDto(
+        decimal AmountUsd,
+        string Name,
+        string Email,
+        string PaymentMethodId,
+        string Person1Name,
+        string Person1BirthDate,
+        string Person1BirthTime,
+        string Person1BirthPlace,
+        string Person2Name,
+        string Person2BirthDate,
+        string Person2BirthTime,
+        string Person2BirthPlace);
+
+    public record NumerologyPaymentRequestDto(
+        decimal AmountUsd,
+        string Name,
+        string Email,
+        string PaymentMethodId,
+        string BirthDate);
+
     public record PaymentResultDto(bool Success, string? Error, string? SubscriptionId = null, string? CustomerId = null);
 
 
@@ -472,6 +493,127 @@ namespace AstroAI.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Unexpected error in chargeForQNA endpoint: {Message}", ex.Message);
+                return StatusCode(500,
+                    new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("chargeForMatchmaking")]
+        public async Task<IActionResult> ChargeForMatchmaking(
+            [FromBody] MatchmakingPaymentRequestDto dto,
+            CancellationToken ct)
+        {
+            _logger.LogInformation("💜 Matchmaking payment attempt for {Email}", dto.Email);
+
+            try
+            {
+                var amountCents = (long)(dto.AmountUsd * 100);
+
+                var paymentIntentOptions = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    PaymentMethod = dto.PaymentMethodId,
+                    Confirm = true,
+                    Description = $"Matchmaking Analysis - {dto.Person1Name} & {dto.Person2Name}",
+                    ReceiptEmail = dto.Email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "service", "matchmaking" },
+                        { "customer_name", dto.Name },
+                        { "customer_email", dto.Email },
+                        { "person1_name", dto.Person1Name },
+                        { "person1_birth_date", dto.Person1BirthDate },
+                        { "person2_name", dto.Person2Name },
+                        { "person2_birth_date", dto.Person2BirthDate }
+                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
+
+                var service = new PaymentIntentService();
+                var intent = await service.CreateAsync(paymentIntentOptions, cancellationToken: ct);
+
+                if (intent.Status == "succeeded")
+                {
+                    _logger.LogInformation("✅ Matchmaking payment succeeded for {Email}", dto.Email);
+                    return Ok(new PaymentResultDto(true, null, null, null));
+                }
+
+                _logger.LogWarning("⚠️ Matchmaking payment not completed, status: {Status}", intent.Status);
+                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "❌ Stripe error in Matchmaking payment: {Message}, Code={Code}", 
+                    ex.Message, ex.StripeError?.Code);
+                return BadRequest(new PaymentResultDto(false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unexpected error in chargeForMatchmaking: {Message}", ex.Message);
+                return StatusCode(500,
+                    new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("chargeForNumerology")]
+        public async Task<IActionResult> ChargeForNumerology(
+            [FromBody] NumerologyPaymentRequestDto dto,
+            CancellationToken ct)
+        {
+            _logger.LogInformation("✨ Numerology payment attempt for {Email}", dto.Email);
+
+            try
+            {
+                var amountCents = (long)(dto.AmountUsd * 100);
+
+                var paymentIntentOptions = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    PaymentMethod = dto.PaymentMethodId,
+                    Confirm = true,
+                    Description = $"Numerology Analysis - {dto.BirthDate}",
+                    ReceiptEmail = dto.Email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "service", "numerology" },
+                        { "customer_name", dto.Name },
+                        { "customer_email", dto.Email },
+                        { "birth_date", dto.BirthDate }
+                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
+
+                var service = new PaymentIntentService();
+                var intent = await service.CreateAsync(paymentIntentOptions, cancellationToken: ct);
+
+                if (intent.Status == "succeeded")
+                {
+                    _logger.LogInformation("✅ Numerology payment succeeded for {Email}", dto.Email);
+                    return Ok(new PaymentResultDto(true, null, null, null));
+                }
+
+                _logger.LogWarning("⚠️ Numerology payment not completed, status: {Status}", intent.Status);
+                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "❌ Stripe error in Numerology payment: {Message}, Code={Code}", 
+                    ex.Message, ex.StripeError?.Code);
+                return BadRequest(new PaymentResultDto(false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unexpected error in chargeForNumerology: {Message}", ex.Message);
                 return StatusCode(500,
                     new PaymentResultDto(false, "Payment failed due to a server error."));
             }

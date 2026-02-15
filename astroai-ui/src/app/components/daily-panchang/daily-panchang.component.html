@@ -34,8 +34,8 @@
         <div>
           <div class="h5 mb-1">
             <strong>
-              {{ result?.coordinates?.resolvedLocation
-                 || (result?.coordinates?.latitude | number:'1.4-4') + ', ' + (result?.coordinates?.longitude | number:'1.4-4') }}
+              {{ result.coordinates.resolvedLocation
+                 || (result.coordinates.latitude | number:'1.4-4') + ', ' + (result.coordinates.longitude | number:'1.4-4') }}
             </strong>
           </div>
           <div class="accent-date">{{ getDisplayDate() | date:'EEEE, MMMM d, y' }}</div>
@@ -47,12 +47,12 @@
           <div class="tile p-3 rounded-3">
             <h3 class="h6">Core</h3>
             <ul class="mb-0 list-unstyled">
-              <li><strong>Tithi:</strong> {{ result?.tithi }}</li>
-              <li><strong>Nakshatra:</strong> {{ result?.nakshatra }}</li>
-              <li><strong>Yoga:</strong> {{ result?.yoga }}</li>
-              <li><strong>Karana:</strong> {{ result?.karana }}</li>
-              <li><strong>Moon Sign:</strong> {{ result?.moonSign }}</li>
-              <li><strong>Sun Sign:</strong> {{ result?.sunSign }}</li>
+              <li><strong>Tithi:</strong> {{ result.tithi }}</li>
+              <li><strong>Nakshatra:</strong> {{ result.nakshatra }}</li>
+              <li><strong>Yoga:</strong> {{ result.yoga }}</li>
+              <li><strong>Karana:</strong> {{ result.karana }}</li>
+              <li><strong>Moon Sign:</strong> {{ result.moonSign }}</li>
+              <li><strong>Sun Sign:</strong> {{ result.sunSign }}</li>
             </ul>
           </div>
         </div>
@@ -61,25 +61,25 @@
             <h3 class="h6">Times</h3>
             <div class="row small">
               <div class="col-6">
-                <div class="kv-item"><strong class="key">Sunrise:</strong> <span class="val">{{ result?.times?.sunrise }}</span></div>
-                <div class="kv-item"><strong class="key">Sunset:</strong> <span class="val">{{ result?.times?.sunset }}</span></div>
-                <div class="kv-item"><strong class="key">Moonrise:</strong> <span class="val">{{ result?.times?.moonrise }}</span></div>
-                <div class="kv-item"><strong class="key">Moonset:</strong> <span class="val">{{ result?.times?.moonset }}</span></div>
+                <div class="kv-item"><strong class="key">Sunrise:</strong> <span class="val">{{ result.times.sunrise }}</span></div>
+                <div class="kv-item"><strong class="key">Sunset:</strong> <span class="val">{{ result.times.sunset }}</span></div>
+                <div class="kv-item"><strong class="key">Moonrise:</strong> <span class="val">{{ result.times.moonrise }}</span></div>
+                <div class="kv-item"><strong class="key">Moonset:</strong> <span class="val">{{ result.times.moonset }}</span></div>
               </div>
               <div class="col-6">
-                <div class="kv-item"><strong class="key">Rahu Kaal:</strong> <span class="val">{{ result?.times?.rahuKaal }}</span></div>
-                <div class="kv-item"><strong class="key">Yamaganda:</strong> <span class="val">{{ result?.times?.yamaganda }}</span></div>
-                <div class="kv-item"><strong class="key">Gulika:</strong> <span class="val">{{ result?.times?.gulika }}</span></div>
-                <div class="kv-item"><strong class="key">Abhijit:</strong> <span class="val">{{ result?.times?.abhijitMuhurta }}</span></div>
+                <div class="kv-item"><strong class="key">Rahu Kaal:</strong> <span class="val">{{ result.times.rahuKaal }}</span></div>
+                <div class="kv-item"><strong class="key">Yamaganda:</strong> <span class="val">{{ result.times.yamaganda }}</span></div>
+                <div class="kv-item"><strong class="key">Gulika:</strong> <span class="val">{{ result.times.gulika }}</span></div>
+                <div class="kv-item"><strong class="key">Abhijit:</strong> <span class="val">{{ result.times.abhijitMuhurta }}</span></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div *ngIf="result?.notes" class="tile p-3 rounded-3 mt-3" aria-label="Notes">
+      <div *ngIf="result.notes" class="tile p-3 rounded-3 mt-3" aria-label="Notes">
         <strong>Notes:</strong>
-        <p class="mb-0">{{ result?.notes }}</p>
+        <p class="mb-0">{{ result.notes }}</p>
       </div>
     </section>
   </section>

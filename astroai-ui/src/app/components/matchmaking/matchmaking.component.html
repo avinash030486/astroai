@@ -1,0 +1,201 @@
+<div class="matchmaking-container">
+  <div class="hero-section">
+    <h1><span class="icon">💜</span> AI Match Making <span class="icon">💜</span></h1>
+    <p>Discover your Vedic compatibility with AI-powered synastry analysis</p>
+  </div>
+
+  <div class="form-section" *ngIf="!result">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card person-card">
+          <div class="card-header"><h3>Person 1</h3></div>
+          <div class="card-body">
+            <div class="mb-3"><label>Name</label><input type="text" class="form-control" [(ngModel)]="person1.name"></div>
+            <div class="mb-3"><label>Birth Date</label><input type="date" class="form-control" [(ngModel)]="person1.birthDate"></div>
+            <div class="mb-3"><label>Birth Time</label><input type="time" class="form-control" [(ngModel)]="person1.birthTime"></div>
+            <div class="mb-3">
+              <label>Birth Place (City, State, Country)</label>
+              <div class="position-relative">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="person1.birthPlace" 
+                  (input)="onPerson1PlaceInput(person1.birthPlace)"
+                  (blur)="hidePerson1Suggestions()"
+                  placeholder="Mumbai, Maharashtra, India"
+                  autocomplete="off">
+                <div 
+                  *ngIf="showPerson1Suggestions && person1PlaceSuggestions.length > 0" 
+                  class="place-autocomplete-dropdown">
+                  <div 
+                    *ngFor="let suggestion of person1PlaceSuggestions" 
+                    class="place-suggestion-item"
+                    (click)="onPerson1PlaceSelected(suggestion)">
+                    {{ suggestion.description }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card person-card">
+          <div class="card-header"><h3>Person 2</h3></div>
+          <div class="card-body">
+            <div class="mb-3"><label>Name</label><input type="text" class="form-control" [(ngModel)]="person2.name"></div>
+            <div class="mb-3"><label>Birth Date</label><input type="date" class="form-control" [(ngModel)]="person2.birthDate"></div>
+            <div class="mb-3"><label>Birth Time</label><input type="time" class="form-control" [(ngModel)]="person2.birthTime"></div>
+            <div class="mb-3">
+              <label>Birth Place (City, State, Country)</label>
+              <div class="position-relative">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  [(ngModel)]="person2.birthPlace" 
+                  (input)="onPerson2PlaceInput(person2.birthPlace)"
+                  (blur)="hidePerson2Suggestions()"
+                  placeholder="Delhi, Delhi, India"
+                  autocomplete="off">
+                <div 
+                  *ngIf="showPerson2Suggestions && person2PlaceSuggestions.length > 0" 
+                  class="place-autocomplete-dropdown">
+                  <div 
+                    *ngFor="let suggestion of person2PlaceSuggestions" 
+                    class="place-suggestion-item"
+                    (click)="onPerson2PlaceSelected(suggestion)">
+                    {{ suggestion.description }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-primary btn-lg" (click)="onAnalyze()" [disabled]="loading">
+        <span *ngIf="!loading"><i class="bi bi-stars"></i> Analyze Compatibility</span>
+        <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Analyzing...</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="results-section" *ngIf="result">
+    <div class="score-card">
+      <div class="score-circle" [style.borderColor]="getScoreColor(result.overallScore)">
+        <div class="score-value" [style.color]="getScoreColor(result.overallScore)">{{ result.overallScore }}</div>
+        <div class="score-label">Out of 100</div>
+      </div>
+      <h2 [style.color]="getScoreColor(result.overallScore)">{{ result.compatibilityLevel }}</h2>
+      <p class="kuta-score">Kuta Score: {{ result.kutaScore }}</p>
+    </div>
+
+    <div class="analysis-card"><h3>Synastry Analysis</h3><p>{{ result.synastryAnalysis }}</p></div>
+
+    <div class="row g-4">
+      <div class="col-md-4" *ngFor="let area of result.areasOfCompatibility">
+        <div class="area-card"><h4>{{ area.name }}</h4><div class="area-score">{{ area.score }}/10</div><p>{{ area.analysis }}</p></div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-3">
+      <div class="col-md-6"><div class="list-card"><h3>✨ Strengths</h3><ul><li *ngFor="let s of result.strengths">{{ s }}</li></ul></div></div>
+      <div class="col-md-6"><div class="list-card"><h3>⚠️ Challenges</h3><ul><li *ngFor="let c of result.challenges">{{ c }}</li></ul></div></div>
+    </div>
+
+    <div class="recommendations-card"><h3>💡 Recommendations</h3><ul><li *ngFor="let r of result.recommendations">{{ r }}</li></ul></div>
+    <div class="next-steps-card"><h3>🎯 Next Steps</h3><p>{{ result.nextSteps }}</p></div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary btn-lg" (click)="reset()"><i class="bi bi-arrow-counterclockwise"></i> New Analysis</button>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="premium-backdrop" *ngIf="showPaymentPopup">
+    <div class="premium-modal" (click)="$event.stopPropagation()">
+      <button class="close-modal" (click)="closePaymentPopup()">×</button>
+      
+      <div class="modal-header">
+        <h2 class="modal-title">💜 Unlock Matchmaking Analysis</h2>
+        <p class="modal-subtitle">Get detailed compatibility insights powered by Vedic astrology</p>
+        
+        <div class="currency-indicator" *ngIf="selectedCurrency && selectedCurrency !== 'USD'">
+          <span class="currency-badge">💱 Prices shown in {{ selectedCurrency }}</span>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-header">
+          <h3>Complete Analysis</h3>
+          <div class="plan-price">
+            <span class="amount">{{ getDisplayPrice() }}</span>
+            <span class="period">one-time</span>
+          </div>
+        </div>
+        <ul class="plan-features">
+          <li>✨ Detailed compatibility score</li>
+          <li>💫 Analysis of 8 compatibility areas</li>
+          <li>💖 Relationship strengths & challenges</li>
+          <li>🎯 Personalized recommendations</li>
+          <li>🔮 Next steps guidance</li>
+        </ul>
+      </div>
+
+      <div class="payment-form">
+        <div class="form-group">
+          <label>Name</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            [(ngModel)]="paymentName"
+            placeholder="Enter your full name"
+            [disabled]="paymentLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            [(ngModel)]="paymentEmail"
+            placeholder="your@email.com"
+            [disabled]="paymentLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Card Details</label>
+          <div id="matchmaking-card-element" class="card-element"></div>
+          <div class="card-error" *ngIf="cardError">{{ cardError }}</div>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="paymentError">
+          <i class="bi bi-exclamation-triangle-fill"></i> {{ paymentError }}
+        </div>
+
+        <button 
+          class="btn btn-primary btn-lg w-100 payment-button"
+          (click)="confirmPurchase()"
+          [disabled]="paymentLoading || !paymentName || !paymentEmail"
+        >
+          <span *ngIf="!paymentLoading">
+            <i class="bi bi-lock-fill"></i> Complete Payment {{ getDisplayPrice() }}
+          </span>
+          <span *ngIf="paymentLoading">
+            <span class="spinner-border spinner-border-sm"></span> Processing...
+          </span>
+        </button>
+
+        <p class="payment-footer">
+          <i class="bi bi-shield-check"></i> Secure payment powered by Stripe
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<div class="yearly-horoscope-container">
+  <div class="hero-section">
+    <h1><span class="icon">🌟</span> Yearly Horoscope {{ selectedYear }} <span class="icon">🌟</span></h1>
+    <p>Your complete year ahead with detailed insights and predictions</p>
+  </div>
+
+  <div class="form-section" *ngIf="!result">
+    <div class="card input-card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label>Name</label>
+            <input type="text" class="form-control" [(ngModel)]="birthDetails.name">
+          </div>
+          <div class="col-md-6">
+            <label>Target Year</label>
+            <select class="form-control" [(ngModel)]="selectedYear">
+              <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>Birth Date</label>
+            <input type="date" class="form-control" [(ngModel)]="birthDetails.birthDate">
+          </div>
+          <div class="col-md-4">
+            <label>Birth Time</label>
+            <input type="time" class="form-control" [(ngModel)]="birthDetails.birthTime">
+          </div>
+          <div class="col-md-4">
+            <label>Birth Place</label>
+            <input type="text" class="form-control" [(ngModel)]="birthDetails.birthPlace" placeholder="City, State, Country">
+          </div>
+        </div>
+
+        <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-primary btn-lg" (click)="onGenerate()" [disabled]="loading">
+            <span *ngIf="!loading"><i class="bi bi-calendar-check"></i> Generate Yearly Horoscope</span>
+            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Generating...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-section" *ngIf="result">
+    <div class="theme-card">
+      <h2>Overall Theme for {{ selectedYear }}</h2>
+      <p>{{ result.overallTheme }}</p>
+    </div>
+
+    <div class="section-header"><h3>Life Areas Overview</h3></div>
+    <div class="row g-4">
+      <div class="col-md-4 col-sm-6" *ngFor="let area of result.lifeAreas">
+        <div class="life-area-card">
+          <h4>{{ area.area }}</h4>
+          <div class="score-bar">
+            <div class="score-fill" [style.width.%]="area.score * 10" [style.backgroundColor]="getScoreColor(area.score)"></div>
+          </div>
+          <div class="score-text" [style.color]="getScoreColor(area.score)">{{ area.score }}/10</div>
+          <p class="mt-2">{{ area.overview }}</p>
+          <ul class="key-points">
+            <li *ngFor="let point of area.keyPoints">{{ point }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header mt-5"><h3>Monthly Highlights</h3></div>
+    <div class="monthly-grid">
+      <div class="month-card" *ngFor="let month of result.monthlyHighlights">
+        <h4>{{ month.monthName }}</h4>
+        <div class="highlight-section">
+          <strong>Career:</strong> <p>{{ month.careerOutlook }}</p>
+        </div>
+        <div class="highlight-section">
+          <strong>Finance:</strong> <p>{{ month.financeOutlook }}</p>
+        </div>
+        <div class="highlight-section">
+          <strong>Relationships:</strong> <p>{{ month.relationshipOutlook }}</p>
+        </div>
+        <div class="highlight-section">
+          <strong>Health:</strong> <p>{{ month.healthOutlook }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="important-dates-card">
+      <h3>🎯 Important Dates in {{ selectedYear }}</h3>
+      <div class="dates-grid">
+        <div class="date-item" *ngFor="let date of result.importantDates">
+          <div class="date-badge">{{ date.dateUtc | date:'MMM dd' }}</div>
+          <div class="date-details">
+            <h5>{{ date.event }}</h5>
+            <p>{{ date.significance }}</p>
+            <p class="recommendation"><strong>Recommendation:</strong> {{ date.recommendation }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="remedies-card">
+      <h3>💎 Recommended Remedies</h3>
+      <ul>
+        <li *ngFor="let remedy of result.yearlyRemedies">{{ remedy }}</li>
+      </ul>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary btn-lg" (click)="reset()"><i class="bi bi-arrow-counterclockwise"></i> Generate New</button>
+    </div>
+  </div>
+</div>

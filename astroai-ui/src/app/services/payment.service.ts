@@ -22,6 +22,29 @@ export interface QnaPaymentRequest {
   paymentMethodId: string;
 }
 
+export interface MatchmakingPaymentRequest {
+  amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+  person1Name: string;
+  person1BirthDate: string;
+  person1BirthTime: string;
+  person1BirthPlace: string;
+  person2Name: string;
+  person2BirthDate: string;
+  person2BirthTime: string;
+  person2BirthPlace: string;
+}
+
+export interface NumerologyPaymentRequest {
+  amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+  birthDate: string;
+}
+
 export interface PaymentResult {
   success: boolean;
   error?: string | null;
@@ -39,5 +62,13 @@ export class PaymentService {
 
   chargeForQNA(req: QnaPaymentRequest): Observable<PaymentResult> {
     return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForQNA`, req);
+  }
+
+  chargeForMatchmaking(req: MatchmakingPaymentRequest): Observable<PaymentResult> {
+    return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForMatchmaking`, req);
+  }
+
+  chargeForNumerology(req: NumerologyPaymentRequest): Observable<PaymentResult> {
+    return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForNumerology`, req);
   }
 }

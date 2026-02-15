@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PredictionsService, DailyPanchangResponse } from '../../services/predictions.service';
 import { HttpClient } from '@angular/common/http';
 import { SeoFocusService } from '../../services/seo-focus.service';
+import { getCityBySlug, CityData } from '../../data/cities';
 
 @Component({
   selector: 'app-daily-panchang',
@@ -18,12 +20,18 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
   placeName?: string;
   private locationAttempted = false;
   private geolocationTimeout: any;
+  
+  // City-specific routing
+  cityData?: CityData;
+  isCityRoute = false;
 
   constructor(
     private fb: FormBuilder,
     private svc: PredictionsService,
     private http: HttpClient,
-    private seoFocus: SeoFocusService
+    private seoFocus: SeoFocusService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.form = this.fb.group({
       location: [''],
@@ -32,12 +40,93 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Set document title and description for this view
-    this.seoFocus.setTitle('Daily Panchang - AstroAI Vedic Calendar');
-    this.seoFocus.setDescription('Get today\'s tithi, nakshatra, yogas and auspicious periods for your location with the AstroAI Daily Panchang.');
-
-    // Auto-fetch on page load using browser location when available
-    this.getBrowserLocation(true);
+    // Check if this is a city-specific route
+    this.route.paramMap.subscribe(params => {
+      const citySlug = params.get('city');
+      const dateParam = params.get('date');
+      
+      if (citySlug) {
+        this.isCityRoute = true;
+        this.cityData = getCityBySlug(citySlug);
+        
+        if (this.cityData) {
+          // Set SEO for city-specific page
+          this.seoFocus.setTitle(`Daily Panchang for ${this.cityData.city}, ${this.cityData.state} - Vedic Calendar`);
+          this.seoFocus.setDescription(`Today's tithi, nakshatra, yoga, and auspicious timings for ${this.cityData.city}, ${this.cityData.state}. Accurate Vedic Panchang calculations.`);
+          
+          // Parse date parameter
+          const targetDate = this.parseDateParam(dateParam);
+          
+          // Auto-fetch panchang for this city
+          this.fetchPanchangForCity(this.cityData, targetDate);
+        } else {
+          // City not found, redirect to regular panchang
+          this.router.navigate(['/daily-panchang']);
+        }
+      } else {
+        // Regular panchang page
+        this.seoFocus.setTitle('Daily Panchang - AstroAI Vedic Calendar');
+        this.seoFocus.setDescription('Get today\'s tithi, nakshatra, yogas and auspicious periods for your location with the AstroAI Daily Panchang.');
+        
+        // Auto-fetch on page load using browser location when available
+        this.getBrowserLocation(true);
+      }
+    });
+  }
+  
+  private parseDateParam(dateParam: string | null): Date {
+    if (!dateParam) {
+      return new Date();
+    }
+    
+    // Handle special keywords
+    if (dateParam === 'today') {
+      return new Date();
+    } else if (dateParam === 'tomorrow') {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow;
+    } else if (dateParam === 'yesterday') {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      return yesterday;
+    } else {
+      // Try to parse as date string (YYYY-MM-DD)
+      const parsed = new Date(dateParam);
+      return isNaN(parsed.getTime()) ? new Date() : parsed;
+    }
+  }
+  
+  private fetchPanchangForCity(city: CityData, date: Date): void {
+    this.loading = true;
+    this.error = undefined;
+    this.statusMsg = `Fetching panchang for ${city.city}...`;
+    
+    // Format date as YYYY-MM-DD
+    const dateStr = date.toISOString().split('T')[0];
+    
+    // Format location as "lat,lng"
+    const locationStr = `${city.latitude},${city.longitude}`;
+    
+    // Call API with city coordinates
+    this.svc.getDailyPanchang(locationStr, dateStr).subscribe({
+      next: (data) => {
+        this.result = data;
+        this.placeName = `${city.city}, ${city.state}, ${city.country}`;
+        this.form.patchValue({
+          location: locationStr,
+          date: dateStr
+        });
+        this.loading = false;
+        this.statusMsg = '';
+      },
+      error: (err) => {
+        console.error('Panchang fetch error:', err);
+        this.error = 'Failed to fetch panchang data. Please try again.';
+        this.loading = false;
+        this.statusMsg = '';
+      }
+    });
   }
 
   ngOnDestroy(): void {

@@ -14,6 +14,12 @@ import { DailyPanchangComponent } from './components/daily-panchang/daily-pancha
 import { UpcomingFeaturesComponent } from './components/upcoming-features/upcoming-features.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { NumerologyComponent } from './components/numerology/numerology.component';
+import { MatchmakingComponent } from './components/matchmaking/matchmaking.component';
+import { YearlyHoroscopeComponent } from './components/yearly-horoscope/yearly-horoscope.component';
+import { RemediesComponent } from './components/remedies/remedies.component';
+import { CityPanchangListComponent } from './components/city-panchang-list/city-panchang-list.component';
+import { LoginComponent } from './components/login/login.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
@@ -26,7 +32,13 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     DailyPanchangComponent,
     UpcomingFeaturesComponent,
     LandingComponent,
-    NumerologyComponent
+    NumerologyComponent,
+    MatchmakingComponent,
+    YearlyHoroscopeComponent,
+    RemediesComponent,
+    CityPanchangListComponent,
+    LoginComponent,
+    AuthCallbackComponent
   ],
   imports: [
     BrowserModule,

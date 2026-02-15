@@ -128,7 +128,7 @@
     <div class="d-flex justify-content-end gap-2">
       <button type="button"
               class="btn btn-outline-secondary btn-sm"
-              [disabled]="askLoading || !askQuestionText?.trim()"
+              [disabled]="askLoading || !askQuestionText.trim()"
               (click)="onAskQuestionClicked()">
         {{ askLoading ? 'Asking…' : 'Ask Question' }}
       </button>
@@ -252,15 +252,22 @@
     <div class="premium-modal" (click)="$event.stopPropagation()">
       <button type="button" class="btn-close btn-close-white premium-close" aria-label="Close" (click)="closePremiumPopup()"></button>
       <h5 class="mb-2 text-center">Unlock Premium Detailed Prediction</h5>
-      <p class="text-center text-light small mb-4">
+      <p class="text-center text-light small mb-2">
         Choose a plan to unlock an in-depth reading of your career, finance, relationships and destiny.
       </p>
+      
+      <!-- Currency indicator -->
+      <div class="text-center mb-3">
+        <span class="badge bg-info-subtle text-info-emphasis">
+          💱 Prices in {{ currentCurrency.name }} ({{ currentCurrency.code }})
+        </span>
+      </div>
 
       <div class="row g-3 mb-3">
         <div class="col-12 col-md-4">
           <div class="plan-card" [class.selected]="selectedPlan === 'one-time'" (click)="selectPlan('one-time')">
             <div class="plan-name">One Time</div>
-            <div class="plan-price">$3.99</div>
+            <div class="plan-price">{{ getPremiumDisplayPrice('one-time') }}</div>
             <div class="plan-note">Single detailed report</div>
           </div>
         </div>
@@ -268,7 +275,7 @@
           <div class="plan-card highlight" [class.selected]="selectedPlan === 'weekly'" (click)="selectPlan('weekly')">
             <div class="plan-badge">Popular</div>
             <div class="plan-name">Weekly</div>
-            <div class="plan-price">$2.99</div>
+            <div class="plan-price">{{ getPremiumDisplayPrice('weekly') }}</div>
             <div class="plan-note">Unlimited premium queries for a week</div>
           </div>
         </div>
@@ -315,6 +322,13 @@
         Choose a plan to ask questions about your life. We use your birth chart and current dashas to answer.
       </p>
       
+      <!-- Currency indicator -->
+      <div class="text-center mb-2">
+        <span class="badge bg-info-subtle text-info-emphasis">
+          💱 Prices in {{ currentCurrency.name }} ({{ currentCurrency.code }})
+        </span>
+      </div>
+      
       <div class="alert alert-warning py-2 small mb-3">
         <strong>⚠️ Important:</strong> All credits must be used in the current session. You cannot return later to use remaining credits.
       </div>
@@ -323,7 +337,7 @@
         <div class="col-12 col-md-6">
           <div class="plan-card" [class.selected]="selectedQnaPlan === 'qna-10'" (click)="selectQnaPlan('qna-10')">
             <div class="plan-name">10 Questions</div>
-            <div class="plan-price">$3.00</div>
+            <div class="plan-price">{{ getQnaDisplayPrice('qna-10') }}</div>
             <div class="plan-note">Ask 10 questions</div>
           </div>
         </div>
@@ -331,7 +345,7 @@
           <div class="plan-card highlight" [class.selected]="selectedQnaPlan === 'qna-unlimited'" (click)="selectQnaPlan('qna-unlimited')">
             <div class="plan-badge">Popular</div>
             <div class="plan-name">Unlimited</div>
-            <div class="plan-price">$10.00</div>
+            <div class="plan-price">{{ getQnaDisplayPrice('qna-unlimited') }}</div>
             <div class="plan-note">Ask unlimited questions</div>
           </div>
         </div>

@@ -1,0 +1,131 @@
+.city-panchang-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  padding: 2rem 1rem;
+}
+
+.hero-section {
+  text-align: center;
+  color: white;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+
+    .icon {
+      animation: bounce 2s ease-in-out infinite;
+      display: inline-block;
+    }
+  }
+
+  p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+}
+
+.search-section {
+  max-width: 600px;
+  margin: 0 auto 3rem;
+
+  .search-box {
+    position: relative;
+
+    input {
+      padding-right: 3rem;
+      font-size: 1.1rem;
+      border-radius: 25px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    i {
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6a11cb;
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.cities-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.country-section {
+  h2 {
+    color: white;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.cities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.city-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  h3 {
+    color: #6a11cb;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+  }
+
+  .state {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .quick-links {
+    display: flex;
+    gap: 0.5rem;
+
+    button {
+      flex: 1;
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .cities-grid {
+    grid-template-columns: 1fr;
+  }
+}

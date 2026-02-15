@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient, Session } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, Session, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,15 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class AuthService {
   private static supabaseInstance: SupabaseClient | null = null;
   private static sessionSubject: BehaviorSubject<Session | null> | null = null;
+  private static userSubject: BehaviorSubject<User | null> | null = null;
   private static initializationPromise: Promise<void> | null = null;
   private static isInitialized = false;
   
   private supabase: SupabaseClient;
   public session$: Observable<Session | null>;
+  public user$: Observable<User | null>;
 
-  constructor() {
+  constructor(private router: Router) {
     console.log('🔧 AuthService constructor called');
     
     // Initialize static singleton instance only once
@@ -29,7 +32,7 @@ export class AuthService {
           auth: {
             persistSession: true,
             autoRefreshToken: true,
-            detectSessionInUrl: false,
+            detectSessionInUrl: true, // Changed to true for OAuth
             storageKey: 'astroai-auth-token',
             storage: window.localStorage
           }
@@ -37,12 +40,16 @@ export class AuthService {
       );
       
       AuthService.sessionSubject = new BehaviorSubject<Session | null>(null);
+      AuthService.userSubject = new BehaviorSubject<User | null>(null);
       
       // Set up auth state listener only once
       AuthService.supabaseInstance.auth.onAuthStateChange((event, session) => {
         console.log('🔐 Auth state changed:', event);
         if (session) {
-          console.log('📝 Session active, token preview:', session.access_token?.substring(0, 30) + '...');
+          console.log('📝 Session active, user:', session.user?.email || 'anonymous');
+          AuthService.userSubject?.next(session.user);
+        } else {
+          AuthService.userSubject?.next(null);
         }
         AuthService.sessionSubject?.next(session);
       });
@@ -57,6 +64,7 @@ export class AuthService {
     
     this.supabase = AuthService.supabaseInstance;
     this.session$ = AuthService.sessionSubject!.asObservable();
+    this.user$ = AuthService.userSubject!.asObservable();
   }
 
   private async initializeSession(): Promise<void> {
@@ -78,8 +86,9 @@ export class AuthService {
       
       if (session) {
         console.log('✅ Existing session found');
-        console.log('📝 Token preview:', session.access_token?.substring(0, 50) + '...');
+        console.log('📝 User:', session.user?.email || 'anonymous');
         AuthService.sessionSubject?.next(session);
+        AuthService.userSubject?.next(session.user);
       } else {
         console.log('⚠️ No session exists, signing in anonymously...');
         await this.signInAnonymously();
@@ -106,10 +115,50 @@ export class AuthService {
         console.log('🔑 Access Token (first 50 chars):', data.session.access_token?.substring(0, 50) + '...');
         console.log('⏰ Token expires at:', new Date(data.session.expires_at! * 1000).toLocaleString());
         AuthService.sessionSubject?.next(data.session);
+        AuthService.userSubject?.next(data.session.user);
       }
     } catch (error: any) {
       console.error('❌ Error during anonymous sign-in:', error.message || error);
       throw error;
+    }
+  }
+
+  // Sign in with Google
+  async signInWithGoogle(): Promise<void> {
+    try {
+      console.log('🔄 Starting Google sign-in...');
+      const { error } = await this.supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth-callback`
+        }
+      });
+      
+      if (error) {
+        console.error('❌ Google sign-in failed:', error.message);
+        throw error;
+      }
+    } catch (error: any) {
+      console.error('❌ Error during Google sign-in:', error.message || error);
+      throw error;
+    }
+  }
+
+  // Sign out
+  async signOut(): Promise<void> {
+    try {
+      console.log('👋 Signing out...');
+      await this.supabase.auth.signOut();
+      AuthService.sessionSubject?.next(null);
+      AuthService.userSubject?.next(null);
+      console.log('✅ Signed out successfully');
+      
+      // Sign in anonymously after logout to maintain app functionality
+      await this.signInAnonymously();
+      
+      this.router.navigate(['/']);
+    } catch (error: any) {
+      console.error('❌ Sign out error:', error.message || error);
     }
   }
 
@@ -163,6 +212,7 @@ export class AuthService {
         console.log('✅ Token refreshed successfully');
         console.log('🔑 New token (first 50 chars):', session.access_token?.substring(0, 50) + '...');
         AuthService.sessionSubject?.next(session);
+        AuthService.userSubject?.next(session.user);
         return session.access_token;
       }
       
@@ -177,15 +227,33 @@ export class AuthService {
     return AuthService.sessionSubject?.value || null;
   }
 
-  async signOut(): Promise<void> {
-    try {
-      console.log('👋 Signing out...');
-      await this.supabase.auth.signOut();
-      AuthService.sessionSubject?.next(null);
-      console.log('✅ Signed out successfully');
-    } catch (error: any) {
-      console.error('❌ Sign out error:', error.message || error);
-    }
+  getCurrentUser(): User | null {
+    return AuthService.userSubject?.value || null;
+  }
+
+  isAuthenticated(): boolean {
+    const session = this.getCurrentSession();
+    const user = this.getCurrentUser();
+    // Consider authenticated if user is not anonymous
+    return !!session && !!user && !user.is_anonymous;
+  }
+
+  getUserEmail(): string | null {
+    return this.getCurrentUser()?.email || null;
+  }
+
+  getUserName(): string | null {
+    const user = this.getCurrentUser();
+    return user?.user_metadata?.['full_name'] || 
+           user?.user_metadata?.['name'] || 
+           null;
+  }
+
+  getUserAvatar(): string | null {
+    const user = this.getCurrentUser();
+    return user?.user_metadata?.['avatar_url'] || 
+           user?.user_metadata?.['picture'] || 
+           null;
   }
 
   // Helper method to decode and view JWT payload

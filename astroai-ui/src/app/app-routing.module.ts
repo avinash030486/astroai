@@ -8,15 +8,29 @@ import { DailyPredictionComponent } from './components/daily-prediction/daily-pr
 import { DailyPanchangComponent } from './components/daily-panchang/daily-panchang.component';
 import { LandingComponent } from './components/landing/landing.component';
 import { NumerologyComponent } from './components/numerology/numerology.component';
+import { MatchmakingComponent } from './components/matchmaking/matchmaking.component';
+import { YearlyHoroscopeComponent } from './components/yearly-horoscope/yearly-horoscope.component';
+import { RemediesComponent } from './components/remedies/remedies.component';
+import { CityPanchangListComponent } from './components/city-panchang-list/city-panchang-list.component';
+import { LoginComponent } from './components/login/login.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { requireAuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   { path: '', component: LandingComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'auth-callback', component: AuthCallbackComponent },
   { path: 'home', component: HomeComponent },
   { path: 'horoscope', component: HoroscopeComponent },
   { path: 'daily-prediction', component: DailyPredictionComponent },
   { path: 'daily-panchang', component: DailyPanchangComponent },
-  { path: 'birth-chart', component: BirthChartComponent },
-  { path: 'numerology', component: NumerologyComponent },
+  { path: 'city-panchang', component: CityPanchangListComponent },
+  { path: 'panchang/:city/:date', component: DailyPanchangComponent },
+  { path: 'birth-chart', component: BirthChartComponent, canActivate: [requireAuthGuard] },
+  { path: 'numerology', component: NumerologyComponent, canActivate: [requireAuthGuard] },
+  { path: 'matchmaking', component: MatchmakingComponent, canActivate: [requireAuthGuard] },
+  { path: 'yearly-horoscope', component: YearlyHoroscopeComponent, canActivate: [requireAuthGuard] },
+  { path: 'remedies', component: RemediesComponent, canActivate: [requireAuthGuard] },
   { path: 'upcoming', component: UpcomingFeaturesComponent },
   { path: '**', redirectTo: '' }
 ];

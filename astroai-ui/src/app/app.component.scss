@@ -34,3 +34,26 @@ main:has(app-landing) {
 
 .footer { background: #0f0f10; }
 .footer a { text-decoration: none; }
+
+// User authentication styles
+.user-info {
+  padding: 0.25rem 0.75rem;
+  background: rgba(201, 169, 97, 0.1);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #C9A961;
+  object-fit: cover;
+}
+
+@media (max-width: 991px) {
+  .user-info {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vedic Astro - Listen to the Universe</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+        
+        :root {
+            --vedic-green: #0B4D2C;
+            --light-green: #1a7a4f;
+            --accent-gold: #C9A961;
+            --bright-gold: #D4AF37;
+            --sacred-white: #FFFFFF;
+            --cream-bg: #F8F6F0;
+            --text-dark: #1C3D2F;
+            --border-gold: rgba(201, 169, 97, 0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background: var(--vedic-green);
+            overflow-x: hidden;
+        }
+        
+        .mandala-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150vw;
+            height: 150vh;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle, transparent 20%, var(--vedic-green) 70%),
+                        repeating-conic-gradient(from 0deg, var(--accent-gold) 0deg 2deg, transparent 2deg 10deg);
+        }
+        
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(165deg, var(--vedic-green) 0%, var(--light-green) 50%, var(--vedic-green) 100%);
+            overflow: hidden;
+            padding: 1rem 1rem 2rem;
+        }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent);
+            background-size: 200% 200%;
+            animation: twinkle 8s ease-in-out infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+        }
+        
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 1) 0%, rgba(212, 175, 55, 0.6) 50%, transparent 100%);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float-firefly 8s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8),
+                        0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .firefly:nth-child(2) {
+            left: 15%;
+            top: 20%;
+            animation-delay: 0s;
+            animation-duration: 7s;
+        }
+        
+        .firefly:nth-child(3) {
+            left: 75%;
+            top: 30%;
+            animation-delay: 2s;
+            animation-duration: 9s;
+        }
+        
+        .firefly:nth-child(4) {
+            left: 40%;
+            top: 60%;
+            animation-delay: 4s;
+            animation-duration: 8s;
+        }
+        
+        .firefly:nth-child(5) {
+            left: 85%;
+            top: 50%;
+            animation-delay: 1s;
+            animation-duration: 10s;
+        }
+        
+        .firefly:nth-child(6) {
+            left: 25%;
+            top: 75%;
+            animation-delay: 3s;
+            animation-duration: 7.5s;
+        }
+        
+        .firefly:nth-child(7) {
+            left: 60%;
+            top: 15%;
+            animation-delay: 5s;
+            animation-duration: 8.5s;
+        }
+        
+        @keyframes float-firefly {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            25% {
+                transform: translate(20px, -30px);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translate(-15px, 20px);
+                opacity: 1;
+            }
+            75% {
+                transform: translate(25px, 15px);
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translate(0, -40px);
+                opacity: 0;
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+        }
+        
+        .om-symbol {
+            font-size: clamp(3rem, 8vw, 4rem);
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            text-shadow: 0 0 30px rgba(201, 169, 97, 0.5);
+            animation: glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { opacity: 0.7; text-shadow: 0 0 20px rgba(201, 169, 97, 0.4); }
+            50% { opacity: 1; text-shadow: 0 0 40px rgba(201, 169, 97, 0.8); }
+        }
+        
+        .ganesha-image {
+            width: clamp(200px, 30vw, 280px);
+            height: auto;
+            margin: 0 auto 2rem;
+            display: block;
+            filter: drop-shadow(0 10px 30px rgba(201, 169, 97, 0.4));
+            animation: float 6s ease-in-out infinite;
+            background: transparent;
+            mix-blend-mode: normal;
+        }
+        
+        .logo {
+            width: clamp(180px, 40vw, 320px);
+            height: auto;
+            margin: 0 auto 2rem;
+            display: block;
+            filter: drop-shadow(0 5px 20px rgba(201, 169, 97, 0.3));
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: clamp(1.75rem, 6vw, 4.5rem);
+            font-weight: 400;
+            color: var(--sacred-white);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+            letter-spacing: 0.02em;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            animation: slideIn 1s ease-out 0.3s both;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 300;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            animation: slideIn 1s ease-out 0.5s both;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--bright-gold));
+            color: var(--vedic-green);
+            font-weight: 600;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(201, 169, 97, 0.3);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: none;
+            max-width: 90%;
+            animation: slideIn 1s ease-out 0.7s both;
+        }
+        
+        .cta-button:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .cta-button:hover:before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(201, 169, 97, 0.5);
+        }
+        
+        .sign-in-text {
+            margin-top: 1rem;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: rgba(255, 255, 255, 0.7);
+            animation: slideIn 1s ease-out 0.8s both;
+        }
+        
+        .sign-in-text a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid transparent;
+        }
+        
+        .sign-in-text a:hover {
+            color: var(--bright-gold);
+            border-bottom: 1px solid var(--bright-gold);
+        }
+        
+        .trust-line {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            animation: slideIn 1s ease-out 0.9s both;
+        }
+        
+        .section {
+            position: relative;
+            padding: 5rem 1.5rem;
+            background: var(--cream-bg);
+        }
+        
+        .section:nth-child(even) {
+            background: linear-gradient(to bottom, #ffffff, var(--cream-bg));
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            width: 100%;
+        }
+        
+        .section-ornament {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+        
+        h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            font-weight: 600;
+            color: var(--vedic-green);
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            padding: 0 0.5rem;
+        }
+        
+        .problem-list {
+            max-width: 700px;
+            margin: 3rem auto;
+            line-height: 2;
+            padding: 0 1rem;
+        }
+        
+        .problem-list p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: #4a4a4a;
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .problem-list p:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--light-green);
+            font-size: 1.5rem;
+        }
+        
+        .wisdom-text {
+            max-width: 850px;
+            margin: 2.5rem auto;
+            font-size: clamp(1rem, 2.5vw, 1.15rem);
+            line-height: 1.8;
+            color: #3a3a3a;
+            text-align: center;
+            padding: 0 1rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .wisdom-text strong {
+            color: var(--vedic-green);
+            font-weight: 600;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+        }
+        
+        .feature-card {
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-gold);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(201, 169, 97, 0.2);
+        }
+        
+        .feature-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            color: var(--vedic-green);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .feature-card p {
+            color: #5a5a5a;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .beliefs-box {
+            background: linear-gradient(135deg, var(--vedic-green), var(--light-green));
+            color: white;
+            padding: 2.5rem 1.5rem;
+            border-radius: 16px;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        .beliefs-box h3 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.25rem, 4vw, 2rem);
+            margin-bottom: 1.5rem;
+            color: var(--accent-gold);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .beliefs-box > p {
+            color: rgba(255, 255, 255, 0.95);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+            margin-bottom: 2rem;
+            color: var(--temple-gold);
+        }
+        
+        .beliefs-list {
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .beliefs-list li {
+            font-size: 1.15rem;
+            margin-bottom: 1.2rem;
+            padding-left: 1.5rem;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .beliefs-list li:before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: var(--accent-gold);
+        }
+        
+        .final-section {
+            background: linear-gradient(165deg, var(--vedic-green), var(--light-green));
+            color: white;
+            padding: 5rem 1.5rem;
+            text-align: center;
+        }
+        
+        .final-section h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+        
+        .final-section p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            padding: 0 1rem;
+        }
+        
+        .footer-note {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .lotus-divider {
+            text-align: center;
+            margin: 4rem 0;
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            opacity: 0.5;
+        }
+        
+        .footer {
+            background: #000000;
+            color: var(--accent-gold);
+            padding: 3rem 1.5rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            width: clamp(60px, 10vw, 80px);
+            height: auto;
+            margin: 0 auto 2rem;
+            display: block;
+            opacity: 0.9;
+        }
+        
+        .footer-about {
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(201, 169, 97, 0.8);
+        }
+        
+        .footer-about strong {
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(201, 169, 97, 0.2);
+        }
+        
+        .footer-links a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .footer-links a:after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-gold);
+            transition: width 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--bright-gold);
+        }
+        
+        .footer-links a:hover:after {
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .section {
+                padding: 3.5rem 1.25rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            
+            .hero-content {
+                padding: 1.5rem;
+            }
+            
+            .beliefs-box {
+                padding: 2rem 1.25rem;
+            }
+            
+            .problem-list {
+                padding: 0 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .footer-links {
+                gap: 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mandala-bg"></div>
+    
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="stars"></div>
+        <div class="firefly"></div>
+        <div class="firefly"></div>
+        <div class="firefly"></div>
+        <div class="firefly"></div>
+        <div class="firefly"></div>
+        <div class="firefly"></div>
+        <div class="hero-content">
+            <img src="logo.png" alt="Vedic Astro Logo" class="logo" onerror="this.style.display='none'">
+            <h1>Listen to what the universe is telling you</h1>
+            <p>Turn movement of the Navagrahas into daily astrology insights you can actually use.</p>
+            <button class="cta-button">Start Your Journey</button>
+            <div class="sign-in-text">Already have an account? <a href="#signin">Sign in</a></div>
+            <div class="trust-line">
+                Panchang built on classical knowledge encoded in the vedas. Calculated using real planetary data.
+            </div>
+            <div class="om-symbol">ॐ</div>
+        </div>
+    </section>
+
+    <!-- SECTION 1 -->
+    <section class="section">
+        <div class="container">
+            <div class="section-ornament">✦</div>
+            <h2>You feel it, but you can't explain it.</h2>
+            
+            <div class="problem-list">
+                <p>You work hard, yet progress feels delayed.</p>
+                <p>Relationships repeat the same patterns.</p>
+                <p>Some years flow, while others feel heavy for no clear reason.</p>
+                <p>Advice from others sounds right, but doesn't land.</p>
+            </div>
+            
+            <div class="wisdom-text">
+                This isn't bad luck. <strong>When the planets shift, life shifts with them; whether we are aware of it or not.</strong> They offer us glimpses of what is coming next.
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section class="section">
+        <div class="container">
+            <div class="section-ornament">☸</div>
+            <h2>Vedic Astro translates timing into understanding.</h2>
+            <img src="ganesh.png" alt="Lord Ganesha" class="ganesha-image" style="margin: 2rem auto 2.5rem;" onerror="this.style.display='none'">
+            
+            <div class="wisdom-text">
+                Using your date of birth, time of birth, and place of birth, we calculate:
+            </div>
+            
+            <div class="feature-grid" style="margin-top: 2rem; margin-bottom: 2.5rem;">
+                <div class="feature-card">
+                    <h3>🔆 Your Lagna</h3>
+                    <p>Your Ascendant and foundational chart structure</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌙 Planetary Placements</h3>
+                    <p>Exact positions of all nine grahas</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⏳ Active Dashas</h3>
+                    <p>Current Mahadasha and Antardasha periods</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✨ Yogas</h3>
+                    <p>Benefic and challenging planetary combinations</p>
+                </div>
+            </div>
+            
+            <div class="wisdom-text">
+                From this, we don't tell you what to do. We show you what phase you are in, what is being tested, what is opening slowly, and what is not meant to be rushed.
+            </div>
+            
+            <div style="text-align: center; margin-top: 3rem;">
+                <button class="cta-button">Get Personalized Reading</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section class="section">
+        <div class="container">
+            <div class="section-ornament">🪷</div>
+            <h2>What you receive is a clear, structured life reading — not vague predictions.</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔹 Current Life Phase</h3>
+                    <p>Understand which planetary period you are running and why life feels the way it does right now.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔹 Career & Finance Timing</h3>
+                    <p>When to push. When to consolidate. When patience is wisdom, not weakness.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔹 Relationships & Marriage Windows</h3>
+                    <p>Why things delay. Why certain connections feel karmic. When stability becomes possible.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔹 Destiny & Long-Term Direction</h3>
+                    <p>Your deeper role, beyond job titles and social pressure.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔹 Good & Challenging Yogas</h3>
+                    <p>Strengths you can rely on. Patterns you must handle with discipline.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔹 Simple, Traditional Remedies</h3>
+                    <p>No superstition. No expensive rituals. Only grounded practices aligned with Indian tradition.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section class="section">
+        <div class="container">
+            <div class="beliefs-box">
+                <h3>Vedic Astro respects your intelligence.</h3>
+                <p style="margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.7;">For those who grew up hearing astrology but want logic and structure. Who believe in karma, but also believe in effort. Who are tired of dramatic predictions and daily fear-based content.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL SECTION -->
+    <section class="final-section">
+        <div class="container">
+            <div class="lotus-divider">🪷</div>
+            <h2>Reveal the patterns of time, so you can move with them, not against them.</h2>
+            <p>It shows you what is coming, so you can take informed action to navigate it.</p>
+            <p>Enter your birth details and location to receive a deeply Indian, classically grounded reading — designed to help you listen to the universe without noise.</p>
+            
+            <button class="cta-button">Get Vedic Astro Reading</button>
+        </div>
+    </section>
+    
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <img src="logo-icon.png" alt="Vedic Astro" class="footer-logo" onerror="this.style.display='none'">
+            <div class="footer-about">
+                <strong>About This Reading</strong>
+                This report is generated using AI to personalize your experience. Planetary positions and astrological calculations are based on authentic Vedic astrology principles and real astronomical data.
+            </div>
+            
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms and Conditions</a>
+                <a href="#contact">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

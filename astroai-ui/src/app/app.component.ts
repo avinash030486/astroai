@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
+
+declare let gtag: Function;
 
 @Component({
   selector: 'app-root',
@@ -10,13 +14,27 @@ export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
 
-  constructor(public authService: AuthService) {
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {
     console.log('🚀 AppComponent initialized, AuthService injected');
+
+    // ✅ Google Analytics route tracking
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        if (typeof gtag === 'function') {
+          gtag('config', 'G-GZY7ZCH74T', {
+            page_path: event.urlAfterRedirects
+          });
+        }
+      });
   }
 
   ngOnInit(): void {
     console.log('📱 AppComponent ngOnInit');
-    
+
     // Check auth status after initialization
     setTimeout(() => {
       const session = this.authService.getCurrentSession();
@@ -32,11 +50,11 @@ export class AppComponent implements OnInit {
       }
     }, 3000);
   }
-  
+
   async signOut(): Promise<void> {
     await this.authService.signOut();
   }
-  
+
   closeNavbar() {
     const navbar = document.getElementById('mainNav');
     if (navbar?.classList.contains('show')) {

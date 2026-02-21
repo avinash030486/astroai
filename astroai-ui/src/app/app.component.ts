@@ -14,23 +14,21 @@ export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
 
-  constructor(
-    public authService: AuthService,
-    private router: Router
-  ) {
-    console.log('🚀 AppComponent initialized, AuthService injected');
-
-    // ✅ Google Analytics route tracking
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        if (typeof gtag === 'function') {
-          gtag('config', 'G-GZY7ZCH74T', {
-            page_path: event.urlAfterRedirects
-          });
-        }
-      });
-  }
+  
+constructor(
+  public authService: AuthService,
+  private router: Router
+) {
+  this.router.events.subscribe(event => {
+    if (event instanceof NavigationEnd) {
+      if (typeof gtag === 'function') {
+        gtag('config', 'G-GZY7ZCH74T', {
+          page_path: event.urlAfterRedirects
+        });
+      }
+    }
+  });
+}
 
   ngOnInit(): void {
     console.log('📱 AppComponent ngOnInit');

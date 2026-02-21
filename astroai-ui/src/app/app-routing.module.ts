@@ -14,6 +14,8 @@ import { RemediesComponent } from './components/remedies/remedies.component';
 import { CityPanchangListComponent } from './components/city-panchang-list/city-panchang-list.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { YogaListComponent } from './components/yoga-list/yoga-list.component';
+import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
 import { requireAuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
@@ -26,11 +28,13 @@ const routes: Routes = [
   { path: 'daily-panchang', component: DailyPanchangComponent },
   { path: 'city-panchang', component: CityPanchangListComponent },
   { path: 'panchang/:city/:date', component: DailyPanchangComponent },
+  { path: 'yogas', component: YogaListComponent },
+  { path: 'yoga/:slug', component: YogaDetailComponent },
+  { path: 'yearly-horoscope', component: YearlyHoroscopeComponent },
+  { path: 'remedies', component: RemediesComponent },
   { path: 'birth-chart', component: BirthChartComponent, canActivate: [requireAuthGuard] },
   { path: 'numerology', component: NumerologyComponent, canActivate: [requireAuthGuard] },
   { path: 'matchmaking', component: MatchmakingComponent, canActivate: [requireAuthGuard] },
-  { path: 'yearly-horoscope', component: YearlyHoroscopeComponent, canActivate: [requireAuthGuard] },
-  { path: 'remedies', component: RemediesComponent, canActivate: [requireAuthGuard] },
   { path: 'upcoming', component: UpcomingFeaturesComponent },
   { path: '**', redirectTo: '' }
 ];

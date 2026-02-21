@@ -1,0 +1,48 @@
+<div class="yoga-list-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">Vedic Astrology Yogas</h1>
+      <p class="hero-subtitle">
+        Explore 20+ profound planetary combinations that shape destiny. Learn about auspicious yogas bringing prosperity, wisdom, and success, 
+        as well as challenging yogas with powerful remedies.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Category Filter -->
+    <div class="category-filter">
+      <button class="filter-btn" [class.active]="selectedCategory === 'all'" (click)="setCategory('all')">
+        <i class="bi bi-stars"></i> All Yogas ({{ allYogas.length }})
+      </button>
+      <button class="filter-btn beneficial" [class.active]="selectedCategory === 'beneficial'" (click)="setCategory('beneficial')">
+        <i class="bi bi-sun"></i> Beneficial ({{ beneficialYogas.length }})
+      </button>
+      <button class="filter-btn malefic" [class.active]="selectedCategory === 'malefic'" (click)="setCategory('malefic')">
+        <i class="bi bi-moon"></i> Malefic ({{ maleficYogas.length }})
+      </button>
+    </div>
+
+    <!-- Yogas Grid -->
+    <div class="yogas-grid">
+      <div *ngFor="let yoga of displayedYogas" class="yoga-card" [class.beneficial]="yoga.category === 'beneficial'" 
+           [class.malefic]="yoga.category === 'malefic'" (click)="viewYoga(yoga)">
+        <div class="yoga-header">
+          <h3>{{ yoga.name }}</h3>
+          <span class="badge" [class.beneficial-badge]="yoga.category === 'beneficial'">
+            {{ yoga.category === 'beneficial' ? '✨' : '⚠️' }}
+          </span>
+        </div>
+        <p class="short-desc">{{ yoga.shortDescription }}</p>
+        <button class="btn-more">Read Details <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- SEO Content -->
+    <div class="seo-section">
+      <h2>Understanding Vedic Astrology Yogas</h2>
+      <p>Yogas are specific planetary combinations in Vedic astrology that produce distinct results. Explore {{allYogas.length}} comprehensive yoga guides above.</p>
+    </div>
+  </div>
+</div>

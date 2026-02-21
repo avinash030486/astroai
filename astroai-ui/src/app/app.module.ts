@@ -21,6 +21,9 @@ import { CityPanchangListComponent } from './components/city-panchang-list/city-
 import { LoginComponent } from './components/login/login.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { YogaListComponent } from './components/yoga-list/yoga-list.component';
+import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
+import { SanitizePipe } from './pipes/sanitize.pipe';
 
 @NgModule({
   declarations: [
@@ -38,7 +41,10 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     RemediesComponent,
     CityPanchangListComponent,
     LoginComponent,
-    AuthCallbackComponent
+    AuthCallbackComponent,
+    YogaListComponent,
+    YogaDetailComponent,
+    SanitizePipe
   ],
   imports: [
     BrowserModule,

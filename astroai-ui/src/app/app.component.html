@@ -14,20 +14,21 @@
 				<li class="nav-item"><a class="nav-link" routerLink="/daily-prediction">Daily Horoscope</a></li>
 				<li class="nav-item"><a class="nav-link" routerLink="/daily-panchang">Panchang</a></li>
 				<li class="nav-item"><a class="nav-link" routerLink="/city-panchang">City Panchang</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/yogas">Yogas</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/yearly-horoscope">Yearly Horoscope</a></li>
+				<li class="nav-item"><a class="nav-link" routerLink="/remedies">Remedies</a></li>
 				
 				<!-- Protected Features - Only visible when signed in -->
 				<ng-container *ngIf="authService.isAuthenticated()">
 					<li class="nav-item"><a class="nav-link" routerLink="/birth-chart">Vedic Astrology</a></li>
 					<li class="nav-item"><a class="nav-link" routerLink="/numerology">Numerology</a></li>
 					<li class="nav-item"><a class="nav-link" routerLink="/matchmaking">Matchmaking</a></li>
-					<li class="nav-item"><a class="nav-link" routerLink="/yearly-horoscope">Yearly Horoscope</a></li>
-					<li class="nav-item"><a class="nav-link" routerLink="/remedies">Remedies</a></li>
 				</ng-container>
 				<!-- <li class="nav-item"><a class="nav-link" href="#western">Western Astrology</a></li> -->
 			</ul>
 			<div class="d-flex align-items-center gap-2 ms-lg-3">
-				<ng-container *ngIf="(authService.user$ | async) as user">
-					<ng-container *ngIf="!user.is_anonymous">
+				<ng-container *ngIf="(authService.user$ | async) as user; else signInButton">
+					<ng-container *ngIf="!user.is_anonymous; else signInButton">
 						<div class="user-info d-flex align-items-center gap-2">
 							<img 
 								[src]="authService.getUserAvatar() || 'assets/default-avatar.svg'" 
@@ -40,12 +41,12 @@
 							Sign Out
 						</button>
 					</ng-container>
-					<ng-container *ngIf="user.is_anonymous">
-						<a class="btn btn-primary btn-sm" routerLink="/login">
-							Sign In
-						</a>
-					</ng-container>
 				</ng-container>
+				<ng-template #signInButton>
+					<a class="btn btn-primary btn-sm" routerLink="/login">
+						Sign In
+					</a>
+				</ng-template>
 			</div>
 		</div>
 	</nav>

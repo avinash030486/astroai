@@ -282,4 +282,10 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
     
     return new Date(year, month, day);
   }
+  startJourney(): void {
+    this.router.navigate(['/daily-prediction']);
+  }
+    getPersonalizedReading(): void {
+    this.router.navigate(['/birth-chart']);
+  }
 }

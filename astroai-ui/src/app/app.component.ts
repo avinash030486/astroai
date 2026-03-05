@@ -13,27 +13,34 @@ declare let gtag: Function;
 export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
+  isLandingPage = false;
 
-  
-constructor(
-  public authService: AuthService,
-  private router: Router
-) {
-  this.router.events.subscribe(event => {
-    if (event instanceof NavigationEnd) {
-      if (typeof gtag === 'function') {
-        gtag('config', 'G-GZY7ZCH74T', {
-          page_path: event.urlAfterRedirects
-        });
+private landingRoutes = ['/'];
+
+  constructor(
+    public authService: AuthService,
+    private router: Router
+  ) {
+    // Set immediately for initial load
+    this.isLandingPage = this.router.url === '/';
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Update on every navigation
+        this.isLandingPage = event.urlAfterRedirects === '/';
+
+        if (typeof gtag === 'function') {
+          gtag('config', 'G-GZY7ZCH74T', {
+            page_path: event.urlAfterRedirects
+          });
+        }
       }
-    }
-  });
-}
+    });
+  }
 
   ngOnInit(): void {
     console.log('📱 AppComponent ngOnInit');
 
-    // Check auth status after initialization
     setTimeout(() => {
       const session = this.authService.getCurrentSession();
       if (session) {

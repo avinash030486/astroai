@@ -8,34 +8,42 @@ header { position: sticky; top: 0; z-index: 1030; }
   max-width: 300px;
 }
 
-/* Responsive logo sizing */
 @media (max-width: 768px) {
-  .navbar-logo {
-    height: 60px;
-  }
+  .navbar-logo { height: 60px; }
 }
 
 @media (max-width: 576px) {
-  .navbar-logo {
-    height: 45px;
-  }
+  .navbar-logo { height: 45px; }
 }
 
-main { 
-  min-height: calc(100vh - 56px - 60px); 
+// Make the app fill full height so footer always sticks to bottom
+:host, body, html {
+  height: 100%;
+}
+
+// Flex column layout to push footer to bottom
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;  // ← takes all available space, pushes footer to bottom
+  min-height: 0;
 }
 
 // Remove padding/margin for landing page
 main:has(app-landing) {
-  min-height: auto;
-  padding: 0;
-  margin: 0;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-.footer { background: #0f0f10; }
-.footer a { text-decoration: none; }
+.footer { background: #0f0f10 !important; color: #adb5bd !important; }
+.footer a { text-decoration: none !important; color: #adb5bd !important; }
+.footer small { color: #adb5bd !important; }
 
-// User authentication styles
 .user-info {
   padding: 0.25rem 0.75rem;
   background: rgba(201, 169, 97, 0.1);

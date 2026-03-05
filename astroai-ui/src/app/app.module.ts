@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -21,6 +22,7 @@ import { CityPanchangListComponent } from './components/city-panchang-list/city-
 import { LoginComponent } from './components/login/login.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { PricingComponent } from './components/pricing-page/pricing.component';
 
 @NgModule({
   declarations: [
@@ -38,10 +40,12 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     RemediesComponent,
     CityPanchangListComponent,
     LoginComponent,
-    AuthCallbackComponent
+    AuthCallbackComponent,
+    PricingComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     RouterModule,

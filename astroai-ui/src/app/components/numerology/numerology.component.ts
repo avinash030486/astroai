@@ -4,6 +4,7 @@ import { PaymentService, NumerologyPaymentRequest } from '../../services/payment
 import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 declare const Stripe: any;
 
@@ -53,7 +54,8 @@ export class NumerologyComponent implements OnInit, OnDestroy {
   constructor(
     private horoscopeService: HoroscopeService,
     private payments: PaymentService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -300,5 +302,8 @@ export class NumerologyComponent implements OnInit, OnDestroy {
       this.paymentError = err.message || 'An error occurred during payment.';
       this.paymentLoading = false;
     }
+  }
+      getPersonalizedReading(): void {
+    this.router.navigate(['/birth-chart']);
   }
 }

@@ -46,4 +46,7 @@ export class CityPanchangListComponent implements OnInit {
   navigateToCity(city: CityData, date: string = 'today'): void {
     this.router.navigate(['/panchang', city.slug, date]);
   }
+      getPersonalizedReading(): void {
+    this.router.navigate(['/birth-chart']);
+  }
 }

@@ -1,16 +1,264 @@
-/* You can add global styles to this file, and also import other style files */
+/* ─────────────────────────────────────────
+   GLOBAL BASE
+───────────────────────────────────────── */
+html {
+  height: 100%;
+}
 
-/* Ensure no default margins/paddings interfere with landing page */
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Reset any Bootstrap container padding for landing page */
+app-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+}
+
+
+#main-content {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
 app-landing {
   display: block;
   width: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* ─────────────────────────────────────────
+   GLOBAL FONT OVERRIDE
+   Cormorant Garamond must be declared here
+   at global level so Bootstrap can't win
+───────────────────────────────────────── */
+.hero-headline,
+.hero-headline span {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-weight: 600 !important;
+}
+
+.hero-headline em {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  color: #ECC76A !important;
+}
+
+.section-title,
+.section-title em,
+.p-name,
+.p-amount,
+.benefit-num,
+.t-quote,
+.faq-q,
+.band-title,
+.band-title em,
+.footer-logo {
+  font-family: 'Cormorant Garamond', serif !important;
+}
+
+/* ─────────────────────────────────────────
+   LANDING PAGE — Bootstrap overrides
+───────────────────────────────────────── */
+.landing-wrapper {
+  font-family: 'DM Sans', sans-serif !important;
+  color: #fff !important;
+  background: #092A18 !important;
+
+  .container,
+  .container-fluid,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    max-width: 700px !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* ── BUTTONS ── */
+  .btn,
+  button.btn {
+    border-radius: 50px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 600 !important;
+
+    &:focus,
+    &:focus-visible,
+    &:active,
+    &:focus:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  .btn-primary {
+    background: none !important;
+    border: none !important;
+    color: inherit !important;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h1, h2, h3, h4, h5, h6 {
+    color: #fff !important;
+    margin-top: 0;
+  }
+
+  p { margin-bottom: 0; }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    &:hover { text-decoration: none; }
+  }
+
+  /* ── LISTS ── */
+  ul, ol {
+    padding-left: 0 !important;
+    margin-bottom: 0 !important;
+    list-style: none !important;
+  }
+
+  /* ── FAQ trigger ── */
+  .faq-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    &:focus,
+    &:hover,
+    &:active {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+  }
+}
+
+#main-content {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+app-landing {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─────────────────────────────────────────
+   LANDING PAGE — nuclear Bootstrap reset
+   Everything scoped under .landing-wrapper
+   so other pages are 100% unaffected
+───────────────────────────────────────── */
+.landing-wrapper {
+  /* Fonts */
+  font-family: 'DM Sans', sans-serif !important;
+  color: #fff !important;
+  background: #092A18 !important;
+
+  /* Container override — kill Bootstrap responsive breakpoints */
+  .container,
+  .container-fluid,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    max-width: 700px !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* ── BUTTONS — the main offender ─────── */
+  /* Bootstrap adds border-radius: .375rem (6px) to .btn — override to pill */
+  .btn,
+  button.btn {
+    border-radius: 50px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-weight: 600 !important;
+
+    &:focus,
+    &:focus-visible,
+    &:active,
+    &:focus:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+  }
+
+  /* Bootstrap's .btn-primary color bleeds in — kill it */
+  .btn-primary {
+    background: none !important;
+    border: none !important;
+    color: inherit !important;
+  }
+
+  /* ── TYPOGRAPHY ──────────────────────── */
+  h1, h2, h3, h4, h5, h6 {
+    color: #fff !important;
+    margin-top: 0;
+  }
+
+  p { margin-bottom: 0; }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    &:hover { text-decoration: none; }
+  }
+
+  /* ── LISTS ───────────────────────────── */
+  ul, ol {
+    padding-left: 0 !important;
+    margin-bottom: 0 !important;
+    list-style: none !important;
+  }
+
+  /* ── CARDS ───────────────────────────── */
+  /* Bootstrap .card adds white bg — override */
+  .card {
+    background: rgba(255,255,255,.055) !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+  }
+
+  /* ── FAQ trigger ─────────────────────── */
+  /* Bootstrap styles <button> with bg, border — strip for FAQ */
+  .faq-trigger {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
+    &:focus,
+    &:hover,
+    &:active {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+  }
 }

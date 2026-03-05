@@ -1,142 +1,377 @@
 <div class="landing-wrapper">
-  <div class="mandala-bg"></div>
-  
-  <!-- HERO SECTION -->
-  <section class="hero">
-    <div class="stars"></div>
-    <div class="firefly" *ngFor="let i of fireflies"></div>
-    
-    <div class="hero-content">
-      <img src="assets/vedicastro-logo.png" alt="Vedic Astro Logo" class="logo">
-      <h1>Listen to what the universe is telling you</h1>
-      <p>Turn movement of the Navagrahas into daily astrology insights you can actually use.</p>
-      <button class="cta-button" (click)="startJourney()">Start Your Journey</button>
-      
-      <div class="trust-line">
-        Panchang built on classical knowledge encoded in the vedas. Calculated using real planetary data.
-      </div>
-      <div class="om-symbol">ॐ</div>
-    </div>
-  </section>
 
-  <!-- SECTION 1 -->
-  <section class="section">
-    <div class="container">
-      <div class="section-ornament">✦</div>
-      <h2>You feel it, but you can't explain it.</h2>
-      
-      <div class="problem-list">
-        <p>You work hard, yet progress feels delayed.</p>
-        <p>Relationships repeat the same patterns.</p>
-        <p>Some years flow, while others feel heavy for no clear reason.</p>
-        <p>Advice from others sounds right, but doesn't land.</p>
-      </div>
-      
-      <div class="wisdom-text">
-        This isn't bad luck. <strong>When the planets shift, life shifts with them; whether we are aware of it or not.</strong> They offer us glimpses of what is coming next.
-      </div>
-    </div>
-  </section>
+  <!-- Background layers -->
+  <div class="bg-layer"></div>
+  <div class="stars" id="stars">
+    <div class="star" *ngFor="let star of stars" [style]="star.style"></div>
+  </div>
 
-  <!-- SECTION 2 -->
-  <section class="section">
-    <div class="container">
-      <div class="section-ornament">☸</div>
-      <h2>Vedic Astro translates timing into understanding.</h2>
-      <img src="assets/ganesh.png" alt="Lord Ganesha" class="ganesha-image" onerror="this.style.display='none'">
-      
-      <div class="wisdom-text">
-        Using your date of birth, time of birth, and place of birth, we calculate:
-      </div>
-      
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3>🔆 Your Lagna</h3>
-          <p>Your Ascendant and foundational chart structure</p>
-        </div>
-        <div class="feature-card">
-          <h3>🌙 Planetary Placements</h3>
-          <p>Exact positions of all nine grahas</p>
-        </div>
-        <div class="feature-card">
-          <h3>⏳ Active Dashas</h3>
-          <p>Current Mahadasha and Antardasha periods</p>
-        </div>
-        <div class="feature-card">
-          <h3>✨ Yogas</h3>
-          <p>Benefic and challenging planetary combinations</p>
-        </div>
-      </div>
-      
-      <div class="wisdom-text">
-        From this, we don't tell you what to do. We show you what phase you are in, what is being tested, what is opening slowly, and what is not meant to be rushed.
-      </div>
-      
-      <div style="text-align: center; margin-top: 3rem;">
-        <button class="cta-button" (click)="getPersonalizedReading()">Get Personalized Reading</button>
-      </div>
-    </div>
-  </section>
+  <div class="page">
 
-  <!-- SECTION 3 -->
-  <section class="section">
-    <div class="container">
-      <div class="section-ornament">🪷</div>
-      <h2>What you receive is a clear, structured life reading — not vague predictions.</h2>
-      
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3>🔹 Current Life Phase</h3>
-          <p>Understand which planetary period you are running and why life feels the way it does right now.</p>
-        </div>
+    <!-- ═══════════ HERO ═══════════ -->
+    <section class="hero">
+
+      <div class="hero-emblem anim d1">
+        <div class="hero-emblem-ring"></div>
+        <div class="hero-orb-track"><div class="hero-orb"></div></div>
+        <img class="hero-logo-img" src="assets/vedicastro-logo.png" alt="VedicAstro Logo">
+      </div>
+
+      <div class="pill-label hero-label anim d2">
+        <span class="dot"></span>
+        Powered by the Navagrahas
+      </div>
+
+      <h1 class="hero-headline anim d3">
+        <span>Listen to what</span>
+        <span>the <em>universe</em></span>
+        <span>is telling you</span>
+      </h1>
+
+      <p class="hero-sub anim d4">
+        Turn the movement of the Navagrahas into daily Vedic astrology insights you can actually use — your horoscope, Panchang, and birth chart decoded.
+      </p>
+
+      <div class="hero-actions anim d5">
+        <button class="btn btn-gold btn-full" (click)="startJourney()">Start Your Journey</button>
         
-        <div class="feature-card">
-          <h3>🔹 Career & Finance Timing</h3>
-          <p>When to push. When to consolidate. When patience is wisdom, not weakness.</p>
+      </div>
+
+      <div class="hero-social-proof anim d5">
+        <div class="stars-row">
+          <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
         </div>
-        
-        <div class="feature-card">
-          <h3>🔹 Relationships & Marriage Windows</h3>
-          <p>Why things delay. Why certain connections feel karmic. When stability becomes possible.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3>🔹 Destiny & Long-Term Direction</h3>
-          <p>Your deeper role, beyond job titles and social pressure.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3>🔹 Good & Challenging Yogas</h3>
-          <p>Strengths you can rely on. Patterns you must handle with discipline.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3>🔹 Simple, Traditional Remedies</h3>
-          <p>No superstition. No expensive rituals. Only grounded practices aligned with Indian tradition.</p>
-        </div>
+        <span>Trusted by thousands of seekers daily</span>
+      </div>
+
+      <div class="hero-scroll">
+        <div class="scroll-line"></div>
+        <span>Scroll</span>
+      </div>
+    </section>
+
+    <!-- ═══════════ NAVAGRAHAS ═══════════ -->
+    <div class="planets-section container reveal" [class.visible]="true">
+      <div class="planets-label">The Nine Planets · Navagrahas</div>
+      <div class="planets-row">
+        <div class="planet-item"><div class="planet-glyph">☀️</div><div class="planet-name">Surya</div></div>
+        <div class="planet-item"><div class="planet-glyph">🌙</div><div class="planet-name">Chandra</div></div>
+        <div class="planet-item"><div class="planet-glyph">🔴</div><div class="planet-name">Mangal</div></div>
+        <div class="planet-item"><div class="planet-glyph">💚</div><div class="planet-name">Budha</div></div>
+        <div class="planet-item"><div class="planet-glyph">🟡</div><div class="planet-name">Guru</div></div>
+        <div class="planet-item"><div class="planet-glyph">⚪</div><div class="planet-name">Shukra</div></div>
+        <div class="planet-item"><div class="planet-glyph">🔵</div><div class="planet-name">Shani</div></div>
+        <div class="planet-item"><div class="planet-glyph">🌑</div><div class="planet-name">Rahu</div></div>
+        <div class="planet-item"><div class="planet-glyph">🌒</div><div class="planet-name">Ketu</div></div>
       </div>
     </div>
-  </section>
 
-  <!-- SECTION 4 -->
-  <section class="section">
+    <!-- ═══════════ FEATURES ═══════════ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-eyebrow reveal">What VedicAstro does</div>
+        <h2 class="section-title reveal">Ancient wisdom,<br><em>daily guidance</em></h2>
+        <p class="section-sub reveal">Every Vedic tool you need in one place — personalized, actionable, and rooted in tradition.</p>
+
+        <div class="features-grid">
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Daily Horoscope & Panchang</strong>
+              <p>Wake up knowing the cosmic weather. Your personalized daily horoscope plus the sacred Panchang — Tithi, Nakshatra, Yoga, Karana, and Vara — delivered every morning.</p>
+            </div>
+          </div>
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Vedic Birth Chart Analysis</strong>
+              <p>Your full Jyotish chart decoded — Ascendant, ruling planets, current Mahadasha & Antardasha, beneficial and challenging Yogas, plus personalized remedial suggestions.</p>
+            </div>
+          </div>
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Ask a Vedic Astrologer</strong>
+              <p>Got questions about your Dasha, career timing, or relationship compatibility? Ask the AI-powered Vedic astrologer directly. Free plan includes 5 questions per week.</p>
+            </div>
+          </div>
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Matchmaking & Compatibility</strong>
+              <p>Traditional Kundali matching meets modern clarity. Understand your compatibility across all eight Ashtakoota factors before making life's most important decisions.</p>
+            </div>
+          </div>
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Muhurat & Auspicious Timing</strong>
+              <p>Know when to act. VedicAstro surfaces daily Muhurats so you can schedule important life events — travel, contracts, ceremonies — in alignment with the cosmos.</p>
+            </div>
+          </div>
+
+          <div class="glass-card feature-card reveal">
+            <div class="feature-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="feature-text">
+              <strong>Remedies & Gemstones</strong>
+              <p>Receive personalized Vedic remedies — mantras, charitable practices, and gemstone guidance — calibrated to your unique planetary placements and current Dasha period.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="container"><div class="section-divider"></div></div>
+
+    <!-- ═══════════ BENEFITS ═══════════ -->
+    <section class="section">
+      <div class="container">
+        <div class="section-eyebrow reveal">Why VedicAstro</div>
+        <h2 class="section-title reveal">Your chart,<br><em>truly understood</em></h2>
+        <p class="section-sub reveal">This isn't sun-sign astrology. It's the full depth of Jyotish — the eye of the Vedas — made accessible for daily life.</p>
+
+        <div class="benefits-list">
+          <div class="benefit-row reveal">
+            <div class="benefit-num">01</div>
+            <div class="benefit-body">
+              <strong>Rooted in authentic Jyotish tradition</strong>
+              <p>Built on the classical principles of Vedic astrology — sidereal zodiac, Nakshatra system, Dasha cycles, and Yogas — not Western sun-sign shortcuts.</p>
+            </div>
+          </div>
+          <div class="benefit-row reveal">
+            <div class="benefit-num">02</div>
+            <div class="benefit-body">
+              <strong>Personalized to your exact birth details</strong>
+              <p>Your Lagna (Ascendant), ruling planets, and current planetary periods are unique to you. Every insight VedicAstro delivers is calculated for your chart specifically.</p>
+            </div>
+          </div>
+          <div class="benefit-row reveal">
+            <div class="benefit-num">03</div>
+            <div class="benefit-body">
+              <strong>Insights you can actually act on</strong>
+              <p>From auspicious Muhurats to Mahadasha timing, VedicAstro translates cosmic information into decisions — when to start, pause, invest, or celebrate.</p>
+            </div>
+          </div>
+          <div class="benefit-row reveal">
+            <div class="benefit-num">04</div>
+            <div class="benefit-body">
+              <strong>Start free, grow at your own pace</strong>
+              <p>The free plan is genuinely useful — horoscopes, Panchang, and 5 questions per week, forever. Upgrade when you want deeper guidance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container"><div class="section-divider"></div></div>
+
+    <!-- ═══════════ PRICING ═══════════ -->
+    <section class="pricing-preview">
+      <div class="container">
+        <div class="section-eyebrow reveal">Pricing</div>
+        <h2 class="section-title reveal">Fair, <em>flexible</em><br>pricing</h2>
+        <p class="section-sub reveal">Start free and upgrade only when you're ready for deeper cosmic guidance.</p>
+
+        <div class="pricing-cards">
+
+          <!-- Free -->
+          <div class="p-card reveal">
+            <div class="p-header">
+              <div class="p-name">Free</div>
+              <div class="p-price">
+                <div class="p-amount no-cost">No cost</div>
+              </div>
+            </div>
+            <div class="p-desc">Horoscopes, Panchang, and basic Vedic tools — always free.</div>
+            <ul class="p-perks">
+              <li>Daily horoscope, Panchang & Yogas</li>
+              <li>One-time short Vedic astrology prediction</li>
+              <li>5 questions to Vedic Astro per week (resets weekly)</li>
+              <li>Weekly email update — horoscope, Panchang & Yogas</li>
+            </ul>
+            <button class="btn btn-ghost btn-full" (click)="startJourney()">Get Started Free</button>
+          </div>
+
+          <!-- Rhythm (featured) -->
+          <div class="p-card featured reveal">
+            <div class="p-badge">✦ Most Popular</div>
+            <div class="p-header">
+              <div class="p-name">Rhythm</div>
+              <div class="p-price">
+                <div class="p-amount">$2.99</div>
+                <span class="p-period">/week</span>
+              </div>
+            </div>
+            <div class="p-desc">Weekly guidance, unlimited questions, and the full Vedic toolkit.</div>
+            <ul class="p-perks">
+              <li>Weekly Vedic prediction to your inbox every Monday</li>
+              <li>200 credits — 200 questions to Vedic Astro per month</li>
+              <li>Weekly horoscope, Panchang & Yogas email</li>
+              <li>Matchmaking, Remedies & Numerology</li>
+            </ul>
+            <button class="btn btn-gold btn-full" (click)="startJourney()">Get Started</button>
+          </div>
+
+          <!-- Pay as you go -->
+          <div class="p-card reveal">
+            <div class="p-badge green-badge">Most Economical</div>
+            <div class="p-header">
+              <div class="p-name">Pay as you go</div>
+              <div class="p-price">
+                <div class="p-amount small-amount">from $3.99</div>
+                <span class="p-period">one time</span>
+              </div>
+            </div>
+            <div class="p-desc">Top up only when you need it. 1 credit = 1 question to Vedic Astro.</div>
+            <ul class="p-perks">
+              <li>$3.99 one-time: Deep Vedic astrology birth chart analysis</li>
+              <li>$4.99 one-time: 100 credits (100 questions) per month</li>
+            </ul>
+            <button class="btn btn-ghost btn-full" (click)="startJourney()">Get Started</button>
+          </div>
+
+        </div>
+
+       <div class="pricing-see-all reveal">
+  <span>See full plan details</span>
+  <a (click)="goToPricing()" style="cursor:pointer;">on VedicAstro →</a>
+</div>
+
+      </div>
+    </section>
+
+    <div class="container"><div class="section-divider"></div></div>
+
+    <!-- ═══════════ TESTIMONIALS ═══════════ -->
+    <section class="testimonials">
+      <div class="container">
+        <div class="section-eyebrow reveal">Seekers speak</div>
+        <h2 class="section-title reveal">What the community<br><em>is saying</em></h2>
+
+        <div class="t-grid">
+          <div class="t-card reveal">
+            <div class="t-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <div class="t-quote">"The weekly Rhythm prediction has changed how I plan my entire week. Knowing my Mahadasha phase made so many things click into place."</div>
+            <div class="t-author">
+              <div class="t-avatar">P</div>
+              <div class="t-meta"><strong>Priya M.</strong><span>Rhythm plan · Mumbai</span></div>
+            </div>
+          </div>
+          <div class="t-card reveal">
+            <div class="t-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <div class="t-quote">"I've tried a dozen astrology apps. VedicAstro is the only one that actually uses authentic Jyotish — Nakshatras, Dashas, the real Panchang. Night and day difference."</div>
+            <div class="t-author">
+              <div class="t-avatar">R</div>
+              <div class="t-meta"><strong>Rahul S.</strong><span>Pay as you go · Bangalore</span></div>
+            </div>
+          </div>
+          <div class="t-card reveal">
+            <div class="t-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <div class="t-quote">"The birth chart analysis was incredibly detailed — my Ascendant, current Antardasha, gemstone recommendations. All in one place for the price of a coffee."</div>
+            <div class="t-author">
+              <div class="t-avatar">A</div>
+              <div class="t-meta"><strong>Anjali K.</strong><span>Free plan · Delhi</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ CTA BAND ═══════════ -->
     <div class="container">
-      <div class="beliefs-box">
-        <h3>Vedic Astro respects your intelligence.</h3>
-        <p>For those who grew up hearing astrology but want logic and structure. Who believe in karma, but also believe in effort. Who are tired of dramatic predictions and daily fear-based content.</p>
+      <div class="cta-band reveal">
+        <div class="band-title">Begin your<br><em>COSMIC JOURNEY</em><br>today</div>
+        <p class="band-sub">Your birth chart is a map. VedicAstro is the guide who knows how to read it. Start free — no credit card needed.</p>
+        <button class="btn btn-gold btn-full band-btn" (click)="startJourney()">Start Your Journey Free</button>
+        <div class="band-note">Free forever · No credit card · Cancel anytime</div>
       </div>
     </div>
-  </section>
 
-  <!-- FINAL SECTION -->
-  <section class="final-section">
-    <div class="container">
-      <div class="lotus-divider">🪷</div>
-      <h2>Reveal the patterns of time, so you can move with them, not against them.</h2>
-      <p>It shows you what is coming, so you can take informed action to navigate it.</p>
-      <p>Enter your birth details and location to receive a deeply Indian, classically grounded reading — designed to help you listen to the universe without noise.</p>
-      
-      <button class="cta-button" (click)="getPersonalizedReading()">Get Vedic Astro Reading</button>
-    </div>
-  </section>
+    <div class="container"><div class="section-divider"></div></div>
+
+    <!-- ═══════════ FAQ ═══════════ -->
+    <section class="faq-section">
+      <div class="container">
+        <div class="section-eyebrow reveal">FAQ</div>
+        <h2 class="section-title reveal">Questions<br><em>answered</em></h2>
+        <p class="section-sub reveal">Everything you need to know about VedicAstro and Vedic astrology.</p>
+
+        <div class="faq-list">
+          <div class="faq-item reveal" *ngFor="let item of faqItems; let i = index" [class.open]="item.open">
+            <button class="faq-trigger" (click)="toggleFaq(i)">
+              <span class="faq-q">{{ item.question }}</span>
+              <span class="faq-icon">{{ item.open ? '×' : '+' }}</span>
+            </button>
+            <div class="faq-body">
+              <div class="faq-a" [innerHTML]="item.answer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer>
+      <div class="footer-logo">
+        <img src="assets/vedicastro-logo.png" alt="VedicAstro">
+        VedicAstro
+      </div>
+      <div class="footer-tagline">Guided by the Navagrahas · Rooted in Jyotish</div>
+      <div class="footer-links">
+        <a routerLink="/">App</a>
+        <a routerLink="/pricing">Pricing</a>
+        <a routerLink="/privacy">Privacy</a>
+        <a routerLink="/terms">Terms</a>
+      </div>
+      <div class="footer-copy">© 2026 VedicAstro · All rights reserved</div>
+     <div class="footer-links">
+        <a href="https://www.youtube.com/@VedicAstroPredictions" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="red">
+					<path d="M23.5 6.2a2.9 2.9 0 0 0-2-2C19.7 3.7 12 3.7 12 3.7s-7.7 0-9.5.5a2.9 2.9 0 0 0-2 2A30.4 30.4 0 0 0 0 12a30.4 30.4 0 0 0 .5 5.8 2.9 2.9 0 0 0 2 2c1.8.5 9.5.5 9.5.5s7.7 0 9.5-.5a2.9 2.9 0 0 0 2-2A30.4 30.4 0 0 0 24 12a30.4 30.4 0 0 0-.5-5.8zM9.8 15.5v-7L16 12l-6.2 3.5z"/>
+				</svg>
+			</a>
+			<a href="https://www.instagram.com/vedicastroapp" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="#E4405F">
+					<path d="M7.75 2C4.57 2 2 4.57 2 7.75v8.5C2 19.43 4.57 22 7.75 22h8.5C19.43 22 22 19.43 22 16.25v-8.5C22 4.57 19.43 2 16.25 2h-8.5zm0 2h8.5C18.22 4 20 5.78 20 7.75v8.5c0 1.97-1.78 3.75-3.75 3.75h-8.5C5.78 20 4 18.22 4 16.25v-8.5C4 5.78 5.78 4 7.75 4zm9.25 1.5a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z"/>
+				</svg>
+			</a>
+			<a href="https://www.facebook.com/profile.php?id=61587397383205" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="#1877F2">
+					<path d="M22 12a10 10 0 10-11.63 9.88v-6.99H7.9V12h2.47V9.8c0-2.44 1.46-3.8 3.7-3.8 1.07 0 2.18.19 2.18.19v2.4h-1.23c-1.21 0-1.59.75-1.59 1.52V12h2.71l-.43 2.89h-2.28v6.99A10 10 0 0022 12z"/>
+				</svg>
+			</a>
+      </div>
+    </footer>
+
+  </div><!-- /page -->
 </div>

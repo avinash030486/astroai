@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, Event } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 
@@ -29,6 +29,14 @@ private landingRoutes = ['/'];
         // Update on every navigation
         this.isLandingPage = event.urlAfterRedirects === '/';
 
+    console.log('🚀 AppComponent initialized, AuthService injected');
+
+    // ✅ Google Analytics route tracking
+    this.router.events
+      .pipe(
+        filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+      )
+      .subscribe((event: NavigationEnd) => {
         if (typeof gtag === 'function') {
           gtag('config', 'G-GZY7ZCH74T', {
             page_path: event.urlAfterRedirects
@@ -36,6 +44,7 @@ private landingRoutes = ['/'];
         }
       }
     });
+      });
   }
 
   ngOnInit(): void {

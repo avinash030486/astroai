@@ -44,7 +44,7 @@ import { SanitizePipe } from './pipes/sanitize.pipe';
     CityPanchangListComponent,
     LoginComponent,
     AuthCallbackComponent,
-    PricingComponent
+    PricingComponent,
     YogaListComponent,
     YogaDetailComponent,
     SanitizePipe

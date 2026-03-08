@@ -23,6 +23,9 @@ import { LoginComponent } from './components/login/login.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { PricingComponent } from './components/pricing-page/pricing.component';
+import { YogaListComponent } from './components/yoga-list/yoga-list.component';
+import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
+import { SanitizePipe } from './pipes/sanitize.pipe';
 
 @NgModule({
   declarations: [
@@ -42,6 +45,9 @@ import { PricingComponent } from './components/pricing-page/pricing.component';
     LoginComponent,
     AuthCallbackComponent,
     PricingComponent
+    YogaListComponent,
+    YogaDetailComponent,
+    SanitizePipe
   ],
   imports: [
     BrowserModule,

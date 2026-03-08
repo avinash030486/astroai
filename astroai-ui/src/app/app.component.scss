@@ -8,6 +8,19 @@ header { position: sticky; top: 0; z-index: 1030; }
   max-width: 300px;
 }
 
+// Add separators between menu items
+.navbar-nav .nav-item:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 991px) {
+  .navbar-nav .nav-item:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Responsive logo sizing */
 @media (max-width: 768px) {
   .navbar-logo { height: 60px; }
 }

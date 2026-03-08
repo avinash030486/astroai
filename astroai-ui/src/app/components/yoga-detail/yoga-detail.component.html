@@ -1,0 +1,57 @@
+<div class="yoga-detail-container" *ngIf="!loading">
+  <div *ngIf="notFound" class="container text-center py-5">
+    <h2>Yoga Not Found</h2>
+    <button class="btn btn-primary" (click)="goBack()">Back to Yogas</button>
+  </div>
+
+  <div *ngIf="yoga && !notFound">
+    <div class="yoga-header" [class.beneficial]="yoga.category === 'beneficial'" [class.malefic]="yoga.category === 'malefic'">
+      <div class="container">
+        <button class="back-btn" (click)="goBack()"><i class="bi bi-arrow-left"></i> Back to Yogas</button>
+        <h1>{{ yoga.name }}</h1>
+        <p class="subtitle">{{ yoga.shortDescription }}</p>
+      </div>
+    </div>
+
+    <div class="container content">
+      <section class="section">
+        <h2><i class="bi bi-diagram-3"></i> Planetary Combinations</h2>
+        <ul>
+          <li *ngFor="let combo of yoga.planetaryCombination">{{ combo }}</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2><i class="bi bi-lightning"></i> Effects</h2>
+        <div class="effects-grid">
+          <div class="effect" *ngFor="let effect of yoga.effects">
+            <i class="bi bi-star-fill"></i> <span>{{ effect }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section remedies" *ngIf="yoga.remedies && yoga.remedies.length">
+        <h2><i class="bi bi-shield-check"></i> Remedies</h2>
+        <ul>
+          <li *ngFor="let remedy of yoga.remedies">{{ remedy }}</li>
+        </ul>
+      </section>
+
+      <section class="section details">
+        <h2><i class="bi bi-book"></i> Detailed Analysis</h2>
+        <div [innerHTML]="yoga.details | sanitize"></div>
+      </section>
+
+      <div class="cta-section">
+        <h3>Discover Your Yogas</h3>
+        <p>Get your personalized birth chart analysis</p>
+        <button class="btn-primary" routerLink="/birth-chart">Get Birth Chart</button>
+        <button class="btn-secondary" (click)="goBack()">Explore More Yogas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container text-center py-5">
+  <div class="spinner-border"></div>
+</div>

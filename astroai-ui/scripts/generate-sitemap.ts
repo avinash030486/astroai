@@ -22,6 +22,10 @@ interface SitemapUrl {
 const citiesModule = require('../src/app/data/cities.ts');
 const cities: CityData[] = citiesModule.TOP_CITIES || [];
 
+// Import yogas data
+const yogasModule = require('../src/app/data/yogas.ts');
+const yogas = yogasModule.VEDIC_YOGAS || [];
+
 class SitemapGenerator {
   private baseUrl = 'https://vedicastro.app';
   private urls: SitemapUrl[] = [];
@@ -29,6 +33,7 @@ class SitemapGenerator {
   constructor() {
     this.generateStaticPages();
     this.generateCityPages();
+    this.generateYogaPages();
   }
 
   private generateStaticPages(): void {
@@ -41,12 +46,12 @@ class SitemapGenerator {
     // Feature pages
     this.addUrl('/daily-prediction', today, 'daily', 0.9);
     this.addUrl('/daily-panchang', today, 'daily', 0.95);
+    this.addUrl('/yearly-horoscope', today, 'weekly', 0.85);
+    this.addUrl('/remedies', today, 'weekly', 0.85);
     this.addUrl('/birth-chart', today, 'weekly', 0.8);
     this.addUrl('/horoscope', today, 'weekly', 0.8);
     this.addUrl('/numerology', today, 'weekly', 0.7);
     this.addUrl('/matchmaking', today, 'weekly', 0.7);
-    this.addUrl('/yearly-horoscope', today, 'weekly', 0.7);
-    this.addUrl('/remedies', today, 'weekly', 0.7);
     
     // City directory
     this.addUrl('/city-panchang', today, 'weekly', 0.9);
@@ -72,6 +77,20 @@ class SitemapGenerator {
     });
 
     console.log(`✅ Generated ${cities.length * 9} city-specific URLs`);
+  }
+
+  private generateYogaPages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Yoga list page
+    this.addUrl('/yogas', today, 'weekly', 0.9);
+
+    // Individual yoga pages
+    yogas.forEach((yoga: any) => {
+      this.addUrl(`/yoga/${yoga.slug}`, today, 'monthly', 0.85);
+    });
+
+    console.log(`✅ Generated ${yogas.length + 1} yoga URLs (1 list + ${yogas.length} detail pages)`);
   }
 
   private addUrl(

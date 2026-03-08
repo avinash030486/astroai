@@ -17,8 +17,8 @@ export class AuthCallbackComponent implements OnInit {
     // Wait a moment for auth state to update
     setTimeout(() => {
       if (this.authService.isAuthenticated()) {
-        console.log('✅ User authenticated, redirecting to daily prediction');
-        this.router.navigate(['/daily-prediction']);
+        console.log('✅ User authenticated, redirecting to birth chart');
+        this.router.navigate(['/birth-chart']);
       } else {
         console.log('⚠️ Authentication failed, redirecting to login');
         this.router.navigate(['/login']);

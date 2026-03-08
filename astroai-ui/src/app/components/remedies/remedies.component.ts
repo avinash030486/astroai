@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RemediesService, PersonalizedRemediesRequest, PersonalizedRemediesResponse } from '../../services/remedies.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-remedies',
   templateUrl: './remedies.component.html',
@@ -32,7 +32,9 @@ export class RemediesComponent {
   result: PersonalizedRemediesResponse | null = null;
   activeTab: string = 'mantras';
 
-  constructor(private remediesService: RemediesService) {}
+  constructor(private remediesService: RemediesService,
+    private router: Router
+  ) {}
 
   onGetRemedies(): void {
     if (!this.validateInputs()) {
@@ -112,5 +114,8 @@ export class RemediesComponent {
   reset(): void {
     this.result = null;
     this.error = '';
+  }
+      getPersonalizedReading(): void {
+    this.router.navigate(['/birth-chart']);
   }
 }

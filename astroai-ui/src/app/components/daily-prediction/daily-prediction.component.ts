@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PredictionsService, DailyPredictionsResponse, DailyPrediction } from '../../services/predictions.service';
-
+import { Router } from '@angular/router';
 interface ZodiacTile extends DailyPrediction {
   symbol: string;
 }
@@ -27,7 +27,9 @@ export class DailyPredictionComponent implements OnInit {
     Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓'
   };
 
-  constructor(private predictions: PredictionsService) {}
+  constructor(private predictions: PredictionsService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.fetchDaily();
@@ -61,5 +63,8 @@ export class DailyPredictionComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+      getPersonalizedReading(): void {
+    this.router.navigate(['/birth-chart']);
   }
 }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -21,6 +22,7 @@ import { CityPanchangListComponent } from './components/city-panchang-list/city-
 import { LoginComponent } from './components/login/login.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { PricingComponent } from './components/pricing-page/pricing.component';
 import { YogaListComponent } from './components/yoga-list/yoga-list.component';
 import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
 import { SanitizePipe } from './pipes/sanitize.pipe';
@@ -42,12 +44,14 @@ import { SanitizePipe } from './pipes/sanitize.pipe';
     CityPanchangListComponent,
     LoginComponent,
     AuthCallbackComponent,
+    PricingComponent
     YogaListComponent,
     YogaDetailComponent,
     SanitizePipe
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     RouterModule,

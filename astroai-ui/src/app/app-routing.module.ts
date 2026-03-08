@@ -17,6 +17,7 @@ import { AuthCallbackComponent } from './components/auth-callback/auth-callback.
 import { YogaListComponent } from './components/yoga-list/yoga-list.component';
 import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
 import { requireAuthGuard } from './guards/auth.guard';
+import { PricingComponent } from './components/pricing-page/pricing.component';
 
 const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -36,11 +37,12 @@ const routes: Routes = [
   { path: 'numerology', component: NumerologyComponent, canActivate: [requireAuthGuard] },
   { path: 'matchmaking', component: MatchmakingComponent, canActivate: [requireAuthGuard] },
   { path: 'upcoming', component: UpcomingFeaturesComponent },
-  { path: '**', redirectTo: '' }
+  { path: 'pricing', component: PricingComponent },  // ← moved above wildcard
+  { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'top' })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

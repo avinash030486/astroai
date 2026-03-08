@@ -13,11 +13,22 @@ declare let gtag: Function;
 export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
+  isLandingPage = false;
+
+private landingRoutes = ['/'];
 
   constructor(
     public authService: AuthService,
     private router: Router
   ) {
+    // Set immediately for initial load
+    this.isLandingPage = this.router.url === '/';
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        // Update on every navigation
+        this.isLandingPage = event.urlAfterRedirects === '/';
+
     console.log('🚀 AppComponent initialized, AuthService injected');
 
     // ✅ Google Analytics route tracking
@@ -31,13 +42,14 @@ export class AppComponent implements OnInit {
             page_path: event.urlAfterRedirects
           });
         }
+      }
+    });
       });
   }
 
   ngOnInit(): void {
     console.log('📱 AppComponent ngOnInit');
 
-    // Check auth status after initialization
     setTimeout(() => {
       const session = this.authService.getCurrentSession();
       if (session) {

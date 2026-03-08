@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-
+import { Router } from '@angular/router';
 interface Feature {
   icon: string;
   title: string;
@@ -12,6 +12,7 @@ interface Feature {
   templateUrl: './upcoming-features.component.html',
   styleUrls: ['./upcoming-features.component.scss']
 })
+
 export class UpcomingFeaturesComponent {
   features: Feature[] = [
     {
@@ -31,4 +32,6 @@ export class UpcomingFeaturesComponent {
       blurb: 'Gentle, actionable recommendations—mantras, rituals, gemstones, fasting—tailored to your chart.'
     }
   ];
+    
+  
 }

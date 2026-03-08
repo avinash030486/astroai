@@ -81,3 +81,363 @@ input.form-control:focus {
 .accent-date { color: #0B4D2C; font-weight: 600; }
 .kv-item .key { text-decoration: underline; color: #1C3D2F; }
 .kv-item .val { color: #0B4D2C; }
+// ─────────────────────────────────────────────────────────
+//  CTA Banner — Add to daily-panchang.component.scss
+//  Paste this block at the END of the file
+// ─────────────────────────────────────────────────────────
+
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  margin-top: 4rem;
+  padding: 5rem 2rem;
+  background: #0B4D2C; // deep forest green (matches hero/navbar)
+  text-align: center;
+  isolation: isolate;
+
+  // ── Subtle noise grain overlay ──
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // ── Radial gradient glow from center ──
+  &__bg-layer {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 60%, rgba(201, 169, 97, 0.15) 0%, transparent 70%),
+                linear-gradient(180deg, #0a4027 0%, #0B4D2C 50%, #083d22 100%);
+    z-index: 0;
+  }
+
+  // ── Decorative circles & Om symbol ──
+  &__decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 97, 0.18);
+
+    &--1 {
+      width: 420px;
+      height: 420px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: ctaPulse 6s ease-in-out infinite;
+    }
+
+    &--2 {
+      width: 640px;
+      height: 640px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-color: rgba(201, 169, 97, 0.08);
+      animation: ctaPulse 6s ease-in-out infinite reverse;
+    }
+  }
+
+  &__om {
+    position: absolute;
+    bottom: -1.5rem;
+    right: 6%;
+    font-size: 9rem;
+    color: rgba(201, 169, 97, 0.07);
+    font-family: 'Noto Serif Devanagari', serif;
+    line-height: 1;
+    user-select: none;
+
+    @media (max-width: 768px) {
+      font-size: 6rem;
+      right: 2%;
+    }
+  }
+
+  // ── Content ──
+  &__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C9A961;
+    margin: 0;
+  }
+
+  &__heading {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.12;
+    color: #F5EFE0;  // warm cream
+    margin: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.01em;
+
+    // Gold shimmer on the period
+    &::after {
+      content: '';
+    }
+  }
+
+  &__sub {
+    font-size: 1.05rem;
+    color: rgba(245, 239, 224, 0.7);
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  // ── Button ──
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, #C9A961 0%, #D4AF37 100%);
+    color: #0B4D2C;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 50px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 4px 20px rgba(201, 169, 97, 0.35);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(201, 169, 97, 0.5);
+      filter: brightness(1.06);
+      color: #0B4D2C;
+      text-decoration: none;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: 3px solid #C9A961;
+      outline-offset: 3px;
+    }
+  }
+
+  &__btn-arrow {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+
+    .cta-banner__btn:hover & {
+      transform: translateX(3px);
+    }
+  }
+}
+
+// ── Pulse animation for decorative circles ──
+@keyframes ctaPulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 0.6; transform: translate(-50%, -50%) scale(1.04); }
+}
+// ─────────────────────────────────────────────────────────
+//  CTA Banner — Add to daily-panchang.component.scss
+//  Paste this block at the END of the file
+// ─────────────────────────────────────────────────────────
+
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  margin-top: 4rem;
+  padding: 5rem 2rem;
+  background: #0B4D2C; // deep forest green (matches hero/navbar)
+  text-align: center;
+  isolation: isolate;
+
+  // ── Subtle noise grain overlay ──
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // ── Radial gradient glow from center ──
+  &__bg-layer {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 50% 60%, rgba(201, 169, 97, 0.15) 0%, transparent 70%),
+                linear-gradient(180deg, #0a4027 0%, #0B4D2C 50%, #083d22 100%);
+    z-index: 0;
+  }
+
+  // ── Decorative circles & Om symbol ──
+  &__decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 97, 0.18);
+
+    &--1 {
+      width: 420px;
+      height: 420px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: ctaPulse 6s ease-in-out infinite;
+    }
+
+    &--2 {
+      width: 640px;
+      height: 640px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-color: rgba(201, 169, 97, 0.08);
+      animation: ctaPulse 6s ease-in-out infinite reverse;
+    }
+  }
+
+  &__om {
+    position: absolute;
+    bottom: -1.5rem;
+    right: 6%;
+    font-size: 9rem;
+    color: rgba(201, 169, 97, 0.07);
+    font-family: 'Noto Serif Devanagari', serif;
+    line-height: 1;
+    user-select: none;
+
+    @media (max-width: 768px) {
+      font-size: 6rem;
+      right: 2%;
+    }
+  }
+
+  // ── Content ──
+  &__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C9A961;
+    margin: 0;
+  }
+
+  &__heading {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.12;
+    color: #F5EFE0;  // warm cream
+    margin: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.01em;
+
+    // Gold shimmer on the period
+    &::after {
+      content: '';
+    }
+  }
+
+  &__sub {
+    font-size: 1.05rem;
+    color: rgba(245, 239, 224, 0.7);
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  // ── Button ──
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    padding: 0.85rem 2rem;
+    background: linear-gradient(135deg, #C9A961 0%, #D4AF37 100%);
+    color: #0B4D2C;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-radius: 50px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 4px 20px rgba(201, 169, 97, 0.35);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(201, 169, 97, 0.5);
+      filter: brightness(1.06);
+      color: #0B4D2C;
+      text-decoration: none;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus-visible {
+      outline: 3px solid #C9A961;
+      outline-offset: 3px;
+    }
+  }
+
+  &__btn-arrow {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+
+    .cta-banner__btn:hover & {
+      transform: translateX(3px);
+    }
+  }
+}
+
+// ── Pulse animation for decorative circles ──
+@keyframes ctaPulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 0.6; transform: translate(-50%, -50%) scale(1.04); }
+}

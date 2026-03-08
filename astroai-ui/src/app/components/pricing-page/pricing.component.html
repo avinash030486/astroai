@@ -1,0 +1,180 @@
+<div class="pricing-wrapper">
+
+  <!-- Background -->
+  <div class="pricing-bg"></div>
+  <div class="pricing-stars">
+    <div class="star" *ngFor="let s of stars" [style]="s.style"></div>
+  </div>
+
+  <div class="pricing-page" >
+
+    <!-- Header -->
+    <header class="pricing-header">
+      <div class="pricing-emblem">
+        <div class="emblem-ring">
+          <img src="assets/vedicastro-logo.png" alt="VedicAstro"
+               onerror="this.style.display='none'">
+        </div>
+      </div>
+      <div class="pricing-logo-label">VedicAstro</div>
+      <h1 class="pricing-headline">Fair, <em>flexible</em><br>pricing</h1>
+      <p class="pricing-sub">Choose the plan that aligns with your cosmic journey — from free exploration to deep personal guidance.</p>
+    </header>
+
+    <div class="ornament">· · ✦ · ·</div>
+
+    <!-- Cards -->
+    <div class="pricing-container">
+      <div class="cards-wrapper">
+
+        <!-- Free -->
+        <div class="p2-card">
+          <div class="card-tier">Free</div>
+          <div class="card-desc">Access horoscopes, panchang and more — at no cost.</div>
+          <div class="price-free">No cost</div>
+          <div class="divider-line"></div>
+          <ul class="feature-list">
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Vedic Astrology</strong>
+                <span>One-time short astrology prediction</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Questions to Vedic Astro</strong>
+                <span>5 questions for free, resets every week</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Horoscope, Panchang & Yogas</strong>
+                <span>Free updates</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Weekly Updates</strong>
+                <span>Email covering your horoscope, panchang and yogas</span>
+              </div>
+            </li>
+          </ul>
+          <button class="p2-btn p2-btn-ghost" (click)="getStarted()">Get Started</button>
+        </div>
+
+        <!-- Rhythm -->
+        <div class="p2-card">
+          <div class="card-badge">✦ Most Popular</div>
+          <div class="card-tier">Rhythm</div>
+          <div class="card-desc">Get weekly detailed guidance to navigate your week. Ask vedic astro questions.</div>
+          <div class="price-tag">
+            <span class="price-amount">$2.99</span>
+            <span class="price-period">/week</span>
+          </div>
+          <div class="divider-line"></div>
+          <ul class="feature-list">
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Vedic Astrology</strong>
+                <span>Weekly prediction to your inbox every Monday. Navigate your week with clarity.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Questions to Vedic Astro</strong>
+                <span>200 credits — equivalent to 200 questions per month</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Updates</strong>
+                <span>Weekly email covering your horoscope, panchang and yogas</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+              </svg>
+              <div class="feature-content">
+                <strong>Other Features</strong>
+                <span>Matchmaking, Remedies & Numerology</span>
+              </div>
+            </li>
+          </ul>
+          <button class="p2-btn p2-btn-gold" (click)="getStarted()">Get Started</button>
+        </div>
+
+        <!-- Pay as you go -->
+        <div class="p2-card">
+          <div class="card-badge green">Most Economical</div>
+          <div class="card-tier">Pay as you go</div>
+          <div class="card-desc">Top up for personalized predictions. 1 credit = 1 question to Vedic Astro.</div>
+          <div class="payg-options">
+            <div class="payg-block">
+              <div class="payg-price">$3.99 <span class="payg-period">one time</span></div>
+              <strong>Vedic Astrology</strong>
+              <span>A one-time deep vedic astrology analysis delivered to you</span>
+            </div>
+            <div class="payg-block">
+              <div class="payg-price">$4.99 <span class="payg-period">one time</span></div>
+              <strong>Ask Questions to Vedic Astro</strong>
+              <span>100 credits per month — equivalent to 100 questions</span>
+            </div>
+          </div>
+          <button class="p2-btn p2-btn-gold" (click)="getStarted()">Get Started</button>
+        </div>
+
+      </div>
+
+      <!-- Birth Chart Deep Dive FAQ -->
+      <section class="faq2-section">
+        <div class="section-label">Deep Dive</div>
+        <h2 class="faq2-title">Vedic Birth Chart<br>Analysis</h2>
+        <p class="faq2-sub">Everything included in your personalized birth chart reading</p>
+
+        <div class="faq2-list">
+          <div class="faq2-item" *ngFor="let item of faqItems; let i = index" [class.open]="item.open">
+            <button class="faq2-trigger" (click)="toggleFaq(i)">
+              <span class="faq2-q">{{ item.question }}</span>
+              <span class="faq2-icon">{{ item.open ? '×' : '+' }}</span>
+            </button>
+            <div class="faq2-body">
+              <div class="faq2-content" [innerHTML]="item.answer"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        All prices in USD · Secure payments · Cancel anytime<br>
+        <span class="footer-gold">✦</span> VedicAstro — Guided by the Navagrahas
+      </div>
+
+    </div>
+  </div>
+</div>

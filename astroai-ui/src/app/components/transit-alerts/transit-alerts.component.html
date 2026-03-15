@@ -1,85 +1,275 @@
 <div class="transit-container">
+
+  <!-- Hero -->
   <div class="hero-section">
     <h1>🪐 Transit Alerts</h1>
-    <p>Current planetary transits and their influence on your zodiac sign</p>
+    <p class="hero-sub">Live planetary transits for every zodiac sign — updated daily</p>
+    <p class="hero-date">{{ today }}</p>
   </div>
 
-  <!-- Sign Selector -->
-  <div class="sign-selector-section" *ngIf="!result">
-    <div class="card input-card">
-      <div class="card-body">
-        <h3 class="mb-4">Select Your Zodiac Sign</h3>
-        <div class="signs-grid">
-          <div
-            *ngFor="let sign of signs"
-            class="sign-tile"
-            [class.selected]="selectedSign === sign"
-            (click)="selectedSign = sign">
-            <span class="sign-emoji">{{ signEmojis[sign] }}</span>
-            <span class="sign-name">{{ sign }}</span>
+  <!-- 12-Sign Grid -->
+  <div class="zodiac-grid-section">
+    <div class="zodiac-grid">
+      <div
+        *ngFor="let sign of signs"
+        class="zodiac-card"
+        [class.active]="selectedSign === sign"
+        [class.loading-card]="summariesLoading"
+        (click)="selectSign(sign)">
+
+        <!-- Energy dot from summary -->
+        <span
+          class="energy-dot"
+          *ngIf="getSummary(sign) as s"
+          [ngClass]="energyClass(s.energy)">
+        </span>
+        <span class="energy-dot neutral" *ngIf="!getSummary(sign) && !summariesLoading"></span>
+
+        <span class="zc-emoji">{{ signEmojis[sign] }}</span>
+        <span class="zc-name">{{ sign }}</span>
+
+        <!-- Mini summary visible when not selected -->
+        <span class="zc-planet" *ngIf="getSummary(sign) as s">
+          {{ s.dominantPlanet }}
+        </span>
+
+        <!-- Selected indicator -->
+        <span class="zc-selected-marker" *ngIf="selectedSign === sign">✓</span>
+      </div>
+    </div>
+    <p class="grid-hint" *ngIf="!selectedSign && !detailLoading">
+      Tap a sign to see its detailed planetary transits ↑
+    </p>
+  </div>
+
+  <!-- Detail Loading -->
+  <div class="detail-loading" *ngIf="detailLoading">
+    <div class="loading-pulse">
+      <span class="spinner-border text-warning me-3"></span>
+      <span>Consulting the planets for <strong>{{ selectedSign }}</strong>…</span>
+    </div>
+  </div>
+
+  <!-- Detail Error -->
+  <div class="detail-error" *ngIf="detailError && !detailLoading">
+    <div class="error-card">
+      <span>⚠️ {{ detailError }}</span>
+      <button class="btn btn-sm btn-outline-warning ms-3" (click)="selectSign(selectedSign)">Retry</button>
+    </div>
+  </div>
+
+  <!-- ─── DETAIL RESULT ─── -->
+  <div class="detail-section" *ngIf="detailResult && !detailLoading">
+
+    <!-- Result Header -->
+    <div class="detail-header">
+      <div class="dh-left">
+        <span class="dh-emoji">{{ detailResult.emoji }}</span>
+        <div class="dh-text">
+          <h2>{{ detailResult.sign }}</h2>
+          <p class="dh-headline">{{ detailResult.headline }}</p>
+        </div>
+      </div>
+      <div class="dh-right">
+        <div class="score-circle" [style.border-color]="scoreColor(detailResult.energyScore)">
+          <span class="score-num" [style.color]="scoreColor(detailResult.energyScore)">{{ detailResult.energyScore }}</span>
+          <span class="score-label">/ 10</span>
+        </div>
+        <span class="energy-badge" [ngClass]="energyClass(detailResult.overallEnergy)">
+          {{ detailResult.overallEnergy }}
+        </span>
+        <button class="btn btn-sm btn-outline-light change-btn" (click)="selectedSign = ''; detailResult = null; monthlyResult = null">
+          ↑ All Signs
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+        🔭 Overview
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'weekly'" (click)="setTab('weekly')">
+        📅 7-Day Forecast
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'monthly'" (click)="setTab('monthly')">
+        🌙 Monthly View
+      </button>
+    </div>
+
+    <!-- ══ OVERVIEW TAB ══ -->
+    <div *ngIf="activeTab === 'overview'">
+
+      <!-- Life Areas -->
+      <h3 class="section-title">Life Areas</h3>
+      <div class="life-areas-grid">
+        <div class="life-area-card" *ngFor="let area of ['career','love','finance','health','spirituality']">
+          <ng-container *ngIf="lifeArea(area) as la">
+            <div class="la-header">
+              <span class="la-icon">
+                {{ area === 'career' ? '💼' : area === 'love' ? '❤️' : area === 'finance' ? '💰' : area === 'health' ? '🌿' : '🕉️' }}
+              </span>
+              <span class="la-name">{{ area | titlecase }}</span>
+              <span class="la-score" [style.color]="scoreColor(la.score)">{{ la.score }}/10</span>
+            </div>
+            <div class="la-bar-bg">
+              <div class="la-bar-fill" [style.width.%]="la.score * 10" [style.background]="scoreColor(la.score)"></div>
+            </div>
+            <p class="la-summary">{{ la.summary }}</p>
+            <p class="la-advice">💡 {{ la.advice }}</p>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Active Transits -->
+      <h3 class="section-title mt-4">Active Planetary Transits</h3>
+      <div class="transits-grid">
+        <div class="transit-card" *ngFor="let t of detailResult.currentTransits">
+          <div class="transit-header">
+            <span class="planet-name">{{ t.planet }}</span>
+            <span class="transit-arrow">→</span>
+            <span class="transit-sign">{{ t.transitSign }}</span>
+            <span class="intensity-badge" [ngClass]="'intensity-' + intensityClass(t.intensity)">{{ t.intensity }}</span>
+          </div>
+          <p class="transit-effect">{{ t.effect }}</p>
+          <div class="transit-meta">
+            <span class="duration">⏳ {{ t.duration }}</span>
+          </div>
+          <div class="transit-advice">
+            <span class="advice-icon">💡</span>
+            <span>{{ t.advice }}</span>
           </div>
         </div>
-        <div class="alert alert-danger mt-3" *ngIf="error">{{ error }}</div>
-        <div class="text-center mt-4">
-          <button class="btn btn-primary btn-lg" (click)="getAlerts()" [disabled]="loading">
-            <span *ngIf="!loading">🔭 Get Transit Alerts</span>
-            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Analyzing transits...</span>
-          </button>
+      </div>
+
+      <!-- Key Planets -->
+      <h3 class="section-title mt-4">Key Planets This Period</h3>
+      <div class="key-planets-row">
+        <div class="kp-chip" *ngFor="let kp of detailResult.keyPlanets">
+          <span class="kp-planet">{{ kp.planet }}</span>
+          <span class="kp-role">{{ kp.role }}</span>
+          <span class="kp-effect">{{ kp.effect }}</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Results -->
-  <div class="results-section" *ngIf="result">
-    <div class="result-header">
-      <span class="sign-badge">{{ signEmojis[result.zodiacSign] }} {{ result.zodiacSign }}</span>
-      <span class="date-badge">As of {{ result.asOfDate | date:'mediumDate' }}</span>
-      <button class="btn btn-outline-light btn-sm ms-auto" (click)="result = null">← Change Sign</button>
-    </div>
+      <!-- Lucky & Remedies row -->
+      <div class="lucky-remedies-row">
+        <div class="lucky-card">
+          <h4>🍀 Lucky This Period</h4>
+          <div class="lucky-row">
+            <span class="lucky-label">Numbers</span>
+            <span class="lucky-nums">
+              <span class="lucky-num" *ngFor="let n of detailResult.luckyNumbers">{{ n }}</span>
+            </span>
+          </div>
+          <div class="lucky-row">
+            <span class="lucky-label">Colors</span>
+            <span class="lucky-colors">
+              <span class="lucky-color-dot" *ngFor="let c of detailResult.luckyColors" [title]="c" [style.background]="c.toLowerCase()"></span>
+              <span class="lucky-color-names">{{ detailResult.luckyColors.join(', ') }}</span>
+            </span>
+          </div>
+          <div class="lucky-row">
+            <span class="lucky-label">Gemstone</span>
+            <span class="lucky-gem">💎 {{ detailResult.luckyGemstone }}</span>
+          </div>
+        </div>
 
-    <div class="theme-card">
-      <h3>✨ Overall Theme</h3>
-      <p>{{ result.overallTheme }}</p>
-    </div>
-
-    <div class="row g-3 mb-4">
-      <div class="col-md-6">
-        <div class="insight-card opportunities">
-          <h4>🌟 Key Opportunities</h4>
-          <p>{{ result.keyOpportunities }}</p>
+        <div class="remedies-card">
+          <h4>🛡️ Remedies</h4>
+          <ul class="remedies-list">
+            <li *ngFor="let r of detailResult.remedies">{{ r }}</li>
+          </ul>
         </div>
       </div>
-      <div class="col-md-6">
-        <div class="insight-card challenges">
-          <h4>⚠️ Key Challenges</h4>
-          <p>{{ result.keyChallenges }}</p>
+
+      <!-- Opportunities & Cautions -->
+      <div class="opp-caution-row">
+        <div class="opp-card">
+          <h4>🌟 Opportunities</h4>
+          <ul>
+            <li *ngFor="let o of detailResult.opportunities">{{ o }}</li>
+          </ul>
+        </div>
+        <div class="caution-card">
+          <h4>⚠️ Caution Areas</h4>
+          <ul>
+            <li *ngFor="let c of detailResult.cautionAreas">{{ c }}</li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <h3 class="section-title">Planetary Transits</h3>
-    <div class="transits-grid">
-      <div class="transit-card" *ngFor="let t of result.transits">
-        <div class="transit-header">
-          <span class="planet-name">{{ t.planet }}</span>
-          <span class="transit-arrow">→</span>
-          <span class="transit-sign">{{ t.transitSign }}</span>
-          <span class="intensity-badge" [ngClass]="'intensity-' + t.intensity.toLowerCase()">{{ t.intensity }}</span>
-        </div>
-        <p class="transit-effect">{{ t.effect }}</p>
-        <div class="transit-meta">
-          <span class="duration">⏳ {{ t.duration }}</span>
-        </div>
-        <div class="transit-advice">
-          <span class="advice-icon">💡</span>
-          <span>{{ t.advice }}</span>
+    </div><!-- /overview -->
+
+    <!-- ══ WEEKLY TAB ══ -->
+    <div *ngIf="activeTab === 'weekly'">
+      <h3 class="section-title">7-Day Forecast for {{ detailResult.sign }}</h3>
+      <div class="weekly-grid">
+        <div
+          class="day-card"
+          *ngFor="let d of detailResult.weeklyForecast"
+          [ngClass]="'day-' + dayEnergyClass(d.energy)">
+          <div class="day-energy-bar"></div>
+          <span class="day-name">{{ d.day }}</span>
+          <span class="day-date">{{ d.date }}</span>
+          <span class="day-energy-badge">{{ d.energy }}</span>
+          <p class="day-tip">{{ d.tip }}</p>
         </div>
       </div>
-    </div>
+    </div><!-- /weekly -->
 
-    <div class="text-center mt-4">
-      <button class="btn btn-outline-primary" (click)="result = null">← Check Another Sign</button>
-    </div>
-  </div>
+    <!-- ══ MONTHLY TAB ══ -->
+    <div *ngIf="activeTab === 'monthly'">
+      <div class="monthly-loading" *ngIf="monthlyLoading">
+        <span class="spinner-border spinner-border-sm text-warning me-2"></span>
+        Loading monthly breakdown…
+      </div>
+      <div *ngIf="monthlyResult && !monthlyLoading">
+        <div class="monthly-header">
+          <h3>{{ monthlyResult.month }} — {{ detailResult.sign }}</h3>
+          <p class="monthly-theme">{{ monthlyResult.monthlyTheme }}</p>
+          <span class="monthly-score" [style.color]="scoreColor(monthlyResult.overallScore)">
+            Monthly Score: {{ monthlyResult.overallScore }}/10
+          </span>
+        </div>
+
+        <div class="weeks-grid">
+          <div class="week-card" *ngFor="let w of monthlyResult.weeks" [ngClass]="energyClass(w.energy)">
+            <div class="wk-header">
+              <span class="wk-num">Week {{ w.weekNumber }}</span>
+              <span class="wk-range">{{ w.dateRange }}</span>
+              <span class="wk-energy-badge" [ngClass]="energyClass(w.energy)">{{ w.energy }}</span>
+            </div>
+            <p class="wk-theme">{{ w.theme }}</p>
+            <div class="wk-lists">
+              <div class="wk-col">
+                <span class="wk-col-label">✨ Highlights</span>
+                <ul><li *ngFor="let h of w.highlights">{{ h }}</li></ul>
+              </div>
+              <div class="wk-col">
+                <span class="wk-col-label">⚠️ Challenges</span>
+                <ul><li *ngFor="let c of w.challenges">{{ c }}</li></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="important-dates" *ngIf="monthlyResult.importantDates?.length">
+          <h4>📅 Important Dates</h4>
+          <div class="dates-row">
+            <div class="date-chip" *ngFor="let d of monthlyResult.importantDates">
+              <span class="date-chip-date">{{ d.date }}</span>
+              <span class="date-chip-sig">{{ d.significance }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="monthly-advice-card" *ngIf="monthlyResult.monthlyAdvice">
+          <h4>🧭 Monthly Guidance</h4>
+          <p>{{ monthlyResult.monthlyAdvice }}</p>
+        </div>
+      </div>
+    </div><!-- /monthly -->
+
+  </div><!-- /detail-section -->
 </div>

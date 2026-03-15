@@ -33,6 +33,11 @@ public interface IGptAstrologyService
 
     Task<TransitAlertsResponse> GetTransitAlertsAsync(string zodiacSign, CancellationToken ct);
 
+    // New richer transit endpoints
+    Task<IReadOnlyList<ZodiacTransitSummary>> GetAllZodiacSummariesAsync(CancellationToken ct);
+    Task<DetailedTransitResponse> GetDetailedTransitAsync(string zodiacSign, CancellationToken ct);
+    Task<MonthlyTransitResponse> GetMonthlyTransitAsync(string zodiacSign, CancellationToken ct);
+
     Task<MuhuratResponse> GetMuhuratTimingsAsync(MuhuratRequest request, CancellationToken ct);
 
     Task<GemstoneResponse> GetGemstoneRecommendationAsync(

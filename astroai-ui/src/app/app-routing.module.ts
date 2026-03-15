@@ -43,6 +43,7 @@ const routes: Routes = [
   { path: 'upcoming', component: UpcomingFeaturesComponent },
   { path: 'pricing', component: PricingComponent },
   { path: 'transit-alerts', component: TransitAlertsComponent },
+  { path: 'transit-alerts/:sign', component: TransitAlertsComponent },
   { path: 'muhurat', component: MuhuratCalculatorComponent },
   { path: 'gemstones', component: GemstoneEngineComponent },
   { path: 'festivals', component: FestivalCalendarComponent },  // ← moved above wildcard

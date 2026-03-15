@@ -1,9 +1,520 @@
+// ─── Base ─────────────────────────────────────────────────────────────────────
 .transit-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
-  padding: 2rem 1rem;
+  padding: 2rem 1rem 4rem;
   color: #fff;
 }
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+.hero-section {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  h1 { font-size: 2.5rem; font-weight: 700; color: #FFD700; margin-bottom: 0.4rem; }
+  .hero-sub { color: #aaa; font-size: 1.05rem; margin-bottom: 0.25rem; }
+  .hero-date { color: #666; font-size: 0.85rem; }
+}
+
+// ─── Zodiac Grid ──────────────────────────────────────────────────────────────
+.zodiac-grid-section {
+  max-width: 960px;
+  margin: 0 auto 2rem;
+}
+
+.zodiac-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.6rem;
+  @media (max-width: 768px) { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.zodiac-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.7rem 0.4rem 0.6rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,215,0,0.15);
+  cursor: pointer;
+  transition: all 0.22s;
+  background: rgba(255,255,255,0.03);
+  min-height: 80px;
+
+  &:hover {
+    background: rgba(255,215,0,0.1);
+    border-color: rgba(255,215,0,0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255,215,0,0.15);
+  }
+
+  &.active {
+    background: rgba(255,215,0,0.18);
+    border-color: #FFD700;
+    box-shadow: 0 0 16px rgba(255,215,0,0.35);
+  }
+
+  .zc-emoji { font-size: 1.55rem; line-height: 1; margin-bottom: 0.15rem; }
+  .zc-name  { font-size: 0.7rem; color: #ccc; font-weight: 500; }
+  .zc-planet { font-size: 0.62rem; color: #FFD700; opacity: 0.8; margin-top: 0.1rem; text-align: center; }
+  .zc-selected-marker {
+    position: absolute; top: 4px; right: 6px;
+    font-size: 0.65rem; color: #FFD700;
+  }
+}
+
+// Energy dot (top-left corner of card)
+.energy-dot {
+  position: absolute; top: 5px; left: 6px;
+  width: 7px; height: 7px; border-radius: 50%;
+  &.favorable  { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+  &.neutral    { background: #f39c12; box-shadow: 0 0 6px #f39c12; }
+  &.challenging{ background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
+}
+
+.grid-hint {
+  text-align: center;
+  color: #555;
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+// ─── Loading / Error ──────────────────────────────────────────────────────────
+.detail-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+  .loading-pulse {
+    display: inline-flex;
+    align-items: center;
+    color: #aaa;
+    font-size: 1rem;
+    strong { color: #FFD700; }
+  }
+}
+
+.detail-error {
+  max-width: 700px;
+  margin: 1rem auto;
+  .error-card {
+    background: rgba(231,76,60,0.1);
+    border: 1px solid rgba(231,76,60,0.3);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+// ─── Detail Section ───────────────────────────────────────────────────────────
+.detail-section {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 18px;
+  padding: 1.25rem 1.5rem;
+
+  .dh-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    .dh-emoji { font-size: 3rem; line-height: 1; }
+    .dh-text {
+      h2 { font-size: 1.8rem; font-weight: 700; color: #FFD700; margin: 0 0 0.2rem; }
+      .dh-headline { color: #ccc; font-size: 0.92rem; margin: 0; line-height: 1.4; max-width: 400px; }
+    }
+  }
+
+  .dh-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+.score-circle {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 3px solid #2ecc71;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.3);
+  .score-num { font-size: 1.4rem; font-weight: 700; line-height: 1; }
+  .score-label { font-size: 0.6rem; color: #888; }
+}
+
+.energy-badge {
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  &.favorable   { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); }
+  &.neutral     { background: rgba(243,156,18,0.2);  color: #f39c12; border: 1px solid rgba(243,156,18,0.4); }
+  &.challenging { background: rgba(231,76,60,0.2);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
+}
+
+.change-btn {
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #ccc;
+  background: transparent;
+  font-size: 0.8rem;
+  &:hover { background: rgba(255,255,255,0.1); color: #fff; }
+}
+
+// ─── Tab Bar ──────────────────────────────────────────────────────────────────
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 0.55rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,215,0,0.2);
+  background: rgba(255,255,255,0.04);
+  color: #aaa;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  &:hover { background: rgba(255,215,0,0.1); color: #FFD700; border-color: rgba(255,215,0,0.4); }
+  &.active { background: rgba(255,215,0,0.2); color: #FFD700; border-color: #FFD700; font-weight: 600; }
+}
+
+// ─── Shared section title ─────────────────────────────────────────────────────
+.section-title {
+  color: #FFD700;
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255,215,0,0.2);
+}
+
+// ─── Life Areas ───────────────────────────────────────────────────────────────
+.life-areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.9rem;
+}
+
+.life-area-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1rem 0.9rem;
+  transition: all 0.2s;
+  &:hover { border-color: rgba(255,215,0,0.3); transform: translateY(-2px); }
+}
+
+.la-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  .la-icon  { font-size: 1.1rem; }
+  .la-name  { font-size: 0.82rem; font-weight: 600; color: #ddd; flex: 1; }
+  .la-score { font-size: 0.78rem; font-weight: 700; }
+}
+
+.la-bar-bg {
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+.la-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.la-summary { font-size: 0.78rem; color: #bbb; line-height: 1.45; margin-bottom: 0.4rem; }
+.la-advice  { font-size: 0.74rem; color: #888; line-height: 1.4; }
+
+// ─── Transits Grid (same as before + enhanced) ────────────────────────────────
+.transits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1rem;
+}
+
+.transit-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 1.15rem;
+  transition: all 0.2s;
+  &:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,215,0,0.3); transform: translateY(-2px); }
+}
+
+.transit-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+  .planet-name   { font-weight: 700; color: #FFD700; font-size: 1rem; }
+  .transit-arrow { color: #555; }
+  .transit-sign  { color: #aad4f5; font-size: 0.88rem; }
+}
+
+.intensity-badge {
+  font-size: 0.68rem;
+  padding: 0.12rem 0.48rem;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: auto;
+  &.intensity-high   { background: rgba(231,76,60,0.2);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.4); }
+  &.intensity-medium { background: rgba(243,156,18,0.2); color: #f39c12; border: 1px solid rgba(243,156,18,0.4); }
+  &.intensity-low    { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); }
+}
+
+.transit-effect { color: #ccc; font-size: 0.87rem; line-height: 1.5; margin-bottom: 0.5rem; }
+.transit-meta   { margin-bottom: 0.45rem; .duration { font-size: 0.76rem; color: #777; } }
+.transit-advice {
+  display: flex; gap: 0.35rem; font-size: 0.8rem; color: #999;
+  background: rgba(255,215,0,0.05); border-radius: 8px; padding: 0.45rem 0.7rem;
+  line-height: 1.4; .advice-icon { flex-shrink: 0; }
+}
+
+// ─── Key Planets ──────────────────────────────────────────────────────────────
+.key-planets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.kp-chip {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 140px;
+  .kp-planet { font-size: 0.95rem; font-weight: 700; color: #FFD700; }
+  .kp-role   { font-size: 0.72rem; color: #888; }
+  .kp-effect { font-size: 0.78rem; color: #ccc; }
+}
+
+// ─── Lucky & Remedies ─────────────────────────────────────────────────────────
+.lucky-remedies-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.lucky-card, .remedies-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  h4 { font-size: 1rem; color: #FFD700; margin-bottom: 0.75rem; }
+}
+
+.lucky-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+  .lucky-label { font-size: 0.75rem; color: #888; min-width: 60px; }
+}
+
+.lucky-nums { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.lucky-num {
+  background: rgba(255,215,0,0.15);
+  border-radius: 6px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.82rem;
+  color: #FFD700;
+  font-weight: 600;
+}
+
+.lucky-colors { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.lucky-color-dot {
+  width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+  display: inline-block; flex-shrink: 0;
+}
+.lucky-color-names { font-size: 0.78rem; color: #ccc; }
+.lucky-gem { font-size: 0.85rem; color: #aad4f5; }
+
+.remedies-list {
+  padding-left: 1.1rem;
+  margin: 0;
+  li { font-size: 0.82rem; color: #ccc; line-height: 1.55; margin-bottom: 0.3rem; }
+}
+
+// ─── Opp / Caution ────────────────────────────────────────────────────────────
+.opp-caution-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.opp-card, .caution-card {
+  border-radius: 14px;
+  padding: 1.15rem;
+  h4 { font-size: 0.95rem; margin-bottom: 0.6rem; }
+  ul { padding-left: 1.1rem; margin: 0; li { font-size: 0.82rem; color: #ccc; line-height: 1.5; margin-bottom: 0.3rem; } }
+}
+.opp-card    { background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.25); h4 { color: #2ecc71; } }
+.caution-card{ background: rgba(231,76,60,0.08);  border: 1px solid rgba(231,76,60,0.25);  h4 { color: #e74c3c; } }
+
+// ─── Weekly Grid ──────────────────────────────────────────────────────────────
+.weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.8rem;
+}
+
+.day-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 0.9rem 0.75rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+  &:hover { transform: translateY(-3px); }
+
+  .day-energy-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .day-name  { display: block; font-size: 0.88rem; font-weight: 700; color: #FFD700; margin-bottom: 0.15rem; }
+  .day-date  { display: block; font-size: 0.68rem; color: #777; margin-bottom: 0.5rem; }
+  .day-tip   { font-size: 0.74rem; color: #bbb; line-height: 1.4; margin: 0.4rem 0 0; }
+  .day-energy-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+  }
+
+  &.day-good    { border-color: rgba(46,204,113,0.3);  .day-energy-bar { background: #2ecc71; } .day-energy-badge { background: rgba(46,204,113,0.2); color:#2ecc71; } }
+  &.day-caution { border-color: rgba(231,76,60,0.3);   .day-energy-bar { background: #e74c3c; } .day-energy-badge { background: rgba(231,76,60,0.2);  color:#e74c3c; } }
+  &.day-neutral { border-color: rgba(243,156,18,0.3);  .day-energy-bar { background: #f39c12; } .day-energy-badge { background: rgba(243,156,18,0.2); color:#f39c12; } }
+}
+
+// ─── Monthly ──────────────────────────────────────────────────────────────────
+.monthly-loading {
+  text-align: center;
+  padding: 2.5rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.monthly-header {
+  margin-bottom: 1.5rem;
+  h3 { font-size: 1.4rem; color: #FFD700; margin-bottom: 0.35rem; }
+  .monthly-theme { color: #ccc; font-size: 0.9rem; }
+  .monthly-score { font-size: 0.85rem; font-weight: 600; }
+}
+
+.weeks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.week-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1.1rem;
+  &.favorable   { border-color: rgba(46,204,113,0.25); }
+  &.challenging { border-color: rgba(231,76,60,0.25); }
+}
+
+.wk-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  .wk-num   { font-size: 0.75rem; font-weight: 700; color: #FFD700; }
+  .wk-range { font-size: 0.7rem; color: #777; flex: 1; }
+  .wk-energy-badge {
+    font-size: 0.65rem; font-weight: 600; padding: 0.1rem 0.45rem; border-radius: 10px;
+    &.favorable   { background: rgba(46,204,113,0.2); color:#2ecc71; }
+    &.challenging { background: rgba(231,76,60,0.2);  color:#e74c3c; }
+    &.neutral     { background: rgba(243,156,18,0.2); color:#f39c12; }
+  }
+}
+
+.wk-theme { font-size: 0.82rem; color: #FFD700; font-weight: 500; margin-bottom: 0.6rem; }
+
+.wk-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.wk-col {
+  .wk-col-label { font-size: 0.68rem; color: #888; display: block; margin-bottom: 0.25rem; }
+  ul { padding-left: 1rem; margin: 0; li { font-size: 0.74rem; color: #ccc; line-height: 1.4; margin-bottom: 0.2rem; } }
+}
+
+.important-dates {
+  margin-bottom: 1.5rem;
+  h4 { font-size: 1rem; color: #FFD700; margin-bottom: 0.75rem; }
+}
+
+.dates-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+.date-chip {
+  background: rgba(255,215,0,0.08);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 10px;
+  padding: 0.45rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  .date-chip-date { font-size: 0.75rem; color: #FFD700; font-weight: 600; }
+  .date-chip-sig  { font-size: 0.72rem; color: #bbb; }
+}
+
+.monthly-advice-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,140,0,0.04));
+  border: 1px solid rgba(255,215,0,0.25);
+  border-radius: 14px;
+  padding: 1.25rem;
+  h4 { color: #FFD700; font-size: 1rem; margin-bottom: 0.6rem; }
+  p  { color: #ddd; line-height: 1.65; margin: 0; font-size: 0.88rem; }
+}
+
+// ─── Utility ──────────────────────────────────────────────────────────────────
+.mt-4 { margin-top: 1.75rem; }
+
+.btn-outline-warning {
+  border: 1px solid #f39c12; color: #f39c12; background: transparent;
+  &:hover { background: rgba(243,156,18,0.1); }
+}
+
 
 .hero-section {
   text-align: center;

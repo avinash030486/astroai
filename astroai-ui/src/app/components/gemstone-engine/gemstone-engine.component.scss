@@ -1,0 +1,210 @@
+.gemstone-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+  padding: 2rem 1rem;
+  color: #fff;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 3rem 1rem 2rem;
+  h1 { font-size: 2.5rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem; }
+  p { color: #aaa; font-size: 1.1rem; }
+}
+
+.input-card {
+  max-width: 640px; margin: 0 auto;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 16px; color: #fff;
+  h3 { color: #FFD700; }
+  .form-label { color: #ccc; font-size: 0.88rem; margin-bottom: 0.3rem; }
+  .required { color: #e74c3c; }
+  .form-control {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px;
+    &:focus { background: rgba(255,255,255,0.1); border-color: #FFD700; box-shadow: 0 0 0 3px rgba(255,215,0,0.15); color: #fff; }
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; }
+}
+
+.results-section { max-width: 700px; margin: 0 auto; }
+.result-header { margin-bottom: 1.25rem; }
+
+.chart-summary-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem;
+  h4 { color: #aad4f5; font-size: 1rem; margin-bottom: 0.4rem; }
+  p { color: #ccc; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+}
+
+.primary-gemstone-card {
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(155,89,182,0.1));
+  border: 1px solid rgba(255,215,0,0.4); border-radius: 18px;
+  padding: 1.75rem; margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  .gem-icon { font-size: 3rem; }
+  .gem-label { font-size: 0.78rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; display: block; }
+  .gem-name { font-size: 2rem; font-weight: 700; color: #FFD700; margin: 0; }
+}
+
+.section-title {
+  color: #FFD700; font-size: 1.3rem; margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,215,0,0.2);
+}
+
+.gemstone-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.gemstone-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.2s;
+  &:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,215,0,0.25); }
+  &:first-child { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.04); }
+}
+
+.gemstone-summary {
+  display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.25rem;
+  .gem-avatar {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #FFD700, #9b59b6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 700; color: #fff;
+  }
+  .gem-info { flex: 1; }
+  .gem-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  h4 { color: #fff; font-size: 1rem; margin: 0; }
+  .gem-planet { color: #aaa; font-size: 0.82rem; margin: 0.2rem 0 0; }
+  .expand-icon { color: #666; font-size: 0.8rem; flex-shrink: 0; }
+}
+
+.priority-badge {
+  font-size: 0.68rem; padding: 0.15rem 0.5rem; border-radius: 20px;
+  font-weight: 600; text-transform: uppercase;
+  &.priority-1 { background: rgba(255,215,0,0.2); color: #FFD700; border: 1px solid rgba(255,215,0,0.4); }
+  &.priority-2 { background: rgba(155,89,182,0.2); color: #9b59b6; border: 1px solid rgba(155,89,182,0.4); }
+  &.priority-3 { background: rgba(255,255,255,0.07); color: #aaa; border: 1px solid rgba(255,255,255,0.15); }
+}
+
+.gemstone-details {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+  .detail-item { display: flex; flex-direction: column; gap: 0.15rem; }
+  .detail-label { font-size: 0.73rem; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+  .detail-value { font-size: 0.9rem; color: #ddd; font-weight: 500; }
+  .detail-section { margin-bottom: 0.75rem; p { color: #ccc; font-size: 0.88rem; line-height: 1.5; margin: 0.2rem 0 0; } }
+  .caution { p { color: #f39c12; } .detail-label { color: #e67e22; } }
+}
+
+.general-advice {
+  background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.25);
+  border-radius: 14px; padding: 1.25rem; margin-top: 1.5rem;
+  h4 { color: #2ecc71; font-size: 1rem; margin-bottom: 0.4rem; }
+  p { color: #ccc; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #FFD700, #FFA500); border: none; color: #000;
+  font-weight: 600; padding: 0.75rem 2rem; border-radius: 8px;
+  &:hover { background: linear-gradient(135deg, #FFA500, #FF8C00); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.btn-outline-primary { border: 1px solid #FFD700; color: #FFD700; background: transparent; &:hover { background: rgba(255,215,0,0.1); color: #FFD700; } }
+.btn-outline-light { border: 1px solid rgba(255,255,255,0.3); color: #ccc; background: transparent; font-size: 0.85rem; &:hover { background: rgba(255,255,255,0.1); color: #fff; } }
+
+// Place autocomplete
+.place-autocomplete-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+  background: #1a1a2e; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5); max-height: 200px; overflow-y: auto; margin-top: 2px;
+}
+.place-suggestion-item {
+  padding: 0.6rem 0.9rem; font-size: 0.85rem; color: #ddd; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  &:last-child { border-bottom: none; }
+  &:hover { background: rgba(255,215,0,0.1); color: #fff; }
+}
+
+.price-note { font-size: 0.75rem; color: #888; margin: 0; }
+
+// Payment popup
+.premium-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999;
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+
+.premium-modal {
+  background: linear-gradient(160deg, #0f0f1e 0%, #1a0a2e 100%);
+  border: 1px solid rgba(255,215,0,0.3); border-radius: 20px;
+  width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+  padding: 2rem; position: relative;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,215,0,0.1);
+}
+
+.close-modal {
+  position: absolute; top: 1rem; right: 1.2rem; background: none; border: none;
+  color: #888; font-size: 1.5rem; cursor: pointer; line-height: 1;
+  &:hover { color: #fff; }
+}
+
+.modal-header-section {
+  text-align: center; margin-bottom: 1.25rem;
+  .modal-gem-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  h3 { color: #FFD700; font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; }
+  p { color: #aaa; font-size: 0.85rem; margin-bottom: 0.75rem; }
+  .price-display { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .price-amount { color: #FFD700; font-size: 1.75rem; font-weight: 700; }
+  .currency-badge {
+    background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3);
+    color: #FFD700; font-size: 0.7rem; padding: 0.15rem 0.45rem;
+    border-radius: 20px; font-weight: 600; letter-spacing: 0.05em;
+  }
+}
+
+.plan-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+  .features-list {
+    list-style: none; padding: 0; margin: 0;
+    li { color: #ccc; font-size: 0.83rem; padding: 0.3rem 0; line-height: 1.4; }
+  }
+}
+
+.payment-form {
+  .form-control {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; border-radius: 8px;
+    &::placeholder { color: #666; }
+    &:focus { background: rgba(255,255,255,0.1); border-color: #FFD700; box-shadow: 0 0 0 3px rgba(255,215,0,0.15); color: #fff; }
+  }
+  .form-label { color: #aaa; font-size: 0.78rem; margin-bottom: 0.3rem; }
+}
+
+.card-element {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; padding: 0.75rem 0.9rem; min-height: 44px; margin-bottom: 0.25rem;
+  &.StripeElement--focus { border-color: #FFD700; box-shadow: 0 0 0 3px rgba(255,215,0,0.15); }
+  &.StripeElement--invalid { border-color: #e74c3c; }
+}
+
+.card-error { color: #e74c3c; font-size: 0.8rem; margin-top: 0.3rem; min-height: 1.2em; }
+
+.btn-pay {
+  background: linear-gradient(135deg, #FFD700, #FFA500); border: none; color: #000;
+  font-weight: 700; padding: 0.8rem; border-radius: 10px; font-size: 0.95rem;
+  transition: all 0.2s;
+  &:hover:not(:disabled) { background: linear-gradient(135deg, #FFA500, #FF8C00); transform: translateY(-1px); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.google-pay-section {
+  margin-bottom: 14px;
+  #gemstone-pr-button { min-height: 48px; }
+}
+
+.or-divider {
+  display: flex; align-items: center; gap: 10px; margin: 12px 0 4px;
+  &::before, &::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.15); }
+  span { color: #888; font-size: 0.75rem; white-space: nowrap; }
+}
+
+.secure-text { text-align: center; color: #666; font-size: 0.73rem; margin-top: 0.6rem; margin-bottom: 0; }

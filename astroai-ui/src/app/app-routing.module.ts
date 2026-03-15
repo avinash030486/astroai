@@ -17,6 +17,10 @@ import { AuthCallbackComponent } from './components/auth-callback/auth-callback.
 import { YogaListComponent } from './components/yoga-list/yoga-list.component';
 import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
 import { requireAuthGuard } from './guards/auth.guard';
+import { TransitAlertsComponent } from './components/transit-alerts/transit-alerts.component';
+import { MuhuratCalculatorComponent } from './components/muhurat-calculator/muhurat-calculator.component';
+import { GemstoneEngineComponent } from './components/gemstone-engine/gemstone-engine.component';
+import { FestivalCalendarComponent } from './components/festival-calendar/festival-calendar.component';
 import { PricingComponent } from './components/pricing-page/pricing.component';
 
 const routes: Routes = [
@@ -37,7 +41,11 @@ const routes: Routes = [
   { path: 'numerology', component: NumerologyComponent, canActivate: [requireAuthGuard] },
   { path: 'matchmaking', component: MatchmakingComponent, canActivate: [requireAuthGuard] },
   { path: 'upcoming', component: UpcomingFeaturesComponent },
-  { path: 'pricing', component: PricingComponent },  // ← moved above wildcard
+  { path: 'pricing', component: PricingComponent },
+  { path: 'transit-alerts', component: TransitAlertsComponent },
+  { path: 'muhurat', component: MuhuratCalculatorComponent },
+  { path: 'gemstones', component: GemstoneEngineComponent },
+  { path: 'festivals', component: FestivalCalendarComponent },  // ← moved above wildcard
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

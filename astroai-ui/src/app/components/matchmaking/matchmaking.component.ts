@@ -50,6 +50,9 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
   cardError = '';
   private stripe: any;
   private cardElement: any;
+  private paymentRequest: any;
+  private prButton: any;
+  showGooglePay = false;
   hasPaid = false;
 
   // Currency state
@@ -129,6 +132,10 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
     if (this.cardElement) {
       this.cardElement.unmount();
       this.cardElement = null;
+    }
+    if (this.prButton) {
+      try { this.prButton.unmount(); } catch (_) {}
+      this.prButton = null;
     }
   }
 
@@ -287,6 +294,53 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
           this.cardError = event.error ? event.error.message : '';
         });
       }
+
+      // Google Pay / Apple Pay via Payment Request Button
+      const pr = this.stripe.paymentRequest({
+        country: 'US', currency: 'usd',
+        total: { label: 'AstroAI Compatibility Report', amount: Math.round(this.priceUsd * 100) },
+        requestPayerName: true, requestPayerEmail: true,
+      });
+      pr.canMakePayment().then((result: any) => {
+        if (result) {
+          this.showGooglePay = true;
+          this.paymentRequest = pr;
+          const prElements = this.stripe.elements();
+          this.prButton = prElements.create('paymentRequestButton', {
+            paymentRequest: pr,
+            style: { paymentRequestButton: { type: 'buy', theme: 'dark', height: '48px' } }
+          });
+          setTimeout(() => {
+            const btn = document.getElementById('matchmaking-pr-button');
+            if (btn) this.prButton.mount('#matchmaking-pr-button');
+          }, 50);
+        }
+      });
+      pr.on('paymentmethod', (ev: any) => {
+        this.paymentLoading = true;
+        this.paymentError = '';
+        const req: MatchmakingPaymentRequest = {
+          amountUsd: this.priceUsd, name: ev.payerName || '', email: ev.payerEmail || '',
+          paymentMethodId: ev.paymentMethod.id,
+          person1Name: this.person1.name, person1BirthDate: this.person1.birthDate,
+          person1BirthTime: this.person1.birthTime, person1BirthPlace: this.person1.birthPlace,
+          person2Name: this.person2.name, person2BirthDate: this.person2.birthDate,
+          person2BirthTime: this.person2.birthTime, person2BirthPlace: this.person2.birthPlace
+        };
+        this.payments.chargeForMatchmaking(req).subscribe({
+          next: r => {
+            if (r.success) {
+              ev.complete('success');
+              this.paymentLoading = false;
+              this.showPaymentPopup = false;
+              this.hasPaid = true;
+              sessionStorage.setItem('astroai_matchmaking_paid', 'true');
+              this.performAnalysis();
+            } else { ev.complete('fail'); this.paymentError = r.error || 'Payment failed.'; this.paymentLoading = false; }
+          },
+          error: () => { ev.complete('fail'); this.paymentError = 'Payment failed.'; this.paymentLoading = false; }
+        });
+      });
     }, 100);
   }
 

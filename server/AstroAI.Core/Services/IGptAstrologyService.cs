@@ -30,4 +30,13 @@ public interface IGptAstrologyService
         DashaStatus dasha,
         IReadOnlyList<string> areasOfConcern,
         CancellationToken ct);
+
+    Task<TransitAlertsResponse> GetTransitAlertsAsync(string zodiacSign, CancellationToken ct);
+
+    Task<MuhuratResponse> GetMuhuratTimingsAsync(MuhuratRequest request, CancellationToken ct);
+
+    Task<GemstoneResponse> GetGemstoneRecommendationAsync(
+        SouthIndianChart chart,
+        DashaStatus dasha,
+        CancellationToken ct);
 }

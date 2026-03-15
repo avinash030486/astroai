@@ -172,6 +172,17 @@
   border: 1px solid rgba(148, 163, 184, 0.7);
   background-color: rgba(15, 23, 42, 0.9);
 }
+
+.google-pay-section {
+  margin-bottom: 1rem;
+  div[id$="-pr-button"] { min-height: 48px; }
+}
+
+.or-divider {
+  display: flex; align-items: center; gap: 12px; margin: 14px 0 8px;
+  &::before, &::after { content: ''; flex: 1; height: 1px; background: rgba(148, 163, 184, 0.4); }
+  span { color: #9ca3af; font-size: 0.78rem; white-space: nowrap; }
+}
 .premium-close{position:absolute;top:.75rem;right:.75rem}
 .plan-card{
 	background:#020617;

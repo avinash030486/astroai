@@ -1,0 +1,78 @@
+<div class="festival-container">
+  <div class="hero-section">
+    <h1>📅 Festival & Vrat Calendar</h1>
+    <p>Hindu festivals, Ekadashi, Amavasya, Purnima and sacred observances</p>
+  </div>
+
+  <!-- Month Navigator -->
+  <div class="month-nav">
+    <button class="nav-btn" (click)="prevMonth()">‹</button>
+    <div class="month-select">
+      <select [(ngModel)]="selectedMonth" (change)="load()" class="month-select-input">
+        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+      </select>
+      <select [(ngModel)]="selectedYear" (change)="load()" class="year-select-input">
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </select>
+    </div>
+    <button class="nav-btn" (click)="nextMonth()">›</button>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="filter-pills" *ngIf="result">
+    <button
+      *ngFor="let f of filters"
+      class="pill"
+      [class.active]="activeFilter === f"
+      (click)="activeFilter = f">
+      {{ f }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner-border text-warning" role="status"></div>
+    <p>Loading calendar...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="alert alert-danger mx-auto" style="max-width:600px" *ngIf="error">{{ error }}</div>
+
+  <!-- Events Grid -->
+  <div class="events-section" *ngIf="result && !loading">
+    <div class="month-title">
+      {{ result.monthName }} {{ result.year }}
+      <span class="event-count">{{ filteredEvents.length }} events</span>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredEvents.length === 0">
+      <span class="empty-icon">🙏</span>
+      <p>No {{ activeFilter !== 'All' ? activeFilter : '' }} events this month</p>
+    </div>
+
+    <div class="events-grid" *ngIf="filteredEvents.length > 0">
+      <div class="event-card" *ngFor="let e of filteredEvents" [class.holiday]="e.isNationalHoliday">
+        <div class="event-header">
+          <span class="event-icon">{{ typeIcon(e.type) }}</span>
+          <div class="event-title-block">
+            <h4>{{ e.name }}</h4>
+            <span class="event-date">{{ e.date }}</span>
+          </div>
+          <div class="event-badges">
+            <span class="type-badge">{{ e.type }}</span>
+            <span class="holiday-badge" *ngIf="e.isNationalHoliday">Holiday</span>
+          </div>
+        </div>
+
+        <div class="event-body">
+          <p class="deity" *ngIf="e.deity">🪔 {{ e.deity }}</p>
+          <p class="significance">{{ e.significance }}</p>
+          <div class="observance" *ngIf="e.observance">
+            <span class="obs-icon">📿</span>
+            <span>{{ e.observance }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -404,6 +404,17 @@
   }
 }
 
+.google-pay-section {
+  margin-bottom: 16px;
+  #matchmaking-pr-button { min-height: 48px; }
+}
+
+.or-divider {
+  display: flex; align-items: center; gap: 12px; margin: 14px 0 4px;
+  &::before, &::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+  span { color: #999; font-size: 0.78rem; white-space: nowrap; }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

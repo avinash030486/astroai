@@ -222,6 +222,20 @@ export const paymentsApi = {
       '/api/payments/chargeForNumerology',
       req,
     ),
+
+  /** Gemstone recommendation – $1.99 per prediction */
+  chargeForGemstone: (req: {
+    amountUsd: number;
+    name: string;
+    email: string;
+    paymentMethodId: string;
+    birthDate: string;
+    birthPlace: string;
+  }) =>
+    apiPost<{ success: boolean; error?: string }>(
+      '/api/payments/chargeForGemstone',
+      req,
+    ),
 };
 
 //  numerologyApi 
@@ -239,4 +253,43 @@ export const numerologyApi = {
       moneyPrediction: string;
       remedies: string[];
     }>('/api/predictions/get-numerology-details', { birthDate }),
+};
+
+// ─── transitApi ───────────────────────────────────────────────────────────────
+
+export const transitApi = {
+  getAlerts: (zodiacSign: string) =>
+    apiPost<any>('/api/transits/current', { zodiacSign }),
+};
+
+// ─── muhuratApi ───────────────────────────────────────────────────────────────
+
+export const muhuratApi = {
+  calculate: (req: {
+    activityType: string;
+    city: string;
+    state: string;
+    country: string;
+    fromDate: string;
+    toDate: string;
+  }) => apiPost<any>('/api/muhurat/calculate', req),
+};
+
+// ─── gemstoneApi ──────────────────────────────────────────────────────────────
+
+export const gemstoneApi = {
+  recommend: (req: {
+    birthDate: string;
+    birthTime: string;
+    city: string;
+    state: string;
+    country: string;
+  }) => apiPost<any>('/api/gemstone/recommend', req),
+};
+
+// ─── festivalApi ──────────────────────────────────────────────────────────────
+
+export const festivalApi = {
+  getCalendar: (month: number, year: number) =>
+    apiGet<any>(`/api/festivals/calendar?month=${month}&year=${year}`),
 };

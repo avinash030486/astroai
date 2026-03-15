@@ -41,6 +41,9 @@ export class NumerologyComponent implements OnInit, OnDestroy {
   cardError = '';
   private stripe: any;
   private cardElement: any;
+  showGooglePay = false;
+  private paymentRequest: any;
+  private prButton: any;
   hasPaid = false;
 
   // Currency state
@@ -94,6 +97,7 @@ export class NumerologyComponent implements OnInit, OnDestroy {
       this.cardElement.unmount();
       this.cardElement = null;
     }
+    if (this.prButton) { try { this.prButton.unmount(); } catch (_) {} this.prButton = null; }
   }
 
   private updateConvertedPrice(): void {
@@ -208,6 +212,9 @@ export class NumerologyComponent implements OnInit, OnDestroy {
     this.showPaymentPopup = false;
     this.paymentError = '';
     this.cardError = '';
+    if (this.prButton) { try { this.prButton.unmount(); } catch (_) {} this.prButton = null; }
+    this.paymentRequest = null;
+    this.showGooglePay = false;
   }
 
   private initializeStripeCard(): void {
@@ -232,6 +239,54 @@ export class NumerologyComponent implements OnInit, OnDestroy {
           this.cardError = event.error ? event.error.message : '';
         });
       }
+
+      // Google Pay / Apple Pay via Payment Request Button
+      const pr = this.stripe.paymentRequest({
+        country: 'US', currency: 'usd',
+        total: { label: 'AstroAI Numerology Report', amount: Math.round(this.priceUsd * 100) },
+        requestPayerName: true, requestPayerEmail: true,
+      });
+      pr.canMakePayment().then((result: any) => {
+        if (result) {
+          this.showGooglePay = true;
+          this.paymentRequest = pr;
+          const prElements = this.stripe.elements();
+          this.prButton = prElements.create('paymentRequestButton', {
+            paymentRequest: pr,
+            style: { paymentRequestButton: { type: 'buy', theme: 'dark', height: '48px' } }
+          });
+          const btn = document.getElementById('numerology-pr-button');
+          if (btn) this.prButton.mount('#numerology-pr-button');
+        }
+      });
+      pr.on('paymentmethod', (ev: any) => {
+        this.paymentLoading = true;
+        this.paymentError = '';
+        const request: NumerologyPaymentRequest = {
+          amountUsd: this.priceUsd,
+          name: ev.payerName || '',
+          email: ev.payerEmail || '',
+          paymentMethodId: ev.paymentMethod.id,
+          birthDate: this.birthDate
+        };
+        this.payments.chargeForNumerology(request).subscribe({
+          next: result => {
+            if (result.success) {
+              ev.complete('success');
+              this.paymentLoading = false;
+              this.showPaymentPopup = false;
+              this.hasPaid = true;
+              sessionStorage.setItem('astroai_numerology_paid', 'true');
+              this.performAnalysis();
+            } else {
+              ev.complete('fail');
+              this.paymentError = result.error || 'Payment failed.';
+              this.paymentLoading = false;
+            }
+          },
+          error: () => { ev.complete('fail'); this.paymentError = 'Payment failed.'; this.paymentLoading = false; }
+        });
+      });
     }, 100);
   }
 

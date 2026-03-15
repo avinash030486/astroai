@@ -12,6 +12,10 @@ import { RemediesScreen } from '../screens/RemediesScreen';
 import { NumerologyScreen } from '../screens/NumerologyScreen';
 import { MatchmakingScreen } from '../screens/MatchmakingScreen';
 import { AskAIScreen } from '../screens/AskAIScreen';
+import { TransitAlertsScreen } from '../screens/TransitAlertsScreen';
+import { MuhuratScreen } from '../screens/MuhuratScreen';
+import { GemstoneScreen } from '../screens/GemstoneScreen';
+import { FestivalCalendarScreen } from '../screens/FestivalCalendarScreen';
 import { useAuthStore } from '../store/authStore';
 
 const Stack = createNativeStackNavigator();
@@ -40,6 +44,10 @@ export const AppNavigator: React.FC = () => {
           <Stack.Screen name="Numerology" component={NumerologyScreen} />
           <Stack.Screen name="Matchmaking" component={MatchmakingScreen} />
           <Stack.Screen name="AskAI" component={AskAIScreen} />
+          <Stack.Screen name="TransitAlerts" component={TransitAlertsScreen} />
+          <Stack.Screen name="Muhurat" component={MuhuratScreen} />
+          <Stack.Screen name="Gemstone" component={GemstoneScreen} />
+          <Stack.Screen name="FestivalCalendar" component={FestivalCalendarScreen} />
         </>
       )}
     </Stack.Navigator>

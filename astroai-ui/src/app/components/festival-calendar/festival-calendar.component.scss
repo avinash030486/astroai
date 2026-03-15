@@ -1,0 +1,111 @@
+.festival-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+  padding: 2rem 1rem;
+  color: #fff;
+}
+
+.hero-section {
+  text-align: center; padding: 3rem 1rem 2rem;
+  h1 { font-size: 2.5rem; font-weight: 700; color: #FFD700; margin-bottom: 0.5rem; }
+  p { color: #aaa; font-size: 1.1rem; }
+}
+
+/* Month nav */
+.month-nav {
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+  margin-bottom: 1.5rem;
+  .nav-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,215,0,0.3);
+    background: rgba(255,215,0,0.08); color: #FFD700; font-size: 1.4rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    &:hover { background: rgba(255,215,0,0.2); }
+  }
+  .month-select { display: flex; gap: 0.5rem; }
+  .month-select-input, .year-select-input {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,215,0,0.25);
+    color: #FFD700; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 1rem; cursor: pointer;
+    option { background: #1a1a2e; color: #fff; }
+  }
+}
+
+/* Filter pills */
+.filter-pills {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+  max-width: 800px; margin: 0 auto 1.75rem;
+  .pill {
+    padding: 0.3rem 0.9rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05); color: #aaa; font-size: 0.82rem; cursor: pointer;
+    transition: all 0.2s;
+    &:hover { border-color: rgba(255,215,0,0.35); color: #FFD700; }
+    &.active { background: rgba(255,215,0,0.15); border-color: #FFD700; color: #FFD700; }
+  }
+}
+
+.loading-state {
+  text-align: center; padding: 3rem;
+  p { color: #aaa; margin-top: 1rem; }
+}
+
+.events-section { max-width: 900px; margin: 0 auto; }
+
+.month-title {
+  font-size: 1.5rem; font-weight: 700; color: #FFD700;
+  display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;
+  .event-count { font-size: 0.8rem; background: rgba(255,215,0,0.15); color: #FFD700; border-radius: 20px; padding: 0.2rem 0.7rem; font-weight: 400; }
+}
+
+.empty-state {
+  text-align: center; padding: 3rem;
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+  p { color: #888; }
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+  @media (max-width: 400px) { grid-template-columns: 1fr; }
+}
+
+.event-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; overflow: hidden; transition: all 0.2s;
+  &:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,215,0,0.25); transform: translateY(-2px); }
+  &.holiday { border-color: rgba(231,76,60,0.3); }
+}
+
+.event-header {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 1rem 1.25rem 0.75rem;
+  .event-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .event-title-block { flex: 1; }
+  h4 { color: #fff; font-size: 0.95rem; font-weight: 600; margin: 0 0 0.2rem; }
+  .event-date { font-size: 0.78rem; color: #aaa; }
+  .event-badges { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-end; }
+}
+
+.type-badge {
+  font-size: 0.65rem; padding: 0.15rem 0.45rem; border-radius: 20px;
+  background: rgba(255,215,0,0.12); color: #FFD700; border: 1px solid rgba(255,215,0,0.25);
+  text-transform: uppercase; font-weight: 600; white-space: nowrap;
+}
+
+.holiday-badge {
+  font-size: 0.62rem; padding: 0.12rem 0.4rem; border-radius: 20px;
+  background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3);
+  text-transform: uppercase; font-weight: 600;
+}
+
+.event-body { padding: 0 1.25rem 1.25rem; }
+
+.deity { color: #aad4f5; font-size: 0.85rem; margin-bottom: 0.4rem; }
+.significance { color: #ccc; font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.5rem; }
+
+.observance {
+  display: flex; gap: 0.4rem; align-items: flex-start;
+  background: rgba(255,215,0,0.05); border-radius: 8px; padding: 0.5rem 0.75rem;
+  font-size: 0.8rem; color: #aaa; line-height: 1.4;
+  .obs-icon { flex-shrink: 0; }
+}

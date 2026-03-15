@@ -294,6 +294,12 @@
         <input type="email" class="form-control form-control-sm" [(ngModel)]="paymentEmail" placeholder="you@example.com">
       </div>
 
+      <!-- Google Pay / Apple Pay -->
+      <div class="google-pay-section">
+        <div id="card-element-pr-button"></div>
+        <div *ngIf="showGooglePay" class="or-divider"><span>or pay by card</span></div>
+      </div>
+
       <div class="mb-3">
         <label class="form-label text-light small mb-1">Card details</label>
         <div id="card-element" class="stripe-card-element"></div>
@@ -362,6 +368,12 @@
       <div class="mb-3">
         <label class="form-label text-light small mb-1">Email</label>
         <input type="email" class="form-control form-control-sm" [(ngModel)]="qnaPaymentEmail" placeholder="you@example.com">
+      </div>
+
+      <!-- Google Pay / Apple Pay -->
+      <div class="google-pay-section">
+        <div id="qna-card-element-pr-button"></div>
+        <div *ngIf="showGooglePay" class="or-divider"><span>or pay by card</span></div>
       </div>
 
       <div class="mb-3">

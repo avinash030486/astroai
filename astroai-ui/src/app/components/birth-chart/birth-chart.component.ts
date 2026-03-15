@@ -80,6 +80,11 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   private stripe: any;
   private cardElement: any;
   private qnaCardElement: any;
+  showGooglePay = false;
+  private premiumPrButton: any;
+  private qnaPrButton: any;
+  private premiumPaymentRequest: any;
+  private qnaPaymentRequest: any;
 
   // Currency properties
   currentCurrency: CurrencyInfo = { code: 'USD', symbol: '$', name: 'US Dollar' };
@@ -154,6 +159,9 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       this.qnaCardElement.unmount();
       this.qnaCardElement = null;
     }
+
+    if (this.premiumPrButton) { try { this.premiumPrButton.unmount(); } catch (_) {} }
+    if (this.qnaPrButton) { try { this.qnaPrButton.unmount(); } catch (_) {} }
   }
 
   onPlaceSuggestionSelected(suggestion: PlaceSuggestion): void {
@@ -726,11 +734,75 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     this.cardElement.on('change', (event: any) => {
       this.cardError = event.error?.message ?? '';
     });
+
+    // Google Pay / Apple Pay via Payment Request Button
+    const premiumAmount = this.getPlanAmount(this.selectedPlan || 'weekly');
+    const premiumPr = this.stripe.paymentRequest({
+      country: 'US', currency: 'usd',
+      total: { label: 'AstroAI Premium Prediction', amount: Math.round(premiumAmount * 100) },
+      requestPayerName: true, requestPayerEmail: true,
+    });
+    this.premiumPaymentRequest = premiumPr;
+    premiumPr.canMakePayment().then((result: any) => {
+      if (result) {
+        this.showGooglePay = true;
+        const prElements = this.stripe.elements();
+        this.premiumPrButton = prElements.create('paymentRequestButton', {
+          paymentRequest: premiumPr,
+          style: { paymentRequestButton: { type: 'buy', theme: 'light', height: '48px' } }
+        });
+        const btn = document.getElementById('card-element-pr-button');
+        if (btn) this.premiumPrButton.mount('#card-element-pr-button');
+      }
+    });
+    premiumPr.on('paymentmethod', (ev: any) => {
+      if (!this.selectedPlan) { ev.complete('fail'); return; }
+      const planAmount = this.getPlanAmount(this.selectedPlan);
+      const v = this.form.value;
+      this.paymentLoading = true;
+      this.paymentError = '';
+      const req: PaymentRequest = {
+        plan: this.selectedPlan,
+        amountUsd: planAmount,
+        name: ev.payerName || '',
+        email: ev.payerEmail || '',
+        paymentMethodId: ev.paymentMethod.id,
+        dateOfBirth: (v.birthDate || '').toString(),
+        timeOfBirth: (v.birthTime || '').toString(),
+        placeOfBirth: (v.birthPlace || '').toString()
+      };
+      this.payments.charge(req).subscribe({
+        next: (res: PaymentResult) => {
+          if (res.success) {
+            ev.complete('success');
+            this.paymentLoading = false;
+            this.showPremiumPopup = false;
+            this.longRunningNotice = true;
+            this.predLoading = true;
+            this.predictions.generateDetailedPrediction(this.chart!).subscribe({
+              next: (detail) => { this.detailedPred = detail; this.predLoading = false; this.longRunningNotice = false; },
+              error: () => { this.error = 'Payment succeeded, but prediction failed. Please contact support.'; this.predLoading = false; this.longRunningNotice = false; }
+            });
+          } else { ev.complete('fail'); this.paymentError = res.error || 'Payment failed.'; this.paymentLoading = false; }
+        },
+        error: (err: any) => {
+          ev.complete('fail');
+          this.paymentLoading = false;
+          const backendError = (err?.error) ? (err.error.error || err.error.Error || err.error.message || err.error.Message) : null;
+          this.paymentError = backendError || 'Payment failed.';
+        }
+      });
+    });
   }
 
   selectPlan(plan: PaymentRequest['plan']): void {
     this.selectedPlan = plan;
     this.paymentError = '';
+    if (this.premiumPaymentRequest) {
+      this.premiumPaymentRequest.update({
+        total: { label: 'AstroAI Premium Prediction', amount: Math.round(this.getPlanAmount(plan) * 100) }
+      });
+    }
   }
 
   private getPlanAmount(plan: PaymentRequest['plan']): number {
@@ -877,11 +949,72 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     this.qnaCardElement.on('change', (event: any) => {
       this.qnaCardError = event.error?.message ?? '';
     });
+
+    // Google Pay / Apple Pay via Payment Request Button
+    const qnaPr = this.stripe.paymentRequest({
+      country: 'US', currency: 'usd',
+      total: { label: 'AstroAI Questions', amount: 300 }, // default $3.00
+      requestPayerName: true, requestPayerEmail: true,
+    });
+    this.qnaPaymentRequest = qnaPr;
+    qnaPr.canMakePayment().then((result: any) => {
+      if (result) {
+        this.showGooglePay = true;
+        const prElements = this.stripe.elements();
+        this.qnaPrButton = prElements.create('paymentRequestButton', {
+          paymentRequest: qnaPr,
+          style: { paymentRequestButton: { type: 'buy', theme: 'light', height: '48px' } }
+        });
+        const btn = document.getElementById('qna-card-element-pr-button');
+        if (btn) this.qnaPrButton.mount('#qna-card-element-pr-button');
+      }
+    });
+    qnaPr.on('paymentmethod', (ev: any) => {
+      if (!this.selectedQnaPlan) { ev.complete('fail'); return; }
+      const planAmount = this.getQnaPlanAmount(this.selectedQnaPlan);
+      this.qnaPaymentLoading = true;
+      this.qnaPaymentError = '';
+      const req: QnaPaymentRequest = {
+        plan: this.selectedQnaPlan,
+        amountUsd: planAmount,
+        name: ev.payerName || '',
+        email: ev.payerEmail || '',
+        paymentMethodId: ev.paymentMethod.id
+      };
+      this.payments.chargeForQNA(req).subscribe({
+        next: (res: PaymentResult) => {
+          if (res.success) {
+            ev.complete('success');
+            this.qnaPaymentLoading = false;
+            this.showQnaPopup = false;
+            this.showPaymentPrompt = false;
+            if (this.selectedQnaPlan === 'qna-10') {
+              this.remainingFreeQuestions = 10; this.usedAskQuestions = 0;
+              sessionStorage.setItem('astroai_ask_used', '0'); sessionStorage.setItem('astroai_qna_plan', 'qna-10'); sessionStorage.setItem('astroai_qna_remaining', '10');
+            } else {
+              this.remainingFreeQuestions = 999999; this.usedAskQuestions = 0;
+              sessionStorage.setItem('astroai_ask_used', '0'); sessionStorage.setItem('astroai_qna_plan', 'qna-unlimited'); sessionStorage.setItem('astroai_qna_remaining', '999999');
+            }
+          } else { ev.complete('fail'); this.qnaPaymentError = res.error || 'Payment failed.'; this.qnaPaymentLoading = false; }
+        },
+        error: (err: any) => {
+          ev.complete('fail');
+          this.qnaPaymentLoading = false;
+          const backendError = (err?.error) ? (err.error.error || err.error.Error || err.error.message || err.error.Message) : null;
+          this.qnaPaymentError = backendError || 'Payment failed.';
+        }
+      });
+    });
   }
 
   selectQnaPlan(plan: QnaPaymentRequest['plan']): void {
     this.selectedQnaPlan = plan;
     this.qnaPaymentError = '';
+    if (this.qnaPaymentRequest) {
+      this.qnaPaymentRequest.update({
+        total: { label: 'AstroAI Questions', amount: Math.round(this.getQnaPlanAmount(plan) * 100) }
+      });
+    }
   }
 
   private getQnaPlanAmount(plan: QnaPaymentRequest['plan']): number {

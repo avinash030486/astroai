@@ -1,0 +1,116 @@
+<div class="muhurat-container">
+  <div class="hero-section">
+    <h1>⏰ Muhurat Calculator</h1>
+    <p>Find the most auspicious timing for your important life events</p>
+  </div>
+
+  <!-- Input Form -->
+  <div class="form-section" *ngIf="!result">
+    <div class="card input-card">
+      <div class="card-body">
+        <h3 class="mb-4">Event Details</h3>
+
+        <div class="mb-3">
+          <label class="form-label">Activity Type</label>
+          <select class="form-select" [(ngModel)]="activityType">
+            <option *ngFor="let a of activities" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Location <span class="required">*</span></label>
+          <div class="position-relative">
+            <input type="text" class="form-control" [value]="birthPlace"
+              placeholder="e.g. Mumbai, Maharashtra, India"
+              (input)="onPlaceInput($event)"
+              (blur)="hideSuggestions()"
+              autocomplete="off" />
+            <div *ngIf="showSuggestions && placeSuggestions.length > 0" class="place-autocomplete-dropdown">
+              <div *ngFor="let s of placeSuggestions" class="place-suggestion-item"
+                (mousedown)="onPlaceSelected(s)">
+                {{ s.description }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-control" [(ngModel)]="fromDate" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">To Date <span class="text-muted" style="font-size:0.78rem">(max 31 days)</span></label>
+            <input type="date" class="form-control" [(ngModel)]="toDate" />
+          </div>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+        <div class="text-center">
+          <button class="btn btn-primary btn-lg" (click)="calculate()" [disabled]="loading">
+            <span *ngIf="!loading">🔮 Find Auspicious Timings</span>
+            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Consulting the stars...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" *ngIf="result">
+    <div class="result-header">
+      <div>
+        <span class="activity-badge">{{ result.activityType }}</span>
+        <span class="location-text">📍 {{ result.location }}</span>
+      </div>
+      <button class="btn btn-outline-light btn-sm" (click)="reset()">← Recalculate</button>
+    </div>
+
+    <div class="best-time-card">
+      <div class="star-icon">⭐</div>
+      <h3>Best Muhurat</h3>
+      <div class="best-values">
+        <div class="best-item">
+          <span class="label">Date</span>
+          <span class="value">{{ result.bestDate }}</span>
+        </div>
+        <div class="separator">at</div>
+        <div class="best-item">
+          <span class="label">Time</span>
+          <span class="value">{{ result.bestTime }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="advice-card" *ngIf="result.generalAdvice">
+      <h4>📿 General Advice</h4>
+      <p>{{ result.generalAdvice }}</p>
+    </div>
+
+    <h3 class="section-title">All Auspicious Windows</h3>
+    <div class="windows-list">
+      <div class="window-card" *ngFor="let w of result.windows; let i = index">
+        <div class="window-rank">#{{ i + 1 }}</div>
+        <div class="window-body">
+          <div class="window-header">
+            <span class="window-date">{{ w.date }}</span>
+            <span class="window-time">{{ w.startTime }} – {{ w.endTime }}</span>
+            <div class="stars ms-auto">
+              <span *ngFor="let s of scoreStars(w.score)" class="star">★</span>
+              <span class="score-num">({{ w.score }}/100)</span>
+            </div>
+          </div>
+          <div class="window-tags">
+            <span class="tag planets">🪐 {{ w.planetarySupport }}</span>
+            <span class="tag auspicious">✨ {{ w.auspiciousElements }}</span>
+          </div>
+          <p class="window-reason">{{ w.reason }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary" (click)="reset()">← Check Another Date</button>
+    </div>
+  </div>
+</div>

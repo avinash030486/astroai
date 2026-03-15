@@ -52,6 +52,14 @@ namespace AstroAI.Api.Controllers
         string PaymentMethodId,
         string BirthDate);
 
+    public record GemstonePaymentRequestDto(
+        decimal AmountUsd,
+        string Name,
+        string Email,
+        string PaymentMethodId,
+        string BirthDate,
+        string BirthPlace);
+
     public record PaymentResultDto(bool Success, string? Error, string? SubscriptionId = null, string? CustomerId = null);
 
 
@@ -616,6 +624,60 @@ namespace AstroAI.Api.Controllers
                 _logger.LogError(ex, "❌ Unexpected error in chargeForNumerology: {Message}", ex.Message);
                 return StatusCode(500,
                     new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("chargeForGemstone")]
+        public async Task<IActionResult> ChargeForGemstone(
+            [FromBody] GemstonePaymentRequestDto dto,
+            CancellationToken ct)
+        {
+            _logger.LogInformation("💎 Gemstone payment attempt for {Email}", dto.Email);
+            try
+            {
+                var amountCents = (long)(dto.AmountUsd * 100);
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    PaymentMethod = dto.PaymentMethodId,
+                    Confirm = true,
+                    Description = $"Gemstone Recommendation – {dto.BirthDate}",
+                    ReceiptEmail = dto.Email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "service", "gemstone" },
+                        { "customer_name", dto.Name },
+                        { "customer_email", dto.Email },
+                        { "birth_date", dto.BirthDate },
+                        { "birth_place", dto.BirthPlace }
+                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
+                var service = new PaymentIntentService();
+                var intent = await service.CreateAsync(options, cancellationToken: ct);
+                if (intent.Status == "succeeded")
+                {
+                    _logger.LogInformation("✅ Gemstone payment succeeded for {Email}", dto.Email);
+                    return Ok(new PaymentResultDto(true, null, null, null));
+                }
+                _logger.LogWarning("⚠️ Gemstone payment not completed, status: {Status}", intent.Status);
+                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "❌ Stripe error in Gemstone payment: {Message}, Code={Code}",
+                    ex.Message, ex.StripeError?.Code);
+                return BadRequest(new PaymentResultDto(false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unexpected error in chargeForGemstone: {Message}", ex.Message);
+                return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
             }
         }
     }

@@ -169,6 +169,12 @@
           />
         </div>
 
+        <!-- Google Pay / Apple Pay -->
+        <div class="google-pay-section">
+          <div id="matchmaking-pr-button"></div>
+          <div *ngIf="showGooglePay" class="or-divider"><span>or pay by card</span></div>
+        </div>
+
         <div class="form-group">
           <label>Card Details</label>
           <div id="matchmaking-card-element" class="card-element"></div>

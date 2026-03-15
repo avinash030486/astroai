@@ -45,6 +45,15 @@ export interface NumerologyPaymentRequest {
   birthDate: string;
 }
 
+export interface GemstonePaymentRequest {
+  amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+  birthDate: string;
+  birthPlace: string;
+}
+
 export interface PaymentResult {
   success: boolean;
   error?: string | null;
@@ -70,5 +79,9 @@ export class PaymentService {
 
   chargeForNumerology(req: NumerologyPaymentRequest): Observable<PaymentResult> {
     return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForNumerology`, req);
+  }
+
+  chargeForGemstone(req: GemstonePaymentRequest): Observable<PaymentResult> {
+    return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForGemstone`, req);
   }
 }

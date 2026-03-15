@@ -26,6 +26,10 @@ import { PricingComponent } from './components/pricing-page/pricing.component';
 import { YogaListComponent } from './components/yoga-list/yoga-list.component';
 import { YogaDetailComponent } from './components/yoga-detail/yoga-detail.component';
 import { SanitizePipe } from './pipes/sanitize.pipe';
+import { TransitAlertsComponent } from './components/transit-alerts/transit-alerts.component';
+import { MuhuratCalculatorComponent } from './components/muhurat-calculator/muhurat-calculator.component';
+import { GemstoneEngineComponent } from './components/gemstone-engine/gemstone-engine.component';
+import { FestivalCalendarComponent } from './components/festival-calendar/festival-calendar.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +51,11 @@ import { SanitizePipe } from './pipes/sanitize.pipe';
     PricingComponent,
     YogaListComponent,
     YogaDetailComponent,
-    SanitizePipe
+    SanitizePipe,
+    TransitAlertsComponent,
+    MuhuratCalculatorComponent,
+    GemstoneEngineComponent,
+    FestivalCalendarComponent
   ],
   imports: [
     BrowserModule,

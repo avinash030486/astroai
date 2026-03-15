@@ -16,6 +16,10 @@ const FEATURES = [
   { icon: '💊', label: 'Remedies', screen: 'Remedies', color: '#27AE60' },
   { icon: '🔢', label: 'Numerology', screen: 'Numerology', color: '#E74C3C' },
   { icon: '❤️', label: 'Matchmaking', screen: 'Matchmaking', color: '#E91E63' },
+  { icon: '🪐', label: 'Transit\nAlerts', screen: 'TransitAlerts', color: '#2ECC71' },
+  { icon: '⏰', label: 'Muhurat', screen: 'Muhurat', color: '#F39C12' },
+  { icon: '💎', label: 'Gemstones', screen: 'Gemstone', color: '#9B59B6' },
+  { icon: '📅', label: 'Festivals', screen: 'FestivalCalendar', color: '#E74C3C' },
 ];
 
 export const HomeScreen: React.FC = () => {

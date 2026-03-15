@@ -1,0 +1,169 @@
+<div class="gemstone-container">
+  <div class="hero-section">
+    <h1>💎 Gemstone Recommendation Engine</h1>
+    <p>Discover the gemstones aligned with your birth chart for maximum benefit</p>
+  </div>
+
+  <!-- Input Form -->
+  <div class="form-section" *ngIf="!result">
+    <div class="card input-card">
+      <div class="card-body">
+        <h3 class="mb-4">Your Birth Details</h3>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Birth Date <span class="required">*</span></label>
+            <input type="date" class="form-control" [(ngModel)]="birthDate" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Birth Time</label>
+            <input type="time" class="form-control" [(ngModel)]="birthTime" />
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Birth Place <span class="required">*</span></label>
+          <div class="position-relative">
+            <input type="text" class="form-control" [value]="birthPlace"
+              placeholder="e.g. Mumbai, Maharashtra, India"
+              (input)="onPlaceInput($event)"
+              (blur)="hideSuggestions()"
+              autocomplete="off" />
+            <div *ngIf="showSuggestions && placeSuggestions.length > 0" class="place-autocomplete-dropdown">
+              <div *ngFor="let s of placeSuggestions" class="place-suggestion-item"
+                (mousedown)="onPlaceSelected(s)">
+                {{ s.description }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+        <div class="text-center">
+          <button class="btn btn-primary btn-lg" (click)="getRecommendations()" [disabled]="loading">
+            <span *ngIf="!loading">💎 Analyze My Chart — {{ getDisplayPrice() }}</span>
+            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Analyzing your birth chart...</span>
+          </button>
+          <p class="price-note mt-2">One-time payment per prediction · Powered by Stripe</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Popup -->
+  <div class="premium-backdrop" *ngIf="showPaymentPopup" (click)="closePaymentPopup()">
+    <div class="premium-modal" (click)="$event.stopPropagation()">
+      <button class="close-modal" (click)="closePaymentPopup()">×</button>
+
+      <div class="modal-header-section">
+        <div class="modal-gem-icon">💎</div>
+        <h3>Gemstone Prediction</h3>
+        <p>Chart-based gemstone analysis powered by Vedic Astrology</p>
+        <div class="price-display">
+          <span class="price-amount">{{ getDisplayPrice() }}</span>
+          <span class="currency-badge">{{ currentCurrency.code }}</span>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <ul class="features-list">
+          <li>✦ Primary & secondary gemstone recommendations</li>
+          <li>✦ Planet-gemstone associations from your birth chart</li>
+          <li>✦ How to wear: metal, finger, weight &amp; best day</li>
+          <li>✦ Benefits and cautions for each gemstone</li>
+        </ul>
+      </div>
+
+      <div class="payment-form">
+        <input type="text" class="form-control mb-2" [(ngModel)]="paymentName" placeholder="Your full name" />
+        <input type="email" class="form-control mb-3" [(ngModel)]="paymentEmail" placeholder="Email address" />
+        <!-- Google Pay / Apple Pay -->
+        <div class="google-pay-section">
+          <div id="gemstone-pr-button"></div>
+          <div *ngIf="showGooglePay" class="or-divider"><span>or pay by card</span></div>
+        </div>
+
+        <label class="form-label small">Card Details</label>
+        <div id="gemstone-card-element" class="card-element"></div>
+        <div class="card-error" *ngIf="cardError">{{ cardError }}</div>
+        <div class="alert alert-danger mt-2 py-2 small" *ngIf="paymentError">{{ paymentError }}</div>
+        <button class="btn btn-pay w-100 mt-3" (click)="confirmPurchase()" [disabled]="paymentLoading">
+          <span *ngIf="!paymentLoading">🔒 Pay {{ getDisplayPrice() }} &amp; Get Recommendations</span>
+          <span *ngIf="paymentLoading"><span class="spinner-border spinner-border-sm me-2"></span>Processing...</span>
+        </button>
+        <p class="secure-text">🔒 Secured by Stripe · SSL Encrypted</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" *ngIf="result">
+    <div class="result-header">
+      <button class="btn btn-outline-light btn-sm" (click)="reset()">← Recalculate</button>
+    </div>
+
+    <div class="chart-summary-card">
+      <h4>📜 Chart Summary</h4>
+      <p>{{ result.chartSummary }}</p>
+    </div>
+
+    <div class="primary-gemstone-card">
+      <div class="gem-icon">💎</div>
+      <div>
+        <span class="gem-label">Your Primary Gemstone</span>
+        <h2 class="gem-name">{{ result.primaryGemstone }}</h2>
+      </div>
+    </div>
+
+    <h3 class="section-title">All Recommendations</h3>
+    <div class="gemstone-list">
+      <div class="gemstone-card" *ngFor="let g of result.recommendations; let i = index" (click)="toggleCard(i)">
+        <div class="gemstone-summary">
+          <div class="gem-avatar">{{ g.gemstoneName.charAt(0) }}</div>
+          <div class="gem-info">
+            <div class="gem-row">
+              <h4>{{ g.gemstoneName }}</h4>
+              <span class="priority-badge" [ngClass]="priorityClass(g.priority)">{{ priorityLabel(g.priority) }}</span>
+            </div>
+            <p class="gem-planet">{{ g.planet }} · {{ g.metal }} · {{ g.finger }}</p>
+          </div>
+          <span class="expand-icon">{{ expandedCard === i ? '▲' : '▼' }}</span>
+        </div>
+
+        <div class="gemstone-details" *ngIf="expandedCard === i">
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Weight</span>
+              <span class="detail-value">{{ g.weight }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Best Day to Wear</span>
+              <span class="detail-value">{{ g.bestDay }}</span>
+            </div>
+          </div>
+          <div class="detail-section">
+            <span class="detail-label">Benefits</span>
+            <p>{{ g.benefits }}</p>
+          </div>
+          <div class="detail-section">
+            <span class="detail-label">How to Wear</span>
+            <p>{{ g.howToWear }}</p>
+          </div>
+          <div class="detail-section caution" *ngIf="g.cautions">
+            <span class="detail-label">⚠️ Cautions</span>
+            <p>{{ g.cautions }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="general-advice" *ngIf="result.generalAdvice">
+      <h4>📿 General Advice</h4>
+      <p>{{ result.generalAdvice }}</p>
+    </div>
+
+    <div class="text-center mt-4">
+      <button class="btn btn-outline-primary" (click)="reset()">← Start Over</button>
+    </div>
+  </div>
+</div>

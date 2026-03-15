@@ -2,10 +2,10 @@ header { position: sticky; top: 0; z-index: 1030; }
 .brand-text { font-weight: 600; }
 
 .navbar-logo {
-  height: 90px;
+  height: 50px;
   width: auto;
   object-fit: contain;
-  max-width: 300px;
+  max-width: 200px;
 }
 
 // Add separators between menu items
@@ -22,11 +22,11 @@ header { position: sticky; top: 0; z-index: 1030; }
 
 /* Responsive logo sizing */
 @media (max-width: 768px) {
-  .navbar-logo { height: 60px; }
+  .navbar-logo { height: 40px; }
 }
 
 @media (max-width: 576px) {
-  .navbar-logo { height: 45px; }
+  .navbar-logo { height: 35px; }
 }
 
 // Make the app fill full height so footer always sticks to bottom
@@ -42,8 +42,10 @@ app-root {
 }
 
 main {
-  flex: 1;  // ← takes all available space, pushes footer to bottom
+  flex: 1;
   min-height: 0;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
 // Remove padding/margin for landing page

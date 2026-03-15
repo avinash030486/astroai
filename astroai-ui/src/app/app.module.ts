@@ -30,7 +30,9 @@ import { TransitAlertsComponent } from './components/transit-alerts/transit-aler
 import { MuhuratCalculatorComponent } from './components/muhurat-calculator/muhurat-calculator.component';
 import { GemstoneEngineComponent } from './components/gemstone-engine/gemstone-engine.component';
 import { FestivalCalendarComponent } from './components/festival-calendar/festival-calendar.component';
-
+import { PrivacyComponent } from './components/privacy/privacy.component';
+import { TermsComponent } from './components/terms/terms.component';
+// add to declarations: [PrivacyComponent, TermsComponent]
 @NgModule({
   declarations: [
     AppComponent,

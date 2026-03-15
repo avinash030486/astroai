@@ -22,7 +22,8 @@ import { MuhuratCalculatorComponent } from './components/muhurat-calculator/muhu
 import { GemstoneEngineComponent } from './components/gemstone-engine/gemstone-engine.component';
 import { FestivalCalendarComponent } from './components/festival-calendar/festival-calendar.component';
 import { PricingComponent } from './components/pricing-page/pricing.component';
-
+import { PrivacyComponent } from './components/privacy/privacy.component';
+import { TermsComponent } from './components/terms/terms.component';
 const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
@@ -46,7 +47,9 @@ const routes: Routes = [
   { path: 'transit-alerts/:sign', component: TransitAlertsComponent },
   { path: 'muhurat', component: MuhuratCalculatorComponent },
   { path: 'gemstones', component: GemstoneEngineComponent },
-  { path: 'festivals', component: FestivalCalendarComponent },  // ← moved above wildcard
+  { path: 'festivals', component: FestivalCalendarComponent },
+  { path: 'privacy', component: PrivacyComponent },
+  { path: 'terms', component: TermsComponent },  // ← moved above wildcard
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

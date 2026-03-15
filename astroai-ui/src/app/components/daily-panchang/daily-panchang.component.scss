@@ -1,6 +1,7 @@
 /* Background and structure */
 .panchang-wrapper {
-  min-height: calc(100vh - 56px - 64px);
+  min-height: auto;
+  padding-top: 1rem;
   background: #E8E4DC; /* Cream/beige background like the attached image */
   color: #1C3D2F; /* Dark green text for contrast */
   padding-bottom: 5rem;

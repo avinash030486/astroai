@@ -1,0 +1,364 @@
+<div class="legal-wrapper">
+  <div class="bg-layer"></div>
+  <div class="stars">
+    <div class="star" *ngFor="let s of stars" [style]="s.style"></div>
+  </div>
+
+  <div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Legal</div>
+      <h1>Terms of <em>Service</em></h1>
+      <div class="meta-row">
+        <span class="meta-tag">Effective: January 1, 2026</span>
+        <span class="meta-tag">VedicAstro Inc (a part of Heart Agency Inc)</span>
+        <span class="meta-tag">Jurisdiction: Ontario, Canada</span>
+      </div>
+      <p class="hero-intro">These Terms of Service govern your access to and use of the VedicAstro application and related services. By using VedicAstro, you agree to be bound by these Terms. Please read them carefully before using the Services.</p>
+    </div>
+
+    <!-- MOBILE TOC -->
+    <div class="mobile-toc-wrap">
+      <div class="mobile-toc">
+        <button class="mobile-toc-btn" (click)="mobileTocOpen=!mobileTocOpen">
+          Table of Contents <span>▾</span>
+        </button>
+        <div class="mobile-toc-panel" [class.open]="mobileTocOpen">
+          <a class="toc-link" (click)="scrollTo('s1')"><span class="toc-num">01</span>Acceptance &amp; Licence</a>
+          <a class="toc-link" (click)="scrollTo('s2')"><span class="toc-num">02</span>Account Registration</a>
+          <a class="toc-link" (click)="scrollTo('s3')"><span class="toc-num">03</span>Astrological Content Disclaimer</a>
+          <a class="toc-link" (click)="scrollTo('s4')"><span class="toc-num">04</span>AI Jyotishi &amp; Bot Features</a>
+          <a class="toc-link" (click)="scrollTo('s5')"><span class="toc-num">05</span>User Conduct &amp; Restrictions</a>
+          <a class="toc-link" (click)="scrollTo('s6')"><span class="toc-num">06</span>Ownership &amp; Intellectual Property</a>
+          <a class="toc-link" (click)="scrollTo('s7')"><span class="toc-num">07</span>User Content</a>
+          <a class="toc-link" (click)="scrollTo('s8')"><span class="toc-num">08</span>Third-Party Services</a>
+          <a class="toc-link" (click)="scrollTo('s9')"><span class="toc-num">09</span>Purchases &amp; Refunds</a>
+          <a class="toc-link" (click)="scrollTo('s10')"><span class="toc-num">10</span>Subscriptions</a>
+          <a class="toc-link" (click)="scrollTo('s11')"><span class="toc-num">11</span>Indemnification</a>
+          <a class="toc-link" (click)="scrollTo('s12')"><span class="toc-num">12</span>Disclaimer of Warranties</a>
+          <a class="toc-link" (click)="scrollTo('s13')"><span class="toc-num">13</span>Limitation of Liability</a>
+          <a class="toc-link" (click)="scrollTo('s14')"><span class="toc-num">14</span>Term &amp; Termination</a>
+          <a class="toc-link" (click)="scrollTo('s15')"><span class="toc-num">15</span>Governing Law &amp; Disputes</a>
+          <a class="toc-link" (click)="scrollTo('s16')"><span class="toc-num">16</span>General Provisions</a>
+          <a class="toc-link" (click)="scrollTo('s17')"><span class="toc-num">17</span>Contact</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY WRAP -->
+    <div class="body-wrap">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-hd">Contents</div>
+        <div class="toc-scroll">
+          <a class="toc-link" (click)="scrollTo('s1')"><span class="toc-num">01</span>Acceptance &amp; Licence</a>
+          <a class="toc-link" (click)="scrollTo('s2')"><span class="toc-num">02</span>Account Registration</a>
+          <a class="toc-link" (click)="scrollTo('s3')"><span class="toc-num">03</span>Astrological Content Disclaimer</a>
+          <a class="toc-link" (click)="scrollTo('s4')"><span class="toc-num">04</span>AI Jyotishi &amp; Bot Features</a>
+          <a class="toc-link" (click)="scrollTo('s5')"><span class="toc-num">05</span>User Conduct &amp; Restrictions</a>
+          <a class="toc-link" (click)="scrollTo('s6')"><span class="toc-num">06</span>Ownership &amp; Intellectual Property</a>
+          <a class="toc-link" (click)="scrollTo('s7')"><span class="toc-num">07</span>User Content</a>
+          <a class="toc-link" (click)="scrollTo('s8')"><span class="toc-num">08</span>Third-Party Services</a>
+          <a class="toc-link" (click)="scrollTo('s9')"><span class="toc-num">09</span>Purchases &amp; Refunds</a>
+          <a class="toc-link" (click)="scrollTo('s10')"><span class="toc-num">10</span>Subscriptions</a>
+          <a class="toc-link" (click)="scrollTo('s11')"><span class="toc-num">11</span>Indemnification</a>
+          <a class="toc-link" (click)="scrollTo('s12')"><span class="toc-num">12</span>Disclaimer of Warranties</a>
+          <a class="toc-link" (click)="scrollTo('s13')"><span class="toc-num">13</span>Limitation of Liability</a>
+          <a class="toc-link" (click)="scrollTo('s14')"><span class="toc-num">14</span>Term &amp; Termination</a>
+          <a class="toc-link" (click)="scrollTo('s15')"><span class="toc-num">15</span>Governing Law &amp; Disputes</a>
+          <a class="toc-link" (click)="scrollTo('s16')"><span class="toc-num">16</span>General Provisions</a>
+          <a class="toc-link" (click)="scrollTo('s17')"><span class="toc-num">17</span>Contact</a>
+        </div>
+        <div class="sidebar-contact">
+          <span class="sidebar-contact-label">Questions?</span>
+          <p style="font-size:13px;color:var(--w70);margin-bottom:8px;">Reach our team for any legal enquiries.</p>
+          <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main-card">
+        <div class="main-inner">
+
+          <!-- S1 -->
+          <div class="section" style="border-top:none;padding-top:0;margin-top:0;">
+            <div id="s1" class="section-head">
+              <span class="section-num">01</span>
+              <h2>Acceptance &amp; Licence</h2>
+            </div>
+            <p class="body-text">By creating an account, accessing, or using VedicAstro, you confirm that you are at least 13 years of age, that you have read and understood these Terms, and that you agree to be legally bound by them.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Licence Grant</div>
+              <p class="body-text">Subject to these Terms, VedicAstro Inc grants you a limited, non-exclusive, non-transferable, revocable licence to access and use the Services for your personal, non-commercial purposes. This licence does not include any right to resell, sublicense, or commercially exploit the Services.</p>
+            </div>
+          </div>
+
+          <!-- S2 -->
+          <div class="section">
+            <div id="s2" class="section-head">
+              <span class="section-num">02</span>
+              <h2>Account Registration</h2>
+            </div>
+            <p class="body-text">To access personalised features, you must register for an account. You agree to provide accurate, current, and complete information — including your name, email address, date of birth, birth time, and birth location — and to update this information promptly if it changes.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Account Security</div>
+              <p class="body-text">You are solely responsible for maintaining the confidentiality of your account credentials. Notify us immediately at <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a> if you suspect any unauthorised access.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Account Termination</div>
+              <p class="body-text">We reserve the right to suspend or terminate your account at any time, with or without notice, if you violate these Terms.</p>
+            </div>
+          </div>
+
+          <!-- S3 -->
+          <div class="section">
+            <div id="s3" class="section-head">
+              <span class="section-num">03</span>
+              <h2>Astrological Content Disclaimer</h2>
+            </div>
+            <div class="alert">
+              <span class="alert-label">✦ Important Notice</span>
+              <div class="alert-body">Vedic astrology readings, horoscopes, Dasha analyses, Panchang information, Muhurat guidance, and all related astrological content are intended for entertainment, personal reflection, and cultural or educational purposes only. They do not constitute professional advice of any kind.</div>
+            </div>
+            <p class="body-text">VedicAstro Inc makes no warranty that any astrological reading, prediction, or guidance is accurate, complete, or reliable. Astrological interpretations are not a substitute for professional advice in:</p>
+            <ul class="content-list">
+              <li>Medical, health, or therapeutic advice — always consult a qualified healthcare professional</li>
+              <li>Legal advice — always consult a qualified legal professional</li>
+              <li>Financial, investment, or economic advice — always consult a qualified financial adviser</li>
+              <li>Psychological or psychiatric advice — always consult a qualified mental health professional</li>
+            </ul>
+            <p class="body-text gap">Any decisions you make based on astrological content from VedicAstro are made entirely at your own risk.</p>
+          </div>
+
+          <!-- S4 -->
+          <div class="section">
+            <div id="s4" class="section-head">
+              <span class="section-num">04</span>
+              <h2>AI Jyotishi &amp; Bot Features</h2>
+            </div>
+            <div class="alert">
+              <span class="alert-label">✦ AI-Generated Content</span>
+              <div class="alert-body">Responses generated by our AI Jyotishi bots are produced by artificial intelligence models and are not the output of licensed human astrologers, Jyotishis, or any professional adviser.</div>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Nature of AI responses</div>
+              <p class="body-text">Our AI Jyotishi uses your birth data and queries to generate personalised astrological responses. While designed to apply Vedic Jyotish principles, outputs are generated algorithmically and should be treated as indicative and exploratory, not definitive.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>No conversation storage</div>
+              <p class="body-text">Conversations with our AI Jyotishi are processed in real-time and are <strong>not stored or retained by VedicAstro Inc</strong> after your session concludes. We do not use your conversation content to train AI models.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>No professional relationship</div>
+              <p class="body-text">Your use of the AI Jyotishi does not create a professional, fiduciary, or advisory relationship between you and VedicAstro Inc.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Acceptable use of AI features</div>
+              <p class="body-text">You agree not to attempt to extract system prompts, manipulate the AI to produce prohibited content, use outputs for commercial resale, or represent AI-generated readings as those of a human astrologer.</p>
+            </div>
+          </div>
+
+          <!-- S5 -->
+          <div class="section">
+            <div id="s5" class="section-head">
+              <span class="section-num">05</span>
+              <h2>User Conduct &amp; Restrictions</h2>
+            </div>
+            <p class="body-text">You agree to use the Services only for lawful purposes. You must not:</p>
+            <ul class="content-list">
+              <li>Reverse-engineer, decompile, or attempt to extract source code from the Services</li>
+              <li>Use automated bots, scrapers, or scripts to access the Services without written consent</li>
+              <li>Circumvent any security or rate-limiting measures</li>
+              <li>Impersonate any person or entity</li>
+              <li>Generate, distribute, or promote content that is illegal, harmful, or discriminatory</li>
+              <li>Interfere with or disrupt the integrity or performance of the Services</li>
+              <li>Use birth data of another person without their explicit consent</li>
+              <li>Commercially resell, sublicense, or redistribute astrological readings generated by the Services</li>
+            </ul>
+          </div>
+
+          <!-- S6 -->
+          <div class="section">
+            <div id="s6" class="section-head">
+              <span class="section-num">06</span>
+              <h2>Ownership &amp; Intellectual Property</h2>
+            </div>
+            <p class="body-text">The Services and all their original content, features, functionality, design, and underlying systems are and shall remain the exclusive property of VedicAstro Inc and its licensors.</p>
+            <p class="body-text gap">Our trademarks and service marks — including the name "VedicAstro" and the VedicAstro logo — may not be used without prior written permission from VedicAstro Inc.</p>
+          </div>
+
+          <!-- S7 -->
+          <div class="section">
+            <div id="s7" class="section-head">
+              <span class="section-num">07</span>
+              <h2>User Content</h2>
+            </div>
+            <p class="body-text">You are solely responsible for any content you submit (reviews, testimonials, forum posts) and represent that you own or have all necessary rights to it.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Content Licence</div>
+              <p class="body-text">By submitting content, you grant VedicAstro Inc a worldwide, non-exclusive, royalty-free, perpetual licence to use, reproduce, and distribute such content solely for operating and improving the Services. You retain ownership.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Monitoring &amp; Removal</div>
+              <p class="body-text">We reserve the right to review, moderate, or remove any content that violates these Terms. To report content, contact <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a>.</p>
+            </div>
+          </div>
+
+          <!-- S8 -->
+          <div class="section">
+            <div id="s8" class="section-head">
+              <span class="section-num">08</span>
+              <h2>Third-Party Services</h2>
+            </div>
+            <p class="body-text">The Services may integrate with or link to third-party websites or services. VedicAstro Inc has no control over and assumes no responsibility for any third-party content, privacy policies, or practices. Your use of third-party services is governed solely by their respective terms.</p>
+          </div>
+
+          <!-- S9 -->
+          <div class="section">
+            <div id="s9" class="section-head">
+              <span class="section-num">09</span>
+              <h2>Purchases &amp; Refunds</h2>
+            </div>
+            <p class="body-text">All purchases — including pay-as-you-go credits and Rhythm subscriptions — are subject to the pricing displayed at the time of purchase. Prices are in USD unless otherwise stated.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Refund Policy</div>
+              <p class="body-text">All sales are final. We do not offer refunds on consumed credits or subscription fees for periods already rendered, except where required by applicable consumer protection law. For billing errors, contact <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a> within 14 days.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Price Changes</div>
+              <p class="body-text">We reserve the right to modify pricing at any time with reasonable advance notice to active subscribers.</p>
+            </div>
+          </div>
+
+          <!-- S10 -->
+          <div class="section">
+            <div id="s10" class="section-head">
+              <span class="section-num">10</span>
+              <h2>Subscriptions</h2>
+            </div>
+            <p class="body-text">The Rhythm subscription is billed on a recurring weekly basis and will automatically renew unless cancelled before the renewal date.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Cancellation</div>
+              <p class="body-text">You may cancel your Rhythm subscription at any time through account settings or by contacting <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a>. Cancellation takes effect at the end of the current billing period.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Free Plan</div>
+              <p class="body-text">The free plan is available to all registered users with no time limit and no credit card required. Features may change at our discretion with reasonable notice.</p>
+            </div>
+          </div>
+
+          <!-- S11 -->
+          <div class="section">
+            <div id="s11" class="section-head">
+              <span class="section-num">11</span>
+              <h2>Indemnification</h2>
+            </div>
+            <p class="body-text">You agree to indemnify, defend, and hold harmless VedicAstro Inc, Heart Agency Inc, and their respective officers, directors, employees, and agents from and against any claims, damages, obligations, losses, liabilities, costs, and expenses arising from: (a) your use of the Services; (b) your User Content; (c) your violation of these Terms; or (d) your violation of any third-party right.</p>
+          </div>
+
+          <!-- S12 -->
+          <div class="section">
+            <div id="s12" class="section-head">
+              <span class="section-num">12</span>
+              <h2>Disclaimer of Warranties</h2>
+            </div>
+            <div class="legal-caps">THE SERVICES, INCLUDING ALL ASTROLOGICAL READINGS, AI-GENERATED CONTENT, PANCHANG DATA, DASHA ANALYSIS, AND MUHURAT GUIDANCE, ARE PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, VEDICASTRO INC DISCLAIMS ALL WARRANTIES, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, AND NON-INFRINGEMENT.</div>
+          </div>
+
+          <!-- S13 -->
+          <div class="section">
+            <div id="s13" class="section-head">
+              <span class="section-num">13</span>
+              <h2>Limitation of Liability</h2>
+            </div>
+            <div class="legal-caps">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL VEDICASTRO INC OR HEART AGENCY INC BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH THESE TERMS OR YOUR USE OF THE SERVICES. OUR TOTAL CUMULATIVE LIABILITY SHALL NOT EXCEED THE GREATER OF: (A) THE AMOUNT PAID BY YOU IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) FIFTY CANADIAN DOLLARS (CAD $50).</div>
+            <p class="body-text" style="margin-top:12px;">Some jurisdictions do not allow the exclusion or limitation of certain damages. In such jurisdictions, our liability will be limited to the maximum extent permitted by law.</p>
+          </div>
+
+          <!-- S14 -->
+          <div class="section">
+            <div id="s14" class="section-head">
+              <span class="section-num">14</span>
+              <h2>Term &amp; Termination</h2>
+            </div>
+            <p class="body-text">These Terms are effective from the date you first access the Services. We may terminate or suspend your access immediately, without prior notice or liability, for any breach of these Terms.</p>
+            <p class="body-text gap">Upon termination: your right to use the Services ceases immediately; outstanding purchase credits are forfeited; and account data may be deleted per our Privacy Policy. Sections 3, 6, 11, 12, 13, 15, and 16 survive termination.</p>
+          </div>
+
+          <!-- S15 -->
+          <div class="section">
+            <div id="s15" class="section-head">
+              <span class="section-num">15</span>
+              <h2>Governing Law &amp; Dispute Resolution</h2>
+            </div>
+            <p class="body-text">These Terms are governed by the laws of the Province of Ontario and the federal laws of Canada, without regard to conflict-of-law principles.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Dispute Resolution</div>
+              <p class="body-text">Before initiating formal proceedings, contact us at <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a> to attempt informal resolution. If unresolved within 30 days, disputes shall be resolved through binding arbitration in Toronto, Ontario.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Class Action Waiver</div>
+              <p class="body-text">Any proceedings shall be conducted in your individual capacity only. You waive any right to bring or participate in a class action against VedicAstro Inc.</p>
+            </div>
+          </div>
+
+          <!-- S16 -->
+          <div class="section">
+            <div id="s16" class="section-head">
+              <span class="section-num">16</span>
+              <h2>General Provisions</h2>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Entire Agreement</div>
+              <p class="body-text">These Terms, together with our Privacy Policy, constitute the entire agreement between you and VedicAstro Inc regarding the Services.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Severability</div>
+              <p class="body-text">If any provision is found invalid or unenforceable, it shall be modified to the minimum extent necessary, and the remaining provisions shall continue in full force.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Changes to These Terms</div>
+              <p class="body-text">We reserve the right to modify these Terms at any time. We will notify you of material changes at least 14 days before they take effect. Continued use constitutes acceptance of the revised Terms.</p>
+            </div>
+          </div>
+
+          <!-- S17 -->
+          <div class="section">
+            <div id="s17" class="section-head">
+              <span class="section-num">17</span>
+              <h2>Contact Us</h2>
+            </div>
+            <p class="body-text">If you have any questions about these Terms, please contact us:</p>
+            <div class="addr-block">
+              <strong>VedicAstro Inc (a part of Heart Agency Inc)</strong><br/>
+              Attn: Legal Department<br/>
+              68 Abell St, Toronto, ON, Canada — M6J 0B1<br/>
+              Email: <a href="mailto:support@vedicastro.app" class="email-link">legal&#64;vedicastro.app</a><br/>
+              Website: <a href="https://vedicastro.app" style="color:var(--gold);">vedicastro.app</a>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- LEGAL FOOTER -->
+    <footer class="legal-footer">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <img src="assets/vedicastro-logo.png" alt="VedicAstro" onerror="this.style.display='none'"/>
+          VedicAstro
+        </div>
+        <div class="footer-links">
+          <a (click)="goHome()" style="cursor:pointer;">Home</a>
+          <a (click)="goPricing()" style="cursor:pointer;">Pricing</a>
+          <a (click)="goToPrivacy()" style="cursor:pointer;">Privacy Policy</a>
+        </div>
+        <div class="footer-copy">© 2026 VedicAstro Inc (a part of Heart Agency Inc). All rights reserved.</div>
+      </div>
+    </footer>
+
+  </div>
+</div>

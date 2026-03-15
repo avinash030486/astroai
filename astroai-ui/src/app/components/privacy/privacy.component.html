@@ -1,0 +1,403 @@
+<div class="legal-wrapper">
+  <div class="bg-layer"></div>
+  <div class="stars">
+    <div class="star" *ngFor="let s of stars" [style]="s.style"></div>
+  </div>
+
+  <div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Legal</div>
+      <h1>Privacy <em>Policy</em></h1>
+      <div class="meta-row">
+        <span class="meta-tag">Effective: January 1, 2026</span>
+        <span class="meta-tag">VedicAstro Inc (a part of Heart Agency Inc)</span>
+        <span class="meta-tag">Jurisdiction: Ontario, Canada</span>
+      </div>
+      <p class="hero-intro">This Privacy Policy describes how VedicAstro Inc, a part of Heart Agency Inc, collects, uses, and protects the personal information you provide when using the VedicAstro application and related services. Please read this policy carefully — your continued use of the Services constitutes acceptance.</p>
+    </div>
+
+    <!-- MOBILE TOC -->
+    <div class="mobile-toc-wrap">
+      <div class="mobile-toc">
+        <button class="mobile-toc-btn" (click)="mobileTocOpen=!mobileTocOpen">
+          Table of Contents <span>▾</span>
+        </button>
+        <div class="mobile-toc-panel" [class.open]="mobileTocOpen">
+          <a class="toc-link" (click)="scrollTo('summary')">Quick Overview</a>
+          <a class="toc-link" (click)="scrollTo('s1')"><span class="toc-num">01</span>Information We Collect</a>
+          <a class="toc-link" (click)="scrollTo('s2')"><span class="toc-num">02</span>How We Process It</a>
+          <a class="toc-link" (click)="scrollTo('s3')"><span class="toc-num">03</span>AI Consultations &amp; Jyotishi Bot</a>
+          <a class="toc-link" (click)="scrollTo('s4')"><span class="toc-num">04</span>Legal Bases for Processing</a>
+          <a class="toc-link" (click)="scrollTo('s5')"><span class="toc-num">05</span>Who We Share Data With</a>
+          <a class="toc-link" (click)="scrollTo('s6')"><span class="toc-num">06</span>Cookies &amp; Tracking</a>
+          <a class="toc-link" (click)="scrollTo('s7')"><span class="toc-num">07</span>How Long We Keep It</a>
+          <a class="toc-link" (click)="scrollTo('s8')"><span class="toc-num">08</span>How We Keep It Safe</a>
+          <a class="toc-link" (click)="scrollTo('s9')"><span class="toc-num">09</span>Minors</a>
+          <a class="toc-link" (click)="scrollTo('s10')"><span class="toc-num">10</span>Your Privacy Rights</a>
+          <a class="toc-link" (click)="scrollTo('s11')"><span class="toc-num">11</span>US Residents' Rights</a>
+          <a class="toc-link" (click)="scrollTo('s12')"><span class="toc-num">12</span>Do-Not-Track</a>
+          <a class="toc-link" (click)="scrollTo('s13')"><span class="toc-num">13</span>Updates to This Policy</a>
+          <a class="toc-link" (click)="scrollTo('s14')"><span class="toc-num">14</span>Contact Us</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY WRAP -->
+    <div class="body-wrap">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-hd">Contents</div>
+        <div class="toc-scroll">
+          <a class="toc-link" (click)="scrollTo('summary')">Quick Overview</a>
+          <a class="toc-link" (click)="scrollTo('s1')"><span class="toc-num">01</span>Information We Collect</a>
+          <a class="toc-link" (click)="scrollTo('s2')"><span class="toc-num">02</span>How We Process It</a>
+          <a class="toc-link" (click)="scrollTo('s3')"><span class="toc-num">03</span>AI Consultations &amp; Jyotishi Bot</a>
+          <a class="toc-link" (click)="scrollTo('s4')"><span class="toc-num">04</span>Legal Bases for Processing</a>
+          <a class="toc-link" (click)="scrollTo('s5')"><span class="toc-num">05</span>Who We Share Data With</a>
+          <a class="toc-link" (click)="scrollTo('s6')"><span class="toc-num">06</span>Cookies &amp; Tracking</a>
+          <a class="toc-link" (click)="scrollTo('s7')"><span class="toc-num">07</span>How Long We Keep It</a>
+          <a class="toc-link" (click)="scrollTo('s8')"><span class="toc-num">08</span>How We Keep It Safe</a>
+          <a class="toc-link" (click)="scrollTo('s9')"><span class="toc-num">09</span>Minors</a>
+          <a class="toc-link" (click)="scrollTo('s10')"><span class="toc-num">10</span>Your Privacy Rights</a>
+          <a class="toc-link" (click)="scrollTo('s11')"><span class="toc-num">11</span>US Residents' Rights</a>
+          <a class="toc-link" (click)="scrollTo('s12')"><span class="toc-num">12</span>Do-Not-Track</a>
+          <a class="toc-link" (click)="scrollTo('s13')"><span class="toc-num">13</span>Updates to This Policy</a>
+          <a class="toc-link" (click)="scrollTo('s14')"><span class="toc-num">14</span>Contact Us</a>
+        </div>
+        <div class="sidebar-contact">
+          <span class="sidebar-contact-label">Questions?</span>
+          <p style="font-size:13px;color:var(--w70);margin-bottom:8px;">Reach our privacy team for any enquiries.</p>
+          <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main-card">
+        <div class="main-inner">
+
+          <!-- SUMMARY -->
+          <div id="summary">
+            <div class="alert">
+              <span class="alert-label">✦ Quick Overview</span>
+              <div class="alert-body">This summary provides key points from our privacy notice. Use the table of contents to navigate to any section, or read the full policy below. For questions, contact <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a>.</div>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>What personal information do we process?</div>
+              <p class="body-text">When you register for and use VedicAstro, we collect information you provide directly — including your name, email address, date of birth, birth time, birth location, and current location — to generate your personalised Vedic birth chart, Dasha timeline, Panchang, and related astrological services.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>AI Jyotishi consultations</div>
+              <p class="body-text">Conversations you have with our AI Jyotishi and astrologer bots are processed transiently to generate your response and are <strong>not stored or retained</strong> by VedicAstro Inc after the session ends.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Do we sell your data?</div>
+              <p class="body-text">No. We do not sell, rent, or trade your personal information to any third party for commercial or marketing purposes, ever.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Your rights</div>
+              <p class="body-text">Depending on where you reside, you may have rights to access, correct, export, or delete your personal information. Contact us at <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a> to exercise any of these rights.</p>
+            </div>
+          </div>
+
+          <!-- S1 -->
+          <div class="section">
+            <div id="s1" class="section-head">
+              <span class="section-num">01</span>
+              <h2>What Information Do We Collect?</h2>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Personal information you provide to us</div>
+              <p class="body-text">We collect personal information that you voluntarily provide when you register for an account, set up your birth chart profile, make a purchase, or otherwise contact us. The personal information we collect includes:</p>
+              <ul class="content-list">
+                <li><strong>Full name</strong> — used to personalise your experience and astrological readings</li>
+                <li><strong>Email address</strong> — used for account authentication, weekly updates, and service communications</li>
+                <li><strong>Date of birth</strong> — essential for calculating your Vedic birth chart, Nakshatras, and Dasha periods</li>
+                <li><strong>Birth time</strong> — required for accurate Ascendant (Lagna) and house placement calculations</li>
+                <li><strong>Birth location</strong> (city, country) — used to determine the precise planetary positions at the time of your birth</li>
+                <li><strong>Current location</strong> — used to generate location-relevant Panchang data, Muhurats, and daily horoscopes</li>
+              </ul>
+              <p class="body-text">All personal information you provide must be truthful, complete, and accurate.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Information automatically collected</div>
+              <p class="body-text">When you access or use VedicAstro, certain technical and usage data is automatically collected to operate, secure, and improve the service.</p>
+              <div style="margin-top:14px;">
+                <div class="sub-title" style="margin-bottom:6px;"><span class="sub-dot"></span>Log and Usage Data</div>
+                <p class="body-text">Service-related diagnostic and performance data our servers automatically record, including your IP address, device information, browser or app version, activity timestamps, and actions taken within the app.</p>
+              </div>
+              <div style="margin-top:14px;">
+                <div class="sub-title" style="margin-bottom:6px;"><span class="sub-dot"></span>Device Data</div>
+                <p class="body-text">Information about the device you use to access VedicAstro, including device type, operating system, unique device identifiers, and crash or error logs.</p>
+              </div>
+              <div style="margin-top:14px;">
+                <div class="sub-title" style="margin-bottom:6px;"><span class="sub-dot"></span>Location Data</div>
+                <p class="body-text">We collect your current location to deliver location-accurate Panchang information, Muhurat windows, and regional horoscope content. You may opt out by disabling location permissions in your device settings.</p>
+              </div>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Payment information</div>
+              <p class="body-text">Payments are processed exclusively by our PCI-compliant third-party payment processor. We do not collect, store, or have access to your full credit card or banking details.</p>
+            </div>
+          </div>
+
+          <!-- S2 -->
+          <div class="section">
+            <div id="s2" class="section-head">
+              <span class="section-num">02</span>
+              <h2>How Do We Process Your Information?</h2>
+            </div>
+            <p class="body-text">We process your personal information for the following purposes:</p>
+            <ul class="content-list">
+              <li><strong>Account creation &amp; authentication</strong> — to register you, verify your identity, and maintain your account.</li>
+              <li><strong>Delivery of astrological services</strong> — to generate your Vedic birth chart, Nakshatra profile, Dasha timeline, daily horoscope, Panchang, Yoga report, and Muhurat windows.</li>
+              <li><strong>AI Jyotishi interactions</strong> — to pass your birth data and question to our AI astrologer model. Conversation content is not retained after the session.</li>
+              <li><strong>Weekly email updates</strong> — to send your personalised horoscope, Panchang summary, and Yoga updates by email, where you have opted in.</li>
+              <li><strong>Billing &amp; payment processing</strong> — to process your subscription or credit purchase via our payment provider.</li>
+              <li><strong>Customer support</strong> — to respond to your enquiries, resolve issues, and improve your experience.</li>
+              <li><strong>Security &amp; fraud prevention</strong> — to monitor for suspicious activity, protect accounts, and enforce our Terms.</li>
+              <li><strong>Product improvement</strong> — to analyse aggregated and anonymised usage patterns.</li>
+              <li><strong>Legal compliance</strong> — to meet our obligations under applicable law.</li>
+            </ul>
+          </div>
+
+          <!-- S3 -->
+          <div class="section">
+            <div id="s3" class="section-head">
+              <span class="section-num">03</span>
+              <h2>AI Consultations &amp; the Jyotishi Bot</h2>
+            </div>
+            <div class="alert">
+              <span class="alert-label">✦ Important — Conversation Data</span>
+              <div class="alert-body">VedicAstro does not store the content of your conversations with our AI Jyotishi, astrologer bots, or any other AI-powered consultation features after your session ends.</div>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>No persistent conversation storage</div>
+              <p class="body-text">Conversations with our AI Jyotishi are processed transiently in real-time. <strong>VedicAstro Inc does not log, store, or retain the content of these conversations</strong> after the session concludes.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Data passed to AI models</div>
+              <p class="body-text">Relevant elements of your birth profile and your current query are passed to the underlying AI model during the active session only. This context is not retained by VedicAstro after the response is delivered.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Third-party AI infrastructure</div>
+              <p class="body-text">Our AI features are powered by third-party providers bound by data processing agreements that prohibit any secondary use of your data.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Disclaimer regarding AI-generated readings</div>
+              <p class="body-text">Our AI Jyotishi provides astrological guidance for entertainment, reflection, and educational purposes only. It is not a substitute for professional medical, legal, financial, or psychological advice.</p>
+            </div>
+          </div>
+
+          <!-- S4 -->
+          <div class="section">
+            <div id="s4" class="section-head">
+              <span class="section-num">04</span>
+              <h2>Legal Bases for Processing</h2>
+            </div>
+            <ul class="content-list">
+              <li><strong>Contractual necessity</strong> — processing your birth data, name, email, and location is necessary to provide the astrological services you signed up for.</li>
+              <li><strong>Consent</strong> — for optional communications such as weekly email updates. You may withdraw consent at any time.</li>
+              <li><strong>Legitimate interests</strong> — for fraud prevention, security monitoring, product improvement, and analytics.</li>
+              <li><strong>Legal obligation</strong> — to comply with Canadian privacy legislation (PIPEDA / Quebec Law 25) and other regulatory obligations.</li>
+            </ul>
+          </div>
+
+          <!-- S5 -->
+          <div class="section">
+            <div id="s5" class="section-head">
+              <span class="section-num">05</span>
+              <h2>Who Do We Share Your Data With?</h2>
+            </div>
+            <p class="body-text">We do not sell your personal information. We share data only with the following categories of service providers:</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>AI infrastructure providers</div>
+              <p class="body-text">Your birth data and queries are passed to our AI model providers under data processing agreements prohibiting secondary use.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Payment processors</div>
+              <p class="body-text">Payment information is handled by PCI-compliant processors (such as Stripe). We share only the minimum information required to complete transactions.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Email delivery providers</div>
+              <p class="body-text">Your email address is shared with our transactional email provider for account-related communications and, where opted in, weekly horoscope updates.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Analytics providers</div>
+              <p class="body-text">We use analytics tools that receive anonymised and aggregated usage data only — no name, birth data, or personally identifiable information.</p>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Legal and regulatory authorities</div>
+              <p class="body-text">We may disclose personal information where required by law, court order, or to protect the safety of any person or prevent fraud.</p>
+            </div>
+          </div>
+
+          <!-- S6 -->
+          <div class="section">
+            <div id="s6" class="section-head">
+              <span class="section-num">06</span>
+              <h2>Cookies &amp; Tracking Technologies</h2>
+            </div>
+            <ul class="content-list">
+              <li><strong>Essential cookies</strong> — necessary to keep you logged in and maintain your session securely.</li>
+              <li><strong>Analytics cookies</strong> — anonymised, aggregated data on how users interact with the app. No personal identifiers are included.</li>
+            </ul>
+            <p class="body-text gap">We do <strong>not</strong> use advertising cookies, third-party tracking pixels, or cross-site behavioural tracking of any kind.</p>
+          </div>
+
+          <!-- S7 -->
+          <div class="section">
+            <div id="s7" class="section-head">
+              <span class="section-num">07</span>
+              <h2>How Long Do We Keep Your Information?</h2>
+            </div>
+            <ul class="content-list">
+              <li><strong>Account data</strong> — retained for the life of your account.</li>
+              <li><strong>AI consultation content</strong> — not retained after session end.</li>
+              <li><strong>Transaction records</strong> — retained for a minimum of 7 years to meet Canadian financial record-keeping obligations.</li>
+              <li><strong>Technical logs</strong> — retained for a rolling period of up to 90 days.</li>
+              <li><strong>Anonymised analytics data</strong> — may be retained indefinitely.</li>
+            </ul>
+            <p class="body-text gap">When you delete your account, we will delete or anonymise your personal data within <strong>30 days</strong>, except where retention is required by law.</p>
+          </div>
+
+          <!-- S8 -->
+          <div class="section">
+            <div id="s8" class="section-head">
+              <span class="section-num">08</span>
+              <h2>How Do We Keep Your Information Safe?</h2>
+            </div>
+            <ul class="content-list">
+              <li>Encryption of data in transit using TLS</li>
+              <li>Encryption of sensitive data at rest</li>
+              <li>Access controls and role-based permissions</li>
+              <li>Regular security reviews and vulnerability assessments</li>
+              <li>Incident response procedures for breach notification</li>
+            </ul>
+            <p class="body-text gap">No method of transmission over the internet is 100% secure. If you suspect your account has been compromised, contact us immediately at <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a>.</p>
+          </div>
+
+          <!-- S9 -->
+          <div class="section">
+            <div id="s9" class="section-head">
+              <span class="section-num">09</span>
+              <h2>Information from Minors</h2>
+            </div>
+            <p class="body-text">VedicAstro is not directed at individuals under the age of 13. We do not knowingly collect personal information from children under 13. If you believe your child has provided us personal information, contact us at <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a> and we will promptly delete it.</p>
+          </div>
+
+          <!-- S10 -->
+          <div class="section">
+            <div id="s10" class="section-head">
+              <span class="section-num">10</span>
+              <h2>Your Privacy Rights</h2>
+            </div>
+            <ul class="content-list">
+              <li><strong>Right of access</strong> — request a copy of the personal data we hold about you.</li>
+              <li><strong>Right to correction</strong> — request that we correct inaccurate or incomplete data.</li>
+              <li><strong>Right to erasure</strong> — request deletion of your personal data, subject to legal exceptions.</li>
+              <li><strong>Right to data portability</strong> — receive your data in a structured, machine-readable format.</li>
+              <li><strong>Right to restrict processing</strong> — ask us to limit how we use your data.</li>
+              <li><strong>Right to withdraw consent</strong> — withdraw consent at any time without affecting prior lawful processing.</li>
+              <li><strong>Right to object</strong> — object to processing based on legitimate interests.</li>
+            </ul>
+            <p class="body-text gap">To exercise any of these rights, contact us at <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a>. We will respond within 30 days.</p>
+          </div>
+
+          <!-- S11 -->
+          <div class="section">
+            <div id="s11" class="section-head">
+              <span class="section-num">11</span>
+              <h2>Do United States Residents Have Specific Rights?</h2>
+            </div>
+            <p class="body-text">If you are a resident of California, Colorado, Connecticut, Utah, or Virginia, you are granted specific rights regarding access to your personal information.</p>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>Categories of personal information collected</div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width:32px;">#</th>
+                    <th>Category</th>
+                    <th>Examples relevant to VedicAstro</th>
+                    <th style="width:80px;text-align:center;">Collected</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>A</td><td>Identifiers</td><td>Name, email address, IP address</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>B</td><td>Personal info (CA Customer Records)</td><td>Name, email, contact information</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>C</td><td>Protected classification characteristics</td><td>Date of birth</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>D</td><td>Commercial information</td><td>Subscription and purchase history</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>E</td><td>Biometric information</td><td>Fingerprints, voiceprints</td><td style="text-align:center;"><span class="badge badge-no">NO</span></td></tr>
+                  <tr><td>F</td><td>Internet or network activity</td><td>Browsing history, ad interactions</td><td style="text-align:center;"><span class="badge badge-no">NO</span></td></tr>
+                  <tr><td>G</td><td>Geolocation data</td><td>Birth location, current location</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>H</td><td>Audio, electronic, visual</td><td>Recordings, images</td><td style="text-align:center;"><span class="badge badge-no">NO</span></td></tr>
+                  <tr><td>K</td><td>Inferences from collected information</td><td>Astrological profile, preferences</td><td style="text-align:center;"><span class="badge badge-yes">YES</span></td></tr>
+                  <tr><td>L</td><td>Sensitive personal information</td><td>—</td><td style="text-align:center;"><span class="badge badge-no">NO</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="sub-section">
+              <div class="sub-title"><span class="sub-dot"></span>California — CCPA</div>
+              <p class="body-text">California residents have the right to know, request deletion, opt out of sale (we do not sell personal information), and be free from discrimination. Contact <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a>.</p>
+            </div>
+          </div>
+
+          <!-- S12 -->
+          <div class="section">
+            <div id="s12" class="section-head">
+              <span class="section-num">12</span>
+              <h2>Do-Not-Track Signals</h2>
+            </div>
+            <p class="body-text">Some browsers transmit "Do Not Track" (DNT) signals. Because there is currently no industry standard for how services should respond to DNT signals, VedicAstro does not currently alter its data practices in response to DNT signals.</p>
+          </div>
+
+          <!-- S13 -->
+          <div class="section">
+            <div id="s13" class="section-head">
+              <span class="section-num">13</span>
+              <h2>Updates to This Policy</h2>
+            </div>
+            <p class="body-text">We may update this Privacy Policy from time to time. The updated version will bear a revised "Effective" date at the top of this page. For material changes, we will provide advance notice via the app or by email. Continued use of the Services constitutes acceptance.</p>
+          </div>
+
+          <!-- S14 -->
+          <div class="section">
+            <div id="s14" class="section-head">
+              <span class="section-num">14</span>
+              <h2>How Can You Contact Us?</h2>
+            </div>
+            <p class="body-text">If you have questions, concerns, or requests regarding this Privacy Policy, please contact us:</p>
+            <div class="addr-block">
+              <strong>VedicAstro Inc (a part of Heart Agency Inc)</strong><br/>
+              Attn: Privacy Officer<br/>
+              68 Abell St, Toronto, ON, Canada — M6J 0B1<br/>
+              Email: <a href="mailto:support@vedicastro.app" class="email-link">privacy&#64;vedicastro.app</a><br/>
+              Website: <a href="https://vedicastro.app" style="color:var(--gold);">vedicastro.app</a>
+            </div>
+            <p class="body-text">We respond to all privacy enquiries within 30 days of receipt.</p>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- LEGAL FOOTER -->
+    <footer class="legal-footer">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <img src="assets/vedicastro-logo.png" alt="VedicAstro" onerror="this.style.display='none'"/>
+          VedicAstro
+        </div>
+        <div class="footer-links">
+          <a (click)="goHome()" style="cursor:pointer;">Home</a>
+          <a (click)="goPricing()" style="cursor:pointer;">Pricing</a>
+          <a (click)="goToTerms()" style="cursor:pointer;">Terms</a>
+        </div>
+        <div class="footer-copy">© 2026 VedicAstro Inc (a part of Heart Agency Inc). All rights reserved.</div>
+      </div>
+    </footer>
+
+  </div>
+</div>

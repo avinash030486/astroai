@@ -24,6 +24,10 @@ import { FestivalCalendarComponent } from './components/festival-calendar/festiv
 import { PricingComponent } from './components/pricing-page/pricing.component';
 import { PrivacyComponent } from './components/privacy/privacy.component';
 import { TermsComponent } from './components/terms/terms.component';
+import { PlanetHouseListComponent } from './components/planet-house-list/planet-house-list.component';
+import { PlanetHouseDetailComponent } from './components/planet-house-detail/planet-house-detail.component';
+import { PlanetSignListComponent } from './components/planet-sign-list/planet-sign-list.component';
+import { PlanetSignDetailComponent } from './components/planet-sign-detail/planet-sign-detail.component';
 const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
@@ -49,7 +53,11 @@ const routes: Routes = [
   { path: 'gemstones', component: GemstoneEngineComponent },
   { path: 'festivals', component: FestivalCalendarComponent },
   { path: 'privacy', component: PrivacyComponent },
-  { path: 'terms', component: TermsComponent },  // ← moved above wildcard
+  { path: 'terms', component: TermsComponent },
+  { path: 'planets', component: PlanetHouseListComponent },
+  { path: 'planet/:slug', component: PlanetHouseDetailComponent },
+  { path: 'planet-signs', component: PlanetSignListComponent },
+  { path: 'planet-sign/:slug', component: PlanetSignDetailComponent },
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

@@ -1,0 +1,71 @@
+<div class="planet-sign-list-container">
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">Planet in Zodiac Sign Meanings</h1>
+      <p class="hero-subtitle">
+        See how each planet expresses itself in every rashi. Explore personality, career, relationship and spiritual themes for all 9 planets across the 12 zodiac signs.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="filter-row">
+      <div class="filter-group">
+        <span class="filter-label">Planet</span>
+        <button
+          class="filter-pill"
+          [class.active]="selectedPlanet === 'all'"
+          (click)="setPlanet('all')">
+          All
+        </button>
+        <button
+          class="filter-pill"
+          *ngFor="let p of planetOptions"
+          [class.active]="selectedPlanet === p"
+          (click)="setPlanet(p)">
+          {{ p }}
+        </button>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-label">Zodiac Sign</span>
+        <button
+          class="filter-pill"
+          [class.active]="selectedSign === 'all'"
+          (click)="setSign('all')">
+          All
+        </button>
+        <button
+          class="filter-pill"
+          *ngFor="let s of signOptions"
+          [class.active]="selectedSign === s.key"
+          (click)="setSign(s.key)">
+          {{ s.key }} · {{ s.signSanskrit }}
+        </button>
+      </div>
+    </div>
+
+    <div class="combination-grid">
+      <div
+        class="combo-card"
+        *ngFor="let item of displayedCombinations"
+        (click)="viewCombination(item)">
+        <div class="combo-header">
+          <div class="combo-planet">{{ item.planet }} · {{ item.planetSanskrit }}</div>
+          <div class="combo-sign">{{ item.sign }} · {{ item.signSanskrit }}</div>
+        </div>
+        <h3 class="combo-title">{{ item.title }}</h3>
+        <p class="combo-summary">{{ item.summary }}</p>
+        <button class="btn-more">Read detailed effects <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <div class="seo-section">
+      <h2>Why planet in sign matters</h2>
+      <p>
+        In Vedic astrology, the sign (rashi) shows the style in which a planet operates: fiery or calm, stable or changeable, mental or emotional.
+        These combinations give high-level guidance only and should always be read together with house placements and aspects for a full chart reading.
+      </p>
+    </div>
+  </div>
+</div>

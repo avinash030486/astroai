@@ -1,0 +1,62 @@
+<div class="planet-house-list-container">
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">Planet in House Meanings</h1>
+      <p class="hero-subtitle">
+        Explore how each of the nine planets (Navagrahas) behave in all twelve houses of the horoscope — understand personality, career, relationships, health and spiritual themes for every placement.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Planet Filter -->
+    <div class="planet-filter">
+      <button
+        class="filter-btn"
+        [class.active]="selectedPlanet === 'all'"
+        (click)="setPlanet('all')">
+        <span class="glyph">✨</span>
+        <span>All Planets</span>
+      </button>
+
+      <button
+        class="filter-btn"
+        *ngFor="let p of planetOptions"
+        [class.active]="selectedPlanet === p.key"
+        (click)="setPlanet(p.key)">
+        <span class="glyph">{{ p.glyph }}</span>
+        <span>{{ p.key }} · {{ p.planetSanskrit }}</span>
+      </button>
+    </div>
+
+    <!-- Grid -->
+    <div class="combination-grid">
+      <div
+        class="combo-card"
+        *ngFor="let item of displayedCombinations"
+        (click)="viewCombination(item)">
+        <div class="combo-header">
+          <div class="combo-planet">{{ item.planet }} · {{ item.planetSanskrit }}</div>
+          <div class="combo-house">House {{ item.house }}</div>
+        </div>
+        <h3 class="combo-title">{{ item.title }}</h3>
+        <p class="combo-summary">{{ item.summary }}</p>
+        <button class="btn-more">View detailed effects <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <div class="seo-section">
+      <h2>Why planets in houses matter</h2>
+      <p>
+        In Vedic astrology, each planet expresses itself differently depending on which house it occupies in the birth chart.
+        This section gives you a high-level understanding of those patterns so you can read your own chart or prepare
+        questions for a professional consultation.
+      </p>
+      <p class="seo-link">
+        You can also explore how each planet behaves in every zodiac sign in the
+        <button class="link-btn" routerLink="/planet-signs">Planet in Signs</button>
+        section.
+      </p>
+    </div>
+  </div>
+</div>

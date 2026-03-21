@@ -26,6 +26,14 @@ const cities: CityData[] = citiesModule.TOP_CITIES || [];
 const yogasModule = require('../src/app/data/yogas.ts');
 const yogas = yogasModule.VEDIC_YOGAS || [];
 
+// Import planet-in-house data
+const planetHousesModule = require('../src/app/data/planet-houses.ts');
+const planetHouses = planetHousesModule.PLANET_HOUSE_DATA || [];
+
+// Import planet-in-sign data
+const planetSignsModule = require('../src/app/data/planet-signs.ts');
+const planetSigns = planetSignsModule.PLANET_SIGN_DATA || [];
+
 class SitemapGenerator {
   private baseUrl = 'https://vedicastro.app';
   private urls: SitemapUrl[] = [];
@@ -34,6 +42,8 @@ class SitemapGenerator {
     this.generateStaticPages();
     this.generateCityPages();
     this.generateYogaPages();
+    this.generatePlanetHousePages();
+    this.generatePlanetSignPages();
   }
 
   private generateStaticPages(): void {
@@ -91,6 +101,34 @@ class SitemapGenerator {
     });
 
     console.log(`✅ Generated ${yogas.length + 1} yoga URLs (1 list + ${yogas.length} detail pages)`);
+  }
+
+  private generatePlanetHousePages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // List page
+    this.addUrl('/planets', today, 'weekly', 0.9);
+
+    // Individual placement pages
+    planetHouses.forEach((ph: any) => {
+      this.addUrl(`/planet/${ph.slug}`, today, 'monthly', 0.8);
+    });
+
+    console.log(`✅ Generated ${planetHouses.length + 1} planet-in-house URLs (1 list + ${planetHouses.length} detail pages)`);
+  }
+
+  private generatePlanetSignPages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // List page
+    this.addUrl('/planet-signs', today, 'weekly', 0.9);
+
+    // Individual placement pages
+    planetSigns.forEach((ps: any) => {
+      this.addUrl(`/planet-sign/${ps.slug}`, today, 'monthly', 0.8);
+    });
+
+    console.log(`✅ Generated ${planetSigns.length + 1} planet-in-sign URLs (1 list + ${planetSigns.length} detail pages)`);
   }
 
   private addUrl(

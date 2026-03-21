@@ -1,0 +1,65 @@
+<div class="planet-house-detail" *ngIf="!loading">
+  <div *ngIf="notFound" class="container not-found">
+    <h2>Placement Not Found</h2>
+    <button class="btn" (click)="goBack()">Back to Planet in House List</button>
+  </div>
+
+  <div *ngIf="combo && !notFound">
+    <div class="hero" >
+      <div class="container">
+        <button class="back-btn" (click)="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+        <h1>{{ combo.title }}</h1>
+        <p class="summary">{{ combo.summary }}</p>
+      </div>
+    </div>
+
+    <div class="container content">
+      <section class="card">
+        <h2>General Effects</h2>
+        <ul>
+          <li *ngFor="let effect of combo.generalEffects">{{ effect }}</li>
+        </ul>
+      </section>
+
+      <section class="card two-column">
+        <div class="card-block">
+          <h3>Career & Work</h3>
+          <p>{{ combo.career }}</p>
+        </div>
+        <div class="card-block">
+          <h3>Relationships</h3>
+          <p>{{ combo.relationships }}</p>
+        </div>
+      </section>
+
+      <section class="card two-column">
+        <div class="card-block">
+          <h3>Health Themes</h3>
+          <p>{{ combo.health }}</p>
+        </div>
+        <div class="card-block">
+          <h3>Spiritual Lessons</h3>
+          <p>{{ combo.spiritual }}</p>
+        </div>
+      </section>
+
+      <section class="card" *ngIf="combo.remedies && combo.remedies.length">
+        <h2>Suggested Remedies</h2>
+        <ul>
+          <li *ngFor="let remedy of combo.remedies">{{ remedy }}</li>
+        </ul>
+      </section>
+
+      <div class="cta">
+        <h3>See this placement in your own chart</h3>
+        <p>Generate your Vedic birth chart and see where each planet actually sits in your horoscope.</p>
+        <button class="btn primary" (click)="gotoBirthChart()">Get My Birth Chart</button>
+        <button class="btn ghost" (click)="goBack()">Back to all placements</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading">
+  <div class="spinner-border"></div>
+</div>

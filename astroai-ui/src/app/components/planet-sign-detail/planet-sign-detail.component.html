@@ -1,0 +1,68 @@
+<div class="planet-sign-detail" *ngIf="!loading">
+  <div *ngIf="notFound" class="container not-found">
+    <h2>Placement Not Found</h2>
+    <button class="btn" (click)="goBack()">Back to Planet in Signs List</button>
+  </div>
+
+  <div *ngIf="combo && !notFound">
+    <div class="hero">
+      <div class="container">
+        <button class="back-btn" (click)="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+        <h1>{{ combo.title }}</h1>
+        <p class="summary">{{ combo.summary }}</p>
+        <div class="meta-row">
+          <span>{{ combo.sign }} · {{ combo.signSanskrit }}</span>
+          <span>{{ combo.element }} · {{ combo.modality }} · Ruled by {{ combo.ruler }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container content">
+      <section class="card">
+        <h2>Personality Expression</h2>
+        <ul>
+          <li *ngFor="let p of combo.personality">{{ p }}</li>
+        </ul>
+      </section>
+
+      <section class="card two-column">
+        <div class="card-block">
+          <h3>Career & Life Direction</h3>
+          <p>{{ combo.career }}</p>
+        </div>
+        <div class="card-block">
+          <h3>Relationships & Connections</h3>
+          <p>{{ combo.relationships }}</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Growth Edge</h2>
+        <p>{{ combo.growthChallenges }}</p>
+      </section>
+
+      <section class="card">
+        <h2>Spiritual Perspective</h2>
+        <p>{{ combo.spiritual }}</p>
+      </section>
+
+      <section class="card" *ngIf="combo.remedies && combo.remedies.length">
+        <h2>Suggested Remedies</h2>
+        <ul>
+          <li *ngFor="let remedy of combo.remedies">{{ remedy }}</li>
+        </ul>
+      </section>
+
+      <div class="cta">
+        <h3>See this in your own chart</h3>
+        <p>Generate your Vedic birth chart and see which sign each planet occupies for you personally.</p>
+        <button class="btn primary" (click)="gotoBirthChart()">Get My Birth Chart</button>
+        <button class="btn ghost" (click)="goBack()">Back to all combinations</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading">
+  <div class="spinner-border"></div>
+</div>

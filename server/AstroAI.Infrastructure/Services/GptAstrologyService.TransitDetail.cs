@@ -19,6 +19,30 @@ public sealed partial class GptAstrologyService
         ["Sagittarius"] = "♐", ["Capricorn"] = "♑", ["Aquarius"] = "♒", ["Pisces"] = "♓"
     };
 
+    /// <summary>
+    /// Returns the approximate Vedic sidereal Sun sign based on the calendar date.
+    /// Ingress dates are fixed annual approximations (±1 day).
+    /// </summary>
+    private static string GetSunSign(DateTime date)
+    {
+        int m = date.Month, d = date.Day;
+        return (m, d) switch
+        {
+            (4, >= 14) or (5, <= 14) => "Aries",
+            (5, >= 15) or (6, <= 14) => "Taurus",
+            (6, >= 15) or (7, <= 15) => "Gemini",
+            (7, >= 16) or (8, <= 15) => "Cancer",
+            (8, >= 16) or (9, <= 15) => "Leo",
+            (9, >= 16) or (10, <= 15) => "Virgo",
+            (10, >= 16) or (11, <= 14) => "Libra",
+            (11, >= 15) or (12, <= 14) => "Scorpio",
+            (12, >= 15) or (1, <= 13) => "Sagittarius",
+            (1, >= 14) or (2, <= 12) => "Capricorn",
+            (2, >= 13) or (3, <= 13) => "Aquarius",
+            _ => "Pisces" // Mar 14 – Apr 13
+        };
+    }
+
     public async Task<IReadOnlyList<ZodiacTransitSummary>> GetAllZodiacSummariesAsync(CancellationToken ct)
     {
         ValidateConfig();
@@ -27,7 +51,16 @@ public sealed partial class GptAstrologyService
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
         var user = $@"Today is {today:MMMM dd, yyyy}.
-For each of the 12 Vedic zodiac signs, provide a brief 1-sentence transit summary based on current major planetary positions.
+
+CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly):
+- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
+- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
+- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
+- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
+- Sun: {GetSunSign(today)} (based on date)
+For fast-moving planets (Moon, Mercury, Venus, Mars), compute approximate positions based on today's date.
+
+For each of the 12 Vedic zodiac signs, provide a brief 1-sentence transit summary based on the above confirmed planetary positions (treated as moon signs).
 Return STRICT JSON:
 {{
   ""summaries"": [
@@ -89,7 +122,16 @@ Include all 12 signs in order: Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra,
         var today = DateTime.UtcNow;
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
-        var user = $@"Today is {today:MMMM dd, yyyy}. Provide a comprehensive Vedic transit report for {zodiacSign}.
+        var user = $@"Today is {today:MMMM dd, yyyy}. Provide a comprehensive Vedic transit report for {zodiacSign} moon sign.
+
+CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly — do NOT override):
+- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
+- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
+- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
+- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
+- Sun: {GetSunSign(today)} (based on date)
+For Moon, Mercury, Venus, Mars — compute approximate Vedic positions based on today's date {today:MMMM dd, yyyy}.
+All 'transitSign' fields in currentTransits MUST reflect the above verified positions for Saturn, Jupiter, Rahu, Ketu.
 
 Return STRICT JSON exactly matching this structure:
 {{
@@ -239,7 +281,15 @@ weeklyForecast must have exactly 7 entries (Monday through Sunday for the curren
         var today = DateTime.UtcNow;
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
-        var user = $@"Today is {today:MMMM dd, yyyy}. Provide a monthly Vedic transit forecast for {zodiacSign} for {today:MMMM yyyy}.
+        var user = $@"Today is {today:MMMM dd, yyyy}. Provide a monthly Vedic transit forecast for {zodiacSign} moon sign for {today:MMMM yyyy}.
+
+CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly):
+- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
+- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
+- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
+- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
+- Sun: {GetSunSign(today)} (based on date)
+For Moon, Mercury, Venus, Mars — compute approximate Vedic positions per week based on the month.
 
 Return STRICT JSON:
 {{

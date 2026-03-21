@@ -32,7 +32,10 @@ import { GemstoneEngineComponent } from './components/gemstone-engine/gemstone-e
 import { FestivalCalendarComponent } from './components/festival-calendar/festival-calendar.component';
 import { PrivacyComponent } from './components/privacy/privacy.component';
 import { TermsComponent } from './components/terms/terms.component';
-// add to declarations: [PrivacyComponent, TermsComponent]
+import { PlanetHouseListComponent } from './components/planet-house-list/planet-house-list.component';
+import { PlanetHouseDetailComponent } from './components/planet-house-detail/planet-house-detail.component';
+import { PlanetSignListComponent } from './components/planet-sign-list/planet-sign-list.component';
+import { PlanetSignDetailComponent } from './components/planet-sign-detail/planet-sign-detail.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -57,7 +60,13 @@ import { TermsComponent } from './components/terms/terms.component';
     TransitAlertsComponent,
     MuhuratCalculatorComponent,
     GemstoneEngineComponent,
-    FestivalCalendarComponent
+    FestivalCalendarComponent,
+    PrivacyComponent,
+    TermsComponent,
+    PlanetHouseListComponent,
+    PlanetHouseDetailComponent,
+    PlanetSignListComponent,
+    PlanetSignDetailComponent
   ],
   imports: [
     BrowserModule,

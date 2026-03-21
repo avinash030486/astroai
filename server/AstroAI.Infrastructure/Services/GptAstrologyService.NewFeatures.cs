@@ -14,7 +14,16 @@ public sealed partial class GptAstrologyService
 
         var system = "You are an expert Vedic astrologer. Given a zodiac sign and current date, analyze current planetary transits and their effects. Return STRICT JSON only, no prose outside JSON.";
         var user = $@"Today: {today:yyyy-MM-dd}. Zodiac Sign: {zodiacSign}.
-Analyze all major planetary transits (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu) currently active and their effects on {zodiacSign}.
+
+CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly):
+- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
+- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
+- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
+- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
+- Sun: {GetSunSign(today)} (approximate based on date)
+For fast-moving planets (Moon, Mercury, Venus, Mars), compute their approximate position based on today's date {today:MMMM dd, yyyy}.
+
+Using the above confirmed positions, analyze all major planetary transits and their effects on {zodiacSign} moon sign.
 Return STRICT JSON:
 {{
   ""zodiacSign"": string,

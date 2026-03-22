@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "VedicAstro",
-    "slug": "VedicAstro",
+    "name": "Vedic Astro",
+    "slug": "astroai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/vedicastro-logo.png",
@@ -12,16 +12,24 @@
       "backgroundColor": "#0A0E2A"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "app.vedicastro.astro"
     },
     "android": {
+      "package": "app.vedicastro.astro",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0A0E2A",
         "foregroundImage": "./assets/vedicastro-logo.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/vedicastro-logo.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/vedicastro-logo.png"
@@ -30,6 +38,11 @@
     "plugins": [
       "expo-secure-store",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "df4ab516-efce-4543-8104-491a9a796868"
+      }
+    }
   }
 }

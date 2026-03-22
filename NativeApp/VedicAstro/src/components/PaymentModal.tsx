@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import { theme } from '../theme/theme';
 import { useAuthStore } from '../store/authStore';
+import { useCurrency } from '../hooks/useCurrency';
 
 const STRIPE_PK =
   'pk_live_51SkYakPpSmZFXw4WZvXp8z7nLyOJmZReFnCtSqUnolgOWoDInuY8FhcJ0HRdbU5pKr3PLFSAj1ACkyktccWcdWmI00WrSAKFpD';
@@ -110,6 +111,7 @@ export const PaymentModal: React.FC<Props> = ({
   onClose,
 }) => {
   const user = useAuthStore(s => s.user);
+  const { currency, format, ready } = useCurrency();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanOption | null>(null);
   const [name, setName] = useState('');
@@ -137,9 +139,8 @@ export const PaymentModal: React.FC<Props> = ({
   const activePlan = selectedPlan ?? plans?.[0] ?? null;
   const activeAmount = plans ? (activePlan?.amountUsd ?? 0) : (fixedAmountUsd ?? 0);
   const activePlanId = plans ? (activePlan?.id ?? 'one-time') : 'one-time';
-  const displayPrice = plans
-    ? (activePlan?.price ?? '')
-    : `$${(fixedAmountUsd ?? 0).toFixed(2)}`;
+  // Always format using detected local currency
+  const displayPrice = format(activeAmount);
 
   const formatCard = (v: string) => {
     const d = v.replace(/\D/g, '').slice(0, 16);
@@ -204,6 +205,13 @@ export const PaymentModal: React.FC<Props> = ({
               <Text style={s.title}>{title}</Text>
               {subtitle ? <Text style={s.subtitle}>{subtitle}</Text> : null}
 
+              {/* Currency badge – shown when non-USD */}
+              {ready && currency.code !== 'USD' && (
+                <View style={s.currencyBadge}>
+                  <Text style={s.currencyBadgeText}>💱 Prices shown in {currency.code}</Text>
+                </View>
+              )}
+
               {/* Plan selector */}
               {plans && plans.length > 1 && (
                 <View style={s.planRow}>
@@ -223,7 +231,7 @@ export const PaymentModal: React.FC<Props> = ({
                         </View>
                       )}
                       <Text style={s.planLabel}>{p.label}</Text>
-                      <Text style={s.planPrice}>{p.price}</Text>
+                      <Text style={s.planPrice}>{format(p.amountUsd)}</Text>
                       {p.note ? (
                         <Text style={s.planNote}>{p.note}</Text>
                       ) : null}
@@ -236,7 +244,7 @@ export const PaymentModal: React.FC<Props> = ({
               {(!plans || plans.length === 1) && (
                 <View style={s.singlePrice}>
                   <Text style={s.singleAmount}>
-                    {plans ? plans[0].price : `$${(fixedAmountUsd ?? 0).toFixed(2)}`}
+                    {plans ? format(plans[0].amountUsd) : format(fixedAmountUsd ?? 0)}
                   </Text>
                   <Text style={s.planNote}>
                     {plans ? (plans[0].note ?? 'One-time payment') : 'One-time payment'}
@@ -401,8 +409,23 @@ const s = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: 13,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
     lineHeight: 20,
+  },
+  currencyBadge: {
+    alignSelf: 'center',
+    backgroundColor: 'rgba(201,150,58,0.15)',
+    borderWidth: 1,
+    borderColor: theme.colors.goldDim,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginBottom: 12,
+  },
+  currencyBadgeText: {
+    color: theme.colors.gold,
+    fontFamily: theme.fonts.body,
+    fontSize: 11,
   },
   // Plans
   planRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },

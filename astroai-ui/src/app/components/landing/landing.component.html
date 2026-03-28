@@ -357,6 +357,7 @@
         <a routerLink="/pricing">Pricing</a>
         <a routerLink="/privacy">Privacy</a>
         <a routerLink="/terms">Terms</a>
+        <a class="text-muted" style="cursor:pointer;" (click)="showSupportModal=true">Customer Support</a>
       </div>
       <div class="footer-copy">© 2026 VedicAstro · All rights reserved</div>
      <div class="footer-links">
@@ -379,4 +380,13 @@
     </footer>
 
   </div><!-- /page -->
+</div>
+<div *ngIf="showSupportModal" (click)="showSupportModal=false" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div (click)="$event.stopPropagation()" style="background:#0F3D26;border:1px solid rgba(212,169,74,0.3);border-radius:18px;overflow:hidden;width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);color:#ECC76A;font-family:'Cormorant Garamond',serif;font-size:18px;">
+      Customer Support
+      <button (click)="showSupportModal=false" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <iframe src="https://forms.fillout.com/t/gCpDjSoZ3Gus" frameborder="0" style="width:100%;min-height:520px;border:none;"></iframe>
+  </div>
 </div>

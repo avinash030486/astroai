@@ -15,7 +15,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   stars: StarStyle[] = [];
   private observer!: IntersectionObserver;
-
+  showSupportModal = false;
   faqItems: FaqItem[] = [
     {
       question: 'What is Vedic astrology and how is it different from Western astrology?',

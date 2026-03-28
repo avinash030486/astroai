@@ -13,6 +13,7 @@ declare let gtag: Function;
 export class AppComponent implements OnInit {
   title = 'astroai-ui';
   year = new Date().getFullYear();
+  showSupportModal = false;
 
   constructor(
     public authService: AuthService,

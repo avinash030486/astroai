@@ -254,9 +254,16 @@ const HOUSES: HouseMeta[] = [
   },
 ];
 
-// Helper to build slug consistently
+// Helper to build slug consistently (correct English ordinals)
+function getOrdinalSuffix(n: number): string {
+  if (n === 1) return '1st';
+  if (n === 2) return '2nd';
+  if (n === 3) return '3rd';
+  return `${n}th`;
+}
+
 function createSlug(planet: PlanetName, house: number): string {
-  return `${planet.toLowerCase()}-in-${house}th-house`;
+  return `${planet.toLowerCase()}-in-${getOrdinalSuffix(house)}-house`;
 }
 
 function buildPlanetHouseData(): PlanetHouseData[] {

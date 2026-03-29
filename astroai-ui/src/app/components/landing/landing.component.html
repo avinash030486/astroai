@@ -65,9 +65,46 @@
         <div class="planet-item"><div class="planet-glyph">🌒</div><div class="planet-name">Ketu</div></div>
       </div>
       <div class="planets-cta">
-        <button class="btn btn-outline-light" routerLink="/planets">
+        <button class="btn btn-ghost" routerLink="/planets">
           See impact of each planet in all 12 houses
         </button>
+      </div>
+    </div>
+
+    <!-- ═══════════ NAKSHATRAS ═══════════ -->
+    <div class="nakshatras-section container reveal" [class.visible]="true">
+      <div class="nakshatras-label">27 Lunar Mansions · Nakshatras</div>
+      <div class="nakshatras-inner">
+        <div class="nakshatras-text">
+          <h2>What is your <em>birth star</em>?</h2>
+          <p>In Vedic astrology, your Janma Nakshatra — the lunar mansion the Moon occupied at your birth — reveals the texture of your mind, emotional instincts and soul's deepest nature. More intimate than a Sun sign, it is the true mirror of who you are inside.</p>
+          <div class="nakshatra-sample-row">
+            <span class="n-chip">☀️ Ashwini · Ketu</span>
+            <span class="n-chip">🌙 Rohini · Moon</span>
+            <span class="n-chip">🔴 Krittika · Sun</span>
+            <span class="n-chip">💚 Mrigashira · Mars</span>
+            <span class="n-chip">🟡 Punarvasu · Jupiter</span>
+            <span class="n-chip">⚪ Pushya · Saturn</span>
+            <span class="n-chip">🔵 Vishakha · Jupiter</span>
+          </div>
+          <button class="btn btn-gold btn-nakshatra" routerLink="/nakshatras">
+            Explore all 27 Nakshatras →
+          </button>
+        </div>
+        <div class="nakshatras-grid-preview">
+          <a class="n-preview-card" *ngFor="let n of [
+            {id:1,name:'Ashwini',range:'Aries 0°–13°'},
+            {id:4,name:'Rohini',range:'Taurus 10°–23°'},
+            {id:8,name:'Pushya',range:'Cancer 3°–16°'},
+            {id:10,name:'Magha',range:'Leo 0°–13°'},
+            {id:14,name:'Chitra',range:'Virgo 23°–Libra 6°'},
+            {id:22,name:'Shravana',range:'Capricorn 10°–23°'}
+          ]" [routerLink]="['/nakshatra', n.name.toLowerCase()]">
+            <span class="np-id">{{ n.id }}</span>
+            <span class="np-name">{{ n.name }}</span>
+            <span class="np-range">{{ n.range }}</span>
+          </a>
+        </div>
       </div>
     </div>
 

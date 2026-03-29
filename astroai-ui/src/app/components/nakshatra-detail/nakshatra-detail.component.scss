@@ -1,0 +1,366 @@
+﻿.nakshatra-detail {
+  min-height: 100vh;
+  background: #092A18;
+  color: #e5e7eb;
+}
+
+/* ── Hero ── */
+.n-hero {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(212, 169, 74, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(46, 138, 88, 0.28) 0%, transparent 55%),
+    #092A18;
+  padding: 36px 20px 52px;
+  border-bottom: 1px solid rgba(212, 169, 74, 0.15);
+
+  .btn-back {
+    background: rgba(9, 42, 24, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255,255,255,0.6);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: inline-block;
+    transition: color 0.2s, border-color 0.2s;
+
+    &:hover { color: #e5e7eb; border-color: rgba(212, 169, 74, 0.5); }
+  }
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.n-id-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(212, 169, 74, 0.18);
+  border: 1px solid rgba(212, 169, 74, 0.5);
+  color: #d4a94a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gana-badge {
+  font-size: 0.73rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  &.deva { background: rgba(96, 165, 250, 0.15); color: #93c5fd; border: 1px solid rgba(96, 165, 250, 0.3); }
+  &.manushya { background: rgba(167, 139, 250, 0.15); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.3); }
+  &.rakshasa { background: rgba(248, 113, 113, 0.15); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.3); }
+}
+
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: #f9fafb;
+  margin-bottom: 6px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.hero-range {
+  font-size: 0.88rem;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid;
+
+  &.planet { border-color: rgba(250, 204, 21, 0.35); color: #fde68a; background: rgba(250, 204, 21, 0.08); }
+  &.deity { border-color: rgba(167, 139, 250, 0.35); color: #c4b5fd; background: rgba(167, 139, 250, 0.08); }
+  &.symbol { border-color: rgba(212, 169, 74, 0.35); color: #d4a94a; background: rgba(212, 169, 74, 0.08); }
+  &.modality { border-color: rgba(52, 211, 153, 0.35); color: #6ee7b7; background: rgba(52, 211, 153, 0.08); }
+  &.element { border-color: rgba(56, 189, 248, 0.35); color: #7dd3fc; background: rgba(56, 189, 248, 0.08); }
+}
+
+.hero-summary {
+  max-width: 800px;
+  font-size: 1rem;
+  color: #d1d5db;
+  line-height: 1.7;
+}
+
+/* ── Content Area ── */
+.content-area {
+  max-width: 900px;
+  margin: 24px auto 48px;
+  position: relative;
+  padding: 0 20px;
+}
+
+.info-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+  p {
+    font-size: 0.93rem;
+    color: #d1d5db;
+    line-height: 1.7;
+    margin: 0;
+  }
+}
+
+.moon-card {
+  border-left: 3px solid rgba(212, 169, 74, 0.7);
+  background: linear-gradient(135deg, rgba(212, 169, 74, 0.06) 0%, rgba(9, 42, 24, 0.98) 100%);
+}
+
+.card-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(212, 169, 74, 0.9);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Two column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+.col-block {
+  .card-label { margin-bottom: 10px; }
+}
+
+/* Qualities */
+.qualities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.quality-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  line-height: 1.4;
+}
+
+.q-dot {
+  color: #d4a94a;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Compatible */
+.compat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compat-tag {
+  background: rgba(46, 138, 88, 0.18);
+  border: 1px solid rgba(46, 138, 88, 0.4);
+  color: #6ee7b7;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Remedies */
+.remedies-card {
+  border-left: 3px solid rgba(52, 211, 153, 0.6);
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.04) 0%, rgba(9, 42, 24, 0.98) 100%);
+}
+
+.remedy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    position: relative;
+    padding: 8px 0 8px 22px;
+    font-size: 0.92rem;
+    color: #d1d5db;
+    border-bottom: 1px solid rgba(9, 42, 24, 0.4);
+    line-height: 1.55;
+
+    &:last-child { border-bottom: none; }
+
+    &::before {
+      content: '🌿';
+      position: absolute;
+      left: 0;
+      font-size: 0.75rem;
+      top: 10px;
+    }
+  }
+}
+
+/* CTA Card */
+.cta-card {
+  background:
+    radial-gradient(circle at top left, rgba(212, 169, 74, 0.2), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(46, 138, 88, 0.2), transparent 55%),
+    rgba(9, 42, 24, 0.98);
+  border: 1px solid rgba(212, 169, 74, 0.35);
+  border-radius: 18px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 18px;
+
+  h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #f9fafb;
+    margin-bottom: 8px;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin-bottom: 18px;
+  }
+}
+
+.cta-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #d4a94a, #b8882e);
+  color: #092A18;
+  border: none;
+  border-radius: 999px;
+  padding: 11px 24px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.88; }
+}
+
+.btn-ghost {
+  background: rgba(9, 42, 24, 0.7);
+  border: 1px solid rgba(75, 85, 99, 0.8);
+  color: #9ca3af;
+  border-radius: 999px;
+  padding: 11px 24px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  &:hover { color: #e5e7eb; border-color: rgba(212, 169, 74, 0.5); }
+}
+
+/* Prev / Next navigation */
+.nav-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.nav-btn {
+  background: rgba(9, 42, 24, 0.97);
+  border: 1px solid rgba(9, 42, 24, 0.8);
+  border-radius: 14px;
+  padding: 14px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #e5e7eb;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: left;
+
+  &:hover {
+    border-color: rgba(212, 169, 74, 0.5);
+    background: rgba(212, 169, 74, 0.05);
+  }
+
+  &.next {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .nav-arrow {
+    font-size: 1.1rem;
+    color: #d4a94a;
+    flex-shrink: 0;
+  }
+
+  .nav-hint {
+    font-size: 0.72rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+
+  .nav-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+}
+
+/* Not found / loading */
+.not-found {
+  padding: 60px 20px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.btn-back {
+  background: rgba(9, 42, 24, 0.7);
+  border: 1px solid rgba(75, 85, 99, 0.8);
+  color: #9ca3af;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 16px;
+  &:hover { color: #e5e7eb; }
+}
+
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+@media (max-width: 640px) {
+  .two-col { grid-template-columns: 1fr; }
+  .nav-row { grid-template-columns: 1fr; }
+  .qualities-grid { grid-template-columns: 1fr; }
+}

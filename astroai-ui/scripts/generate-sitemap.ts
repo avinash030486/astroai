@@ -34,6 +34,10 @@ const planetHouses = planetHousesModule.PLANET_HOUSE_DATA || [];
 const planetSignsModule = require('../src/app/data/planet-signs.ts');
 const planetSigns = planetSignsModule.PLANET_SIGN_DATA || [];
 
+// Import nakshatras data
+const nakshatrasModule = require('../src/app/data/nakshatras.ts');
+const nakshatras = nakshatrasModule.NAKSHATRA_DATA || [];
+
 class SitemapGenerator {
   private baseUrl = 'https://vedicastro.app';
   private urls: SitemapUrl[] = [];
@@ -44,6 +48,7 @@ class SitemapGenerator {
     this.generateYogaPages();
     this.generatePlanetHousePages();
     this.generatePlanetSignPages();
+    this.generateNakshatraPages();
   }
 
   private generateStaticPages(): void {
@@ -143,6 +148,20 @@ class SitemapGenerator {
       changefreq,
       priority
     });
+  }
+
+  private generateNakshatraPages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // List page
+    this.addUrl('/nakshatras', today, 'monthly', 0.9);
+
+    // Individual nakshatra pages
+    nakshatras.forEach((n: any) => {
+      this.addUrl(`/nakshatra/${n.slug}`, today, 'monthly', 0.8);
+    });
+
+    console.log(`✅ Generated ${nakshatras.length + 1} nakshatra URLs (1 list + ${nakshatras.length} detail pages)`);
   }
 
   public generateXml(): string {

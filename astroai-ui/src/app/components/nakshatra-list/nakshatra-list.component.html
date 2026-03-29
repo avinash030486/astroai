@@ -1,0 +1,89 @@
+<div class="nakshatra-list-wrapper">
+
+  <!-- Hero -->
+  <div class="nlist-hero">
+    <div class="container">
+      <div class="pill-label">Vedic Birth Stars</div>
+      <h1>The 27 Nakshatras</h1>
+      <p class="subtitle">
+        In Vedic astrology, the Moon travels through 27 lunar mansions called Nakshatras. Your birth Nakshatra — the one the Moon occupied when you were born — reveals your mind, instincts and deepest soul nature.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Gana filter -->
+    <div class="filter-section">
+      <div class="filter-label">Filter by Gana (Nature)</div>
+      <div class="filter-row">
+        <button class="filter-btn" [class.active]="selectedGana === 'all' && selectedPlanet === 'all'"
+          (click)="setGana('all'); selectedPlanet = 'all'">
+          All 27
+        </button>
+        <button class="filter-btn deva" [class.active]="selectedGana === 'Deva'" (click)="setGana('Deva')">
+          ✨ Deva
+        </button>
+        <button class="filter-btn manushya" [class.active]="selectedGana === 'Manushya'" (click)="setGana('Manushya')">
+          🧑 Manushya
+        </button>
+        <button class="filter-btn rakshasa" [class.active]="selectedGana === 'Rakshasa'" (click)="setGana('Rakshasa')">
+          🔥 Rakshasa
+        </button>
+      </div>
+
+      <div class="filter-label" style="margin-top:16px">Filter by Ruling Planet</div>
+      <div class="filter-row">
+        <button class="filter-btn" [class.active]="selectedPlanet === 'all' && selectedGana === 'all'"
+          (click)="setPlanet('all'); selectedGana = 'all'">All</button>
+        <button class="filter-btn" *ngFor="let p of planets"
+          [class.active]="selectedPlanet === p"
+          (click)="setPlanet(p)">{{ p }}</button>
+      </div>
+    </div>
+
+    <!-- Count -->
+    <div class="result-count">Showing {{ displayed.length }} of 27 Nakshatras</div>
+
+    <!-- Grid -->
+    <div class="nakshatra-grid">
+      <div class="n-card" *ngFor="let n of displayed" (click)="view(n)">
+        <div class="n-card-top">
+          <div class="n-number">{{ n.id }}</div>
+          <div class="n-gana-badge" [class]="n.gana.toLowerCase()">{{ n.gana }}</div>
+        </div>
+        <h3 class="n-name">{{ n.name }}</h3>
+        <div class="n-range">{{ n.zodiacRange }}</div>
+        <div class="n-meta-row">
+          <span class="n-meta-pill planet">🌟 {{ n.rulingPlanet }}</span>
+          <span class="n-meta-pill deity">{{ n.symbol }}</span>
+        </div>
+        <p class="n-summary">{{ n.summary | slice:0:120 }}…</p>
+        <div class="n-qualities">
+          <span class="quality-tag" *ngFor="let q of n.qualities.slice(0,3)">{{ q }}</span>
+        </div>
+        <button class="n-read-more">Deep dive <span>→</span></button>
+      </div>
+    </div>
+
+    <!-- SEO Block -->
+    <div class="seo-block">
+      <h2>What is a Nakshatra?</h2>
+      <p>
+        The Nakshatra system divides the 360° zodiac into 27 equal parts of 13°20′ each, corresponding to the Moon's daily movement through the sky.
+        Each Nakshatra is a lunar mansion with its own presiding deity, ruling planet, symbol and unique energy field.
+        While the Sun sign (Rashi) describes your outer personality, the Nakshatra of your natal Moon reveals the texture of your mind,
+        emotional instincts and subconscious patterns — the most intimate layer of your Vedic chart.
+      </p>
+      <p>
+        Finding your Janma Nakshatra (birth star) and understanding its deity, qualities and remedies gives you a practical map
+        for navigating relationships, career timing and spiritual practice in alignment with your cosmic nature.
+      </p>
+      <div class="seo-cta">
+        <span>Discover your Nakshatra in your full birth chart</span>
+        <button class="btn-gold" routerLink="/birth-chart">Get My Birth Chart →</button>
+      </div>
+    </div>
+
+  </div>
+</div>

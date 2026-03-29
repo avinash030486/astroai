@@ -182,6 +182,38 @@
   .planet-item { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0; }
   .planet-glyph { width: 36px; height: 36px; border-radius: 50%; background: rgba(212,169,74,.13); border: 1px solid rgba(212,169,74,.30); display: flex; align-items: center; justify-content: center; font-size: 16px; }
   .planet-name { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,.20) !important; }
+  .planets-cta { display: flex; justify-content: center; margin-top: 24px; button { max-width: 360px; width: 100%; } }
+
+  /* ── NAKSHATRAS ── */
+  .nakshatras-section { padding: 40px 0 56px; }
+  .nakshatras-label { text-align: center; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.20) !important; margin-bottom: 28px; }
+  .nakshatras-inner { display: flex; flex-direction: column; gap: 28px; }
+  .nakshatras-text {
+    h2 { font-family: 'Cormorant Garamond', serif !important; font-size: 30px; font-weight: 400; color: #fff !important; margin-bottom: 14px; line-height: 1.2;
+      em { color: #ECC76A !important; font-style: italic; } }
+    p { font-size: 13px; color: rgba(255,255,255,.55) !important; line-height: 1.7; margin-bottom: 20px; }
+  }
+  .nakshatra-sample-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .n-chip {
+    display: inline-block; padding: 5px 12px; border-radius: 20px;
+    background: rgba(212,169,74,.10); border: 1px solid rgba(212,169,74,.25);
+    font-size: 11px; color: rgba(255,255,255,.70) !important; letter-spacing: .4px;
+    white-space: nowrap;
+    &:hover { background: rgba(212,169,74,.20); border-color: rgba(212,169,74,.5); color: #ECC76A !important; }
+  }
+  .btn-nakshatra { width: 100%; max-width: 280px; }
+  .nakshatras-grid-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .n-preview-card {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 14px 10px 12px; border-radius: 14px; cursor: pointer; text-decoration: none !important;
+    background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.08);
+    transition: border-color .2s, background .2s;
+    text-align: center;
+    &:hover { border-color: rgba(212,169,74,.35); background: rgba(212,169,74,.07); }
+  }
+  .np-id { font-family: 'Cormorant Garamond', serif !important; font-size: 18px; font-weight: 300; color: rgba(212,169,74,.6) !important; line-height: 1; }
+  .np-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.85) !important; }
+  .np-range { font-size: 9px; color: rgba(255,255,255,.35) !important; letter-spacing: .3px; }
 
   /* ── FEATURES ── */
   .section { padding: 64px 0; }

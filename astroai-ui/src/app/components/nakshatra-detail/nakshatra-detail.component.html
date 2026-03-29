@@ -1,0 +1,130 @@
+<div class="nakshatra-detail" *ngIf="!loading">
+
+  <!-- Not found -->
+  <div *ngIf="notFound" class="container not-found">
+    <h2>Nakshatra not found</h2>
+    <button class="btn-back" (click)="goBack()">← Back to Nakshatras</button>
+  </div>
+
+  <div *ngIf="nakshatra && !notFound">
+
+    <!-- ── Hero ── -->
+    <div class="n-hero">
+      <div class="container">
+        <button class="btn-back" (click)="goBack()">← All Nakshatras</button>
+
+        <div class="hero-top">
+          <div class="n-id-circle">{{ nakshatra.id }}</div>
+          <div class="gana-badge" [class]="nakshatra.gana.toLowerCase()">{{ nakshatra.gana }}</div>
+        </div>
+
+        <h1>{{ nakshatra.name }} Nakshatra</h1>
+        <div class="hero-range">{{ nakshatra.zodiacRange }} · {{ nakshatra.zodiacSign }}</div>
+
+        <div class="hero-badges">
+          <span class="badge planet">🌟 {{ nakshatra.rulingPlanet }} · {{ nakshatra.rulingPlanetSanskrit }}</span>
+          <span class="badge deity">🙏 {{ nakshatra.deity }}</span>
+          <span class="badge symbol">✦ {{ nakshatra.symbol }}</span>
+          <span class="badge modality">{{ nakshatra.modality }}</span>
+          <span class="badge element">{{ nakshatra.element }}</span>
+        </div>
+
+        <p class="hero-summary">{{ nakshatra.summary }}</p>
+      </div>
+    </div>
+
+    <!-- ── Content ── -->
+    <div class="container content-area">
+
+      <!-- Moon Sign Meaning -->
+      <section class="info-card moon-card">
+        <div class="card-label">🌙 Moon in {{ nakshatra.name }}</div>
+        <p>{{ nakshatra.moonSignMeaning }}</p>
+      </section>
+
+      <!-- Qualities -->
+      <section class="info-card">
+        <div class="card-label">⚡ Core Qualities</div>
+        <div class="qualities-grid">
+          <div class="quality-item" *ngFor="let q of nakshatra.qualities">
+            <span class="q-dot">▸</span>{{ q }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Career & Relationships -->
+      <section class="info-card two-col">
+        <div class="col-block">
+          <div class="card-label">💼 Career & Vocation</div>
+          <p>{{ nakshatra.career }}</p>
+        </div>
+        <div class="col-block">
+          <div class="card-label">❤️ Relationships</div>
+          <p>{{ nakshatra.relationships }}</p>
+        </div>
+      </section>
+
+      <!-- Health & Spiritual -->
+      <section class="info-card two-col">
+        <div class="col-block">
+          <div class="card-label">🏥 Health Themes</div>
+          <p>{{ nakshatra.health }}</p>
+        </div>
+        <div class="col-block">
+          <div class="card-label">🕉️ Spiritual Path</div>
+          <p>{{ nakshatra.spiritual }}</p>
+        </div>
+      </section>
+
+      <!-- Compatible Nakshatras -->
+      <section class="info-card">
+        <div class="card-label">🔗 Compatible Nakshatras</div>
+        <div class="compat-row">
+          <span class="compat-tag" *ngFor="let c of nakshatra.compatibleNakshatras">{{ c }}</span>
+        </div>
+      </section>
+
+      <!-- Remedies -->
+      <section class="info-card remedies-card">
+        <div class="card-label">🌿 Vedic Remedies</div>
+        <ul class="remedy-list">
+          <li *ngFor="let r of nakshatra.remedies">{{ r }}</li>
+        </ul>
+      </section>
+
+      <!-- CTA -->
+      <div class="cta-card">
+        <h3>Discover Your Janma Nakshatra</h3>
+        <p>Your full Vedic birth chart reveals your exact Nakshatra, Dasha period, planetary positions and personalised guidance.</p>
+        <div class="cta-btns">
+          <button class="btn-gold" (click)="goBirthChart()">Get My Birth Chart</button>
+          <button class="btn-ghost" (click)="goBack()">← All Nakshatras</button>
+        </div>
+      </div>
+
+      <!-- Prev / Next -->
+      <div class="nav-row">
+        <button class="nav-btn prev" *ngIf="prevNakshatra" (click)="goToNakshatra(prevNakshatra.slug)">
+          <span class="nav-arrow">←</span>
+          <span>
+            <div class="nav-hint">Previous</div>
+            <div class="nav-name">{{ prevNakshatra.name }}</div>
+          </span>
+        </button>
+        <div *ngIf="!prevNakshatra"></div>
+        <button class="nav-btn next" *ngIf="nextNakshatra" (click)="goToNakshatra(nextNakshatra.slug)">
+          <span>
+            <div class="nav-hint">Next</div>
+            <div class="nav-name">{{ nextNakshatra.name }}</div>
+          </span>
+          <span class="nav-arrow">→</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading-wrap">
+  <div class="spinner-border"></div>
+</div>

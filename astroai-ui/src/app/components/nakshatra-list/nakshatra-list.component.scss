@@ -1,0 +1,278 @@
+﻿.nakshatra-list-wrapper {
+  min-height: 100vh;
+  background: #092A18;
+  color: #e5e7eb;
+}
+
+/* ── Hero ── */
+.nlist-hero {
+  background:
+    radial-gradient(ellipse at top left, rgba(212, 169, 74, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse at bottom right, rgba(79, 70, 229, 0.3) 0%, transparent 60%),
+    #092A18;
+  padding: 56px 20px 48px;
+  text-align: center;
+  border-bottom: 1px solid rgba(212, 169, 74, 0.15);
+
+  .pill-label {
+    display: inline-block;
+    background: rgba(212, 169, 74, 0.15);
+    border: 1px solid rgba(212, 169, 74, 0.4);
+    color: #d4a94a;
+    border-radius: 999px;
+    padding: 5px 16px;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: #f9fafb;
+    margin-bottom: 14px;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .subtitle {
+    max-width: 700px;
+    margin: 0 auto;
+    color: #d1d5db;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+}
+
+/* ── Filters ── */
+.filter-section {
+  padding: 28px 0 8px;
+}
+
+.filter-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(212, 169, 74, 0.8);
+  margin-bottom: 10px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  background: rgba(9, 42, 24, 0.85);
+  border: 1px solid rgba(9, 42, 24, 0.8);
+  color: #9ca3af;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: rgba(212, 169, 74, 0.5);
+    color: #e5e7eb;
+  }
+
+  &.active {
+    background: rgba(212, 169, 74, 0.2);
+    border-color: #d4a94a;
+    color: #d4a94a;
+    font-weight: 600;
+  }
+
+  &.deva.active { border-color: #60a5fa; color: #60a5fa; background: rgba(96, 165, 250, 0.12); }
+  &.manushya.active { border-color: #a78bfa; color: #a78bfa; background: rgba(167, 139, 250, 0.12); }
+  &.rakshasa.active { border-color: #f87171; color: #f87171; background: rgba(248, 113, 113, 0.12); }
+}
+
+.result-count {
+  font-size: 0.82rem;
+  color: #6b7280;
+  margin: 18px 0 14px;
+}
+
+/* ── Grid ── */
+.nakshatra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  padding-bottom: 40px;
+}
+
+.n-card {
+  background: rgba(9, 42, 24, 0.97);
+  border: 1px solid rgba(9, 42, 24, 0.9);
+  border-radius: 18px;
+  padding: 20px 20px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.18s, box-shadow 0.18s;
+
+  &:hover {
+    border-color: rgba(212, 169, 74, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.n-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.n-number {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(212, 169, 74, 0.18);
+  border: 1px solid rgba(212, 169, 74, 0.4);
+  color: #d4a94a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.n-gana-badge {
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &.deva { background: rgba(96, 165, 250, 0.15); color: #93c5fd; border: 1px solid rgba(96, 165, 250, 0.3); }
+  &.manushya { background: rgba(167, 139, 250, 0.15); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.3); }
+  &.rakshasa { background: rgba(248, 113, 113, 0.15); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.3); }
+}
+
+.n-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #f9fafb;
+  margin-bottom: 2px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.n-range {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.n-meta-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.n-meta-pill {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+
+  &.planet { border-color: rgba(250, 204, 21, 0.35); color: #fde68a; background: rgba(250, 204, 21, 0.08); }
+  &.deity { border-color: rgba(167, 139, 250, 0.3); color: #c4b5fd; background: rgba(167, 139, 250, 0.08); }
+}
+
+.n-summary {
+  font-size: 0.88rem;
+  color: #9ca3af;
+  line-height: 1.55;
+  margin-bottom: 12px;
+}
+
+.n-qualities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.quality-tag {
+  font-size: 0.72rem;
+  background: rgba(9, 42, 24, 0.7);
+  border: 1px solid rgba(75, 85, 99, 0.8);
+  color: #d1d5db;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.n-read-more {
+  background: none;
+  border: none;
+  color: #d4a94a;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  span { transition: transform 0.2s; }
+  &:hover span { transform: translateX(4px); }
+}
+
+/* ── SEO Block ── */
+.seo-block {
+  max-width: 780px;
+  margin: 20px auto 48px;
+  padding: 28px;
+  background: rgba(9, 42, 24, 0.97);
+  border-radius: 18px;
+  border: 1px solid rgba(9, 42, 24, 0.9);
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #f9fafb;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  p {
+    font-size: 0.92rem;
+    color: #9ca3af;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+}
+
+.seo-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(9, 42, 24, 0.6);
+  font-size: 0.88rem;
+  color: #6b7280;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #d4a94a, #b8882e);
+  color: #092A18;
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover { opacity: 0.9; }
+}
+
+@media (max-width: 640px) {
+  .nakshatra-grid { grid-template-columns: 1fr; }
+}

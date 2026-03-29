@@ -28,6 +28,8 @@ import { PlanetHouseListComponent } from './components/planet-house-list/planet-
 import { PlanetHouseDetailComponent } from './components/planet-house-detail/planet-house-detail.component';
 import { PlanetSignListComponent } from './components/planet-sign-list/planet-sign-list.component';
 import { PlanetSignDetailComponent } from './components/planet-sign-detail/planet-sign-detail.component';
+import { NakshatraListComponent } from './components/nakshatra-list/nakshatra-list.component';
+import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatra-detail.component';
 const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
@@ -58,6 +60,8 @@ const routes: Routes = [
   { path: 'planet/:slug', component: PlanetHouseDetailComponent },
   { path: 'planet-signs', component: PlanetSignListComponent },
   { path: 'planet-sign/:slug', component: PlanetSignDetailComponent },
+  { path: 'nakshatras', component: NakshatraListComponent },
+  { path: 'nakshatra/:slug', component: NakshatraDetailComponent },
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

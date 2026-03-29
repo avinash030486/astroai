@@ -36,6 +36,8 @@ import { PlanetHouseListComponent } from './components/planet-house-list/planet-
 import { PlanetHouseDetailComponent } from './components/planet-house-detail/planet-house-detail.component';
 import { PlanetSignListComponent } from './components/planet-sign-list/planet-sign-list.component';
 import { PlanetSignDetailComponent } from './components/planet-sign-detail/planet-sign-detail.component';
+import { NakshatraListComponent } from './components/nakshatra-list/nakshatra-list.component';
+import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatra-detail.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -66,7 +68,9 @@ import { PlanetSignDetailComponent } from './components/planet-sign-detail/plane
     PlanetHouseListComponent,
     PlanetHouseDetailComponent,
     PlanetSignListComponent,
-    PlanetSignDetailComponent
+    PlanetSignDetailComponent,
+    NakshatraListComponent,
+    NakshatraDetailComponent
   ],
   imports: [
     BrowserModule,

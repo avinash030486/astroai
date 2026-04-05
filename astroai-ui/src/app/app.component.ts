@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd, Event } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
+import { AnalyticsService } from './services/analytics.service';
+import { ReferralService } from './services/referral.service';
 
 declare let gtag: Function;
 
@@ -17,8 +19,11 @@ export class AppComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private router: Router
+    private router: Router,
+    private analytics: AnalyticsService,
+    private referral: ReferralService
   ) {
+    this.referral.checkReferralInUrl();
     console.log('🚀 AppComponent initialized, AuthService injected');
 
     // ✅ Google Analytics route tracking
@@ -37,6 +42,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('📱 AppComponent ngOnInit');
+    this.analytics.init();
 
     setTimeout(() => {
       const session = this.authService.getCurrentSession();

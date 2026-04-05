@@ -272,6 +272,11 @@ export class AuthService {
     }
   }
 
+  // Expose Supabase client for DB services
+  getClient(): SupabaseClient {
+    return this.supabase;
+  }
+
   // Method to log current token details
   logCurrentTokenDetails(): void {
     const session = this.getCurrentSession();

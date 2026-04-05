@@ -6,6 +6,7 @@ import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { SeoFocusService } from '../../services/seo-focus.service';
 declare const Stripe: any;
 
 @Component({
@@ -66,10 +67,18 @@ export class MatchmakingComponent implements OnInit, OnDestroy {
     private horoscope: HoroscopeService,
     private payments: PaymentService,
     private currencyService: CurrencyService,
-    private router: Router
+    private router: Router,
+    private seo: SeoFocusService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Vedic Kundali Milan — Free Matchmaking & Compatibility Report',
+      description: 'Check Vedic compatibility between two people — Kundali Milan, Ashtakoot score, Guna matching, Mangalik check & AI-powered relationship analysis.',
+      keywords: 'kundali milan, matchmaking, vedic compatibility, guna matching, ashtakoot, marriage compatibility, mangalik, vedic matchmaking, horoscope matching',
+      canonical: '/matchmaking'
+    });
+
     // Check if user has already paid
     const paidStatus = sessionStorage.getItem('astroai_matchmaking_paid');
     this.hasPaid = paidStatus === 'true';

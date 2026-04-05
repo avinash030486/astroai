@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { SeoFocusService } from '../../services/seo-focus.service';
 
 const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const SIGN_EMOJIS: Record<string, string> = {
@@ -73,10 +74,17 @@ export class TransitAlertsComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private seo: SeoFocusService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Vedic Transit Alerts — Live Planetary Positions & Zodiac Impact',
+      description: 'Track real-time planetary transits with Vedic astrology insights. See how Saturn, Jupiter, Rahu & other planets affect your zodiac sign today.',
+      keywords: 'vedic transit alerts, planetary transits, saturn transit, jupiter transit, rahu ketu transit, sidereal transits, jyotish transits, zodiac impact',
+      canonical: '/transit-alerts'
+    });
     this.loadSummaries();
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const sign = params.get('sign');

@@ -6,6 +6,7 @@ import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { SeoFocusService } from '../../services/seo-focus.service';
 
 declare const Stripe: any;
 
@@ -74,10 +75,18 @@ export class GemstoneEngineComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private horoscope: HoroscopeService,
     private payments: PaymentService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private seo: SeoFocusService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Vedic Gemstone Recommendations — Ratna by Birth Chart',
+      description: 'Get personalised Vedic gemstone recommendations based on your birth chart. Find your lucky Ratna — Ruby, Emerald, Diamond, Blue Sapphire & more.',
+      keywords: 'vedic gemstone, ratna, gemstone recommendation, jyotish ratna, lucky gemstone, ruby astrology, emerald astrology, blue sapphire astrology, birthstone vedic',
+      canonical: '/gemstone-engine'
+    });
+
     if (typeof Stripe !== 'undefined') {
       this.stripe = Stripe('pk_live_51SkYakPpSmZFXw4WZvXp8z7nLyOJmZReFnCtSqUnolgOWoDInuY8FhcJ0HRdbU5pKr3PLFSAj1ACkyktccWcdWmI00WrSAKFpD');
     }

@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse, PlaceSuggestion } from '../../services/horoscope.service';
 import { PredictionsService, BasicChartPredictionResponse, DetailedChartPredictionResponse } from '../../services/predictions.service';
@@ -9,6 +10,8 @@ import jsPDF from 'jspdf';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, filter, takeUntil } from 'rxjs/operators';
+import { SeoFocusService } from '../../services/seo-focus.service';
+import { ProfileService } from '../../services/profile.service';
 
 declare const Stripe: any;
 
@@ -24,7 +27,10 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     private horoscope: HoroscopeService,
     private predictions: PredictionsService,
     private payments: PaymentService,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private route: ActivatedRoute,
+    private seo: SeoFocusService,
+    private profileService: ProfileService
   ) {}
 
   form = this.fb.group({
@@ -98,6 +104,23 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Free Vedic Birth Chart — Kundli, Rashi & Lagna Analysis',
+      description: 'Generate your free Vedic birth chart (Kundli). Get lagna, rashi, nakshatra, planetary positions, Dasha periods, Yogas & AI-powered Jyotish predictions.',
+      keywords: 'vedic birth chart, kundli, kundali, rashi chart, lagna, ascendant, nakshatra, sidereal birth chart, free kundli, jyotish birth chart, planetary positions',
+      canonical: '/birth-chart'
+    });
+
+    // Pre-fill form from dashboard / query params
+    const qp = this.route.snapshot.queryParams;
+    if (qp['dob'] || qp['tob'] || qp['place']) {
+      this.form.patchValue({
+        birthDate:  qp['dob']   || '',
+        birthTime:  qp['tob']   || '',
+        birthPlace: qp['place'] || ''
+      });
+    }
+
     // Check if user has purchased QNA plan
     const qnaPlan = sessionStorage.getItem('astroai_qna_plan');
     const qnaRemaining = sessionStorage.getItem('astroai_qna_remaining');
@@ -205,6 +228,18 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.chart = res;
         this.loading = false;
+        // Auto-save to Supabase dashboard
+        const fv = this.form.value;
+        this.profileService.saveChart({
+          label: `${(fv.birthPlace || '').toString().split(',')[0].trim()} — ${fv.birthDate}`,
+          date_of_birth: (fv.birthDate || '').toString(),
+          time_of_birth: birthTime,
+          birth_place: (fv.birthPlace || '').toString(),
+          chart_data: res,
+          is_primary: false
+        }).then(saved => {
+          if (saved) console.log('Birth chart saved to dashboard:', saved.id);
+        });
       },
       error: (err) => {
         this.error = 'Failed to generate chart. Please try again.';

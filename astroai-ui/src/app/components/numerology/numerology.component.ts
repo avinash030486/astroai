@@ -5,6 +5,7 @@ import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { SeoFocusService } from '../../services/seo-focus.service';
 
 declare const Stripe: any;
 
@@ -58,10 +59,18 @@ export class NumerologyComponent implements OnInit, OnDestroy {
     private horoscopeService: HoroscopeService,
     private payments: PaymentService,
     private currencyService: CurrencyService,
-    private router: Router
+    private router: Router,
+    private seo: SeoFocusService
   ) { }
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Vedic Numerology Report — Life Path, Soul & Destiny Numbers',
+      description: 'Discover your Vedic numerology profile — life path number, soul urge, destiny & personality numbers with Chaldean & Pythagorean analysis.',
+      keywords: 'vedic numerology, numerology report, life path number, soul urge number, destiny number, chaldean numerology, pythagorean numerology, name numerology',
+      canonical: '/numerology'
+    });
+
     // Check if user has already paid
     const paidStatus = sessionStorage.getItem('astroai_numerology_paid');
     this.hasPaid = paidStatus === 'true';

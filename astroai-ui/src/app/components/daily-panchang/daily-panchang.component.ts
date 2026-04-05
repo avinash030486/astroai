@@ -51,8 +51,12 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
         
         if (this.cityData) {
           // Set SEO for city-specific page
-          this.seoFocus.setTitle(`Daily Panchang for ${this.cityData.city}, ${this.cityData.state} - Vedic Calendar`);
-          this.seoFocus.setDescription(`Today's tithi, nakshatra, yoga, and auspicious timings for ${this.cityData.city}, ${this.cityData.state}. Accurate Vedic Panchang calculations.`);
+          this.seoFocus.setPage({
+            title: `Daily Panchang for ${this.cityData.city}, ${this.cityData.state} — Tithi, Nakshatra & Muhurat`,
+            description: `Today's Vedic Panchang for ${this.cityData.city}, ${this.cityData.state} — Tithi, Nakshatra, Yoga, Karana, Rahu Kalam & auspicious Muhurats. Free Jyotish calendar.`,
+            keywords: `panchang ${this.cityData.city.toLowerCase()}, daily panchang ${this.cityData.state.toLowerCase()}, tithi today ${this.cityData.city.toLowerCase()}, muhurat ${this.cityData.city.toLowerCase()}`,
+            canonical: `/panchang/${citySlug}`
+          });
           
           // Parse date parameter
           const targetDate = this.parseDateParam(dateParam);
@@ -65,8 +69,12 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
         }
       } else {
         // Regular panchang page
-        this.seoFocus.setTitle('Daily Panchang - AstroAI Vedic Calendar');
-        this.seoFocus.setDescription('Get today\'s tithi, nakshatra, yogas and auspicious periods for your location with the AstroAI Daily Panchang.');
+        this.seoFocus.setPage({
+          title: 'Free Daily Panchang — Tithi, Nakshatra, Yoga & Muhurat',
+          description: 'Get today\'s Vedic Panchang — Tithi, Nakshatra, Yoga, Karana, Vara, Rahu Kalam & auspicious Muhurats for your location. Free Jyotish calendar.',
+          keywords: 'daily panchang, vedic panchang, tithi today, nakshatra today, rahu kalam, muhurat today, vedic calendar, auspicious time, jyotish almanac',
+          canonical: '/daily-panchang'
+        });
         
         // Auto-fetch on page load using browser location when available
         this.getBrowserLocation(true);

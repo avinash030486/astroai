@@ -14,8 +14,9 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
     private readonly string _endpoint;
     private readonly string _apiKey;
     private readonly string _model;
+    private readonly IEphemerisService _ephemeris;
 
-    public GptAstrologyService(IHttpClientFactory httpFactory, IOptions<AstroAiSettings> options)
+    public GptAstrologyService(IHttpClientFactory httpFactory, IOptions<AstroAiSettings> options, IEphemerisService ephemeris)
     {
         _http = httpFactory.CreateClient();
         // Premium detailed predictions may run longer; lift timeout to 240 seconds
@@ -24,6 +25,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
         _endpoint = s.OpenAIEndpoint;
         _apiKey = s.OpenAIApiKey;
         _model = string.IsNullOrWhiteSpace(s.ModelId) ? "gpt-5.1" : s.ModelId;
+        _ephemeris = ephemeris;
     }
 
     public Task<string> GenerateNatalReadingAsync(string fullName, DateOnly birthDate, TimeOnly birthTime, string birthPlace, string focusArea, CancellationToken ct)

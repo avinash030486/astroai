@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PredictionsService, DailyPredictionsResponse, DailyPrediction } from '../../services/predictions.service';
 import { Router } from '@angular/router';
+import { SeoFocusService } from '../../services/seo-focus.service';
 interface ZodiacTile extends DailyPrediction {
   symbol: string;
 }
@@ -27,11 +28,19 @@ export class DailyPredictionComponent implements OnInit {
     Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓'
   };
 
-  constructor(private predictions: PredictionsService,
-    private router: Router
+  constructor(
+    private predictions: PredictionsService,
+    private router: Router,
+    private seo: SeoFocusService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Daily Vedic Horoscope — All 12 Zodiac Signs Today',
+      description: 'Read today\'s Vedic horoscope for all 12 zodiac signs — Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra, Scorpio, Sagittarius, Capricorn, Aquarius & Pisces.',
+      keywords: 'daily horoscope, vedic horoscope today, daily astrology, zodiac predictions, aries horoscope, taurus horoscope, gemini horoscope, cancer horoscope, leo horoscope',
+      canonical: '/daily-prediction'
+    });
     this.fetchDaily();
   }
 

@@ -8,26 +8,78 @@ header { position: sticky; top: 0; z-index: 1030; }
   max-width: 200px;
 }
 
-// Add separators between menu items
-.navbar-nav .nav-item:not(:last-child) {
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+// ─── Remove the old per-item separators (replaced by groups) ──────────────
+.navbar-nav .nav-item {
+  border-right: none !important;
+  border-bottom: none !important;
 }
 
-@media (max-width: 991px) {
-  .navbar-nav .nav-item:not(:last-child) {
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+// ─── Dropdown styling ─────────────────────────────────────────────────────
+.nav-dropdown .dropdown-toggle::after {
+  margin-left: 4px;
+  vertical-align: 0.2em;
+  border-top-color: rgba(255,255,255,0.55);
+}
+
+.nav-dd-menu {
+  background: #0D3320 !important;
+  border: 1px solid rgba(212, 169, 74, 0.2) !important;
+  border-radius: 10px !important;
+  padding: 6px !important;
+  min-width: 190px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45) !important;
+
+  .dropdown-item {
+    color: rgba(255,255,255,0.8) !important;
+    border-radius: 7px;
+    padding: 8px 14px;
+    font-size: 14px;
+    transition: background 0.15s;
+
+    &:hover, &:focus {
+      background: rgba(212, 169, 74, 0.12) !important;
+      color: #ECC76A !important;
+    }
+  }
+
+  // Subtle divider between groups
+  li + li { margin-top: 1px; }
+}
+
+// Desktop: show dropdown on hover too
+@media (min-width: 992px) {
+  .nav-dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
   }
 }
 
-/* Responsive logo sizing */
-@media (max-width: 768px) {
-  .navbar-logo { height: 40px; }
+// ─── Dashboard pill button ─────────────────────────────────────────────────
+.nav-dashboard-btn {
+  margin-left: 6px;
 }
 
-@media (max-width: 576px) {
-  .navbar-logo { height: 35px; }
+.nav-link-dashboard {
+  background: rgba(212, 169, 74, 0.15) !important;
+  border: 1px solid rgba(212, 169, 74, 0.4) !important;
+  border-radius: 20px !important;
+  color: #ECC76A !important;
+  padding: 5px 14px !important;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(212, 169, 74, 0.28) !important;
+    border-color: #ECC76A !important;
+  }
 }
+
+@media (max-width: 991px) {
+  .nav-dashboard-btn { margin-left: 0; margin-top: 4px; }
+  .nav-link-dashboard { display: inline-block; }
+}
+
 
 // Make the app fill full height so footer always sticks to bottom
 :host, body, html {

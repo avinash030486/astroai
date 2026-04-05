@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, Renderer2, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
+import { SeoFocusService } from '../../services/seo-focus.service';
 
 interface StarStyle { style: string; }
 interface FaqItem { question: string; answer: string; open: boolean; }
@@ -54,9 +55,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   ];
 
-  constructor(private router: Router, private renderer: Renderer2) {}
+  constructor(private router: Router, private renderer: Renderer2, private seo: SeoFocusService) {}
 
   ngOnInit(): void {
+    this.seo.setPage({
+      title: 'VedicAstro — Free Vedic Astrology, Birth Chart, Panchang & Daily Horoscope',
+      description: 'Free Vedic astrology app — get your birth chart, daily horoscope, Panchang, nakshatra, numerology, matchmaking & transit alerts. Accurate Jyotish predictions powered by AI.',
+      keywords: 'vedic astrology, jyotish, birth chart, kundli, free horoscope, panchang, nakshatra, numerology, matchmaking, kundali milan, transit alerts, muhurat, daily horoscope, sidereal astrology',
+      canonical: '/'
+    });
     // Generate stars
     for (let i = 0; i < 50; i++) {
       const sz = (Math.random() * 2 + 0.7).toFixed(1);

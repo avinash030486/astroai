@@ -43,6 +43,39 @@ public sealed partial class GptAstrologyService
         };
     }
 
+    private static readonly string[] SiderealSignNames =
+    {
+        "Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+        "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
+    };
+
+    private static string LonToSign(double siderealDeg)
+    {
+        siderealDeg = ((siderealDeg % 360) + 360) % 360;
+        return SiderealSignNames[(int)(siderealDeg / 30)];
+    }
+
+    /// <summary>
+    /// Computes real-time Vedic sidereal positions via Swiss Ephemeris + Lahiri ayanamsha
+    /// and returns a formatted block for injection into GPT prompts.
+    /// </summary>
+    private async Task<string> BuildVedicPositionsBlockAsync(DateTime utc, CancellationToken ct)
+    {
+        var tropical = await _ephemeris.GetTropicalLongitudesAsync(utc, ct);
+        double ayanamsha = AyanamshaCalculator.ComputeKpAyanamshaDegrees(utc);
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("CURRENT VEDIC SIDEREAL PLANETARY POSITIONS (computed via Swiss Ephemeris + Lahiri ayanamsha — use these exactly, do NOT override):");
+        foreach (var planet in new[] { "Sun", "Moon", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Rahu", "Ketu" })
+        {
+            if (!tropical.TryGetValue(planet, out double tropLon)) continue;
+            double siderealLon = ((tropLon - ayanamsha) % 360 + 360) % 360;
+            string sign = LonToSign(siderealLon);
+            double degInSign = siderealLon % 30;
+            sb.AppendLine($"- {planet}: {sign} ({degInSign:F1}\u00b0 in sign)");
+        }
+        return sb.ToString().TrimEnd();
+    }
+
     public async Task<IReadOnlyList<ZodiacTransitSummary>> GetAllZodiacSummariesAsync(CancellationToken ct)
     {
         ValidateConfig();
@@ -50,17 +83,12 @@ public sealed partial class GptAstrologyService
         var today = DateTime.UtcNow;
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
+        var vedicPositions = await BuildVedicPositionsBlockAsync(today, ct);
         var user = $@"Today is {today:MMMM dd, yyyy}.
 
-CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly):
-- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
-- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
-- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
-- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
-- Sun: {GetSunSign(today)} (based on date)
-For fast-moving planets (Moon, Mercury, Venus, Mars), compute approximate positions based on today's date.
+{vedicPositions}
 
-For each of the 12 Vedic zodiac signs, provide a brief 1-sentence transit summary based on the above confirmed planetary positions (treated as moon signs).
+For each of the 12 Vedic zodiac signs, provide a brief 1-sentence transit summary based on the above computed planetary positions (treated as moon signs).
 Return STRICT JSON:
 {{
   ""summaries"": [
@@ -122,16 +150,11 @@ Include all 12 signs in order: Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra,
         var today = DateTime.UtcNow;
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
+        var vedicPositions = await BuildVedicPositionsBlockAsync(today, ct);
         var user = $@"Today is {today:MMMM dd, yyyy}. Provide a comprehensive Vedic transit report for {zodiacSign} moon sign.
 
-CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly — do NOT override):
-- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
-- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
-- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
-- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
-- Sun: {GetSunSign(today)} (based on date)
-For Moon, Mercury, Venus, Mars — compute approximate Vedic positions based on today's date {today:MMMM dd, yyyy}.
-All 'transitSign' fields in currentTransits MUST reflect the above verified positions for Saturn, Jupiter, Rahu, Ketu.
+{vedicPositions}
+All 'transitSign' fields in currentTransits MUST exactly match the above computed positions.
 
 Return STRICT JSON exactly matching this structure:
 {{
@@ -281,15 +304,11 @@ weeklyForecast must have exactly 7 entries (Monday through Sunday for the curren
         var today = DateTime.UtcNow;
 
         var system = "You are an expert Vedic astrologer. Return STRICT JSON only, no prose outside JSON.";
+        var vedicPositions = await BuildVedicPositionsBlockAsync(today, ct);
         var user = $@"Today is {today:MMMM dd, yyyy}. Provide a monthly Vedic transit forecast for {zodiacSign} moon sign for {today:MMMM yyyy}.
 
-CURRENT VEDIC PLANETARY POSITIONS (verified, use these exactly):
-- Saturn: Pisces (transiting Pisces since March 2025, until early 2027)
-- Jupiter: Gemini (retrograde back in Gemini, turns direct ~April 2026)
-- Rahu (North Node): Aquarius (transiting Aquarius until Oct 2026)
-- Ketu (South Node): Leo (always opposite Rahu, until Oct 2026)
-- Sun: {GetSunSign(today)} (based on date)
-For Moon, Mercury, Venus, Mars — compute approximate Vedic positions per week based on the month.
+{vedicPositions}
+For Moon, Mercury, Venus, Mars — use the above computed start-of-day positions and estimate their movement through the month.
 
 Return STRICT JSON:
 {{

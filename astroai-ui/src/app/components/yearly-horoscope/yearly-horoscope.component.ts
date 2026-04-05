@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { HoroscopeService, PlaceSuggestion } from '../../services/horoscope.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { SeoFocusService } from '../../services/seo-focus.service';
 
 @Component({
   selector: 'app-yearly-horoscope',
@@ -32,11 +33,12 @@ export class YearlyHoroscopeComponent implements OnInit, OnDestroy {
   showSuggestions = false;
   private destroy$ = new Subject<void>();
 
-  /* ⭐ CHANGED — inject HoroscopeService */
+  /* ⭐ CHANGED — inject HoroscopeService + SeoFocusService */
   constructor(
     private yearlyHoroscopeService: YearlyHoroscopeService,
     private horoscope: HoroscopeService,
-     private router: Router
+    private router: Router,
+    private seo: SeoFocusService
   ) {
     const currentYear = new Date().getFullYear();
     for (let i = currentYear - 1; i <= currentYear + 5; i++) {
@@ -45,7 +47,14 @@ export class YearlyHoroscopeComponent implements OnInit, OnDestroy {
   }
 
   /* ⭐ ADDED — lifecycle */
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.seo.setPage({
+      title: 'Yearly Vedic Horoscope — Annual Astrology Forecast',
+      description: 'Get your personalised yearly Vedic astrology forecast — planetary transits, Dasha periods, career, health, relationships & key events for the year ahead.',
+      keywords: 'yearly horoscope, annual horoscope, vedic yearly forecast, jyotish yearly report, annual astrology, 2025 horoscope vedic, vedic astrology forecast',
+      canonical: '/yearly-horoscope'
+    });
+  }
 
   /* ⭐ ADDED — cleanup */
   ngOnDestroy(): void {

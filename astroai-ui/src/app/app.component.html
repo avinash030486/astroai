@@ -7,27 +7,70 @@
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div id="mainNav" class="collapse navbar-collapse" >
-			<ul class="navbar-nav ms-auto" (click)="closeNavbar()">
-				<li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/daily-prediction">Daily Horoscope</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/daily-panchang">Panchang</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/city-panchang">City Panchang</a></li>
+		<div id="mainNav" class="collapse navbar-collapse">
+			<ul class="navbar-nav ms-auto align-items-lg-center" (click)="closeNavbar()">
 
-				<li class="nav-item"><a class="nav-link" routerLink="/yogas">Yogas</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/yearly-horoscope">Yearly Horoscope</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/remedies">Remedies</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/transit-alerts">Transits</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/muhurat">Muhurat</a></li>
-				<li class="nav-item"><a class="nav-link" routerLink="/festivals">Festivals</a></li>
-				
-				<!-- Protected Features - Only visible when signed in -->
+				<!-- Home -->
+				<li class="nav-item">
+					<a class="nav-link" routerLink="/">Home</a>
+				</li>
+
+				<!-- Forecasts dropdown -->
+				<li class="nav-item dropdown nav-dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+						Forecasts
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
+						<li><a class="dropdown-item" routerLink="/daily-prediction">🌅 Daily Horoscope</a></li>
+						<li><a class="dropdown-item" routerLink="/yearly-horoscope">📅 Yearly Horoscope</a></li>
+						<li><a class="dropdown-item" routerLink="/transit-alerts">🪐 Transit Alerts</a></li>
+					</ul>
+				</li>
+
+				<!-- Panchang dropdown -->
+				<li class="nav-item dropdown nav-dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+						Panchang
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
+						<li><a class="dropdown-item" routerLink="/daily-panchang">📆 Today's Panchang</a></li>
+						<li><a class="dropdown-item" routerLink="/city-panchang">🏙️ City Panchang</a></li>
+						<li><a class="dropdown-item" routerLink="/muhurat">✨ Muhurat</a></li>
+						<li><a class="dropdown-item" routerLink="/festivals">🪔 Festivals</a></li>
+					</ul>
+				</li>
+
+				<!-- Explore dropdown -->
+				<li class="nav-item dropdown nav-dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+						Explore
+					</a>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
+						<li><a class="dropdown-item" routerLink="/yogas">🧘 Yogas</a></li>
+						<li><a class="dropdown-item" routerLink="/remedies">💎 Remedies</a></li>
+						<li><a class="dropdown-item" routerLink="/planets">🪐 Planets</a></li>
+						<li><a class="dropdown-item" routerLink="/nakshatras">⭐ Nakshatras</a></li>
+					</ul>
+				</li>
+
+				<!-- My Tools — auth only -->
 				<ng-container *ngIf="authService.isAuthenticated()">
-					<li class="nav-item"><a class="nav-link" routerLink="/birth-chart">Vedic Astrology</a></li>
-					<li class="nav-item"><a class="nav-link" routerLink="/numerology">Numerology</a></li>
-					<li class="nav-item"><a class="nav-link" routerLink="/matchmaking">Matchmaking</a></li>
-					<li class="nav-item"><a class="nav-link" routerLink="/gemstones">Gemstones</a></li>
+					<li class="nav-item dropdown nav-dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+							My Tools
+						</a>
+						<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
+							<li><a class="dropdown-item" routerLink="/birth-chart">🔮 Birth Chart</a></li>
+							<li><a class="dropdown-item" routerLink="/numerology">🔢 Numerology</a></li>
+							<li><a class="dropdown-item" routerLink="/matchmaking">❤️ Matchmaking</a></li>
+							<li><a class="dropdown-item" routerLink="/gemstones">💎 Gemstones</a></li>
+						</ul>
+					</li>
+					<li class="nav-item nav-dashboard-btn">
+						<a class="nav-link nav-link-dashboard" routerLink="/dashboard">⚡ Dashboard</a>
+					</li>
 				</ng-container>
+
 			</ul>
 			<div class="d-flex align-items-center gap-2 ms-lg-3">
 				<ng-container *ngIf="(authService.user$ | async) as user; else signInButton">

@@ -1,0 +1,260 @@
+<div class="dashboard-shell">
+
+  <!-- Toast -->
+  <div class="toast-bar" *ngIf="toastMessage" [class.toast-error]="toastType === 'error'">
+    {{ toastMessage }}
+  </div>
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div class="dash-user">
+      <div class="user-avatar">
+        <img *ngIf="auth.getUserAvatar()" [src]="auth.getUserAvatar()!" alt="avatar">
+        <span *ngIf="!auth.getUserAvatar()">{{ getInitials() }}</span>
+      </div>
+      <div>
+        <div class="user-name">{{ profile?.full_name || auth.getUserName() || 'Welcome back' }}</div>
+        <div class="user-email">{{ auth.getUserEmail() }}</div>
+      </div>
+    </div>
+    <div class="dash-header-actions">
+      <span class="plan-badge" [class]="getPlanBadgeClass()">
+        {{ subscription.getCurrentPlan() | titlecase }}
+      </span>
+      <button class="btn-upgrade" *ngIf="!subscription.isPremium()" (click)="navigateTo('/pricing')">
+        ⚡ Upgrade
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Nav -->
+  <nav class="dash-tabs">
+    <button [class.active]="activeTab === 'overview'"      (click)="setTab('overview')">🏠 Overview</button>
+    <button [class.active]="activeTab === 'charts'"        (click)="setTab('charts')">📊 Saved Charts <span class="tab-count">{{ savedCharts.length }}</span></button>
+    <button [class.active]="activeTab === 'reports'"       (click)="setTab('reports')">📂 Reports <span class="tab-count">{{ savedReports.length }}</span></button>
+    <button [class.active]="activeTab === 'subscription'"  (click)="setTab('subscription')">💳 Plan</button>
+    <button [class.active]="activeTab === 'referrals'"     (click)="setTab('referrals')">🎁 Referrals</button>
+  </nav>
+
+  <div class="dash-body" *ngIf="!loading; else loadingTpl">
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <ng-container *ngIf="activeTab === 'overview'">
+      <div class="overview-grid">
+
+        <!-- Profile Card -->
+        <div class="dash-card profile-card">
+          <div class="card-title">Your Profile
+            <button class="btn-edit" (click)="startEditProfile()">✏️ Edit</button>
+          </div>
+          <ng-container *ngIf="!editingProfile">
+            <div class="profile-row"><span class="label">Name</span><span>{{ profile?.full_name || '—' }}</span></div>
+            <div class="profile-row"><span class="label">Date of Birth</span><span>{{ formatDate(profile?.date_of_birth) }}</span></div>
+            <div class="profile-row"><span class="label">Time of Birth</span><span>{{ profile?.time_of_birth || '—' }}</span></div>
+            <div class="profile-row"><span class="label">Birth Place</span><span>{{ profile?.birth_place_label || '—' }}</span></div>
+            <div class="profile-row" *ngIf="profile?.nakshatra"><span class="label">Nakshatra</span><span>{{ profile?.nakshatra }}</span></div>
+            <div class="profile-row" *ngIf="profile?.zodiac_sign"><span class="label">Zodiac</span><span>{{ profile?.zodiac_sign }}</span></div>
+          </ng-container>
+          <ng-container *ngIf="editingProfile">
+            <div class="edit-form">
+              <label>Name
+                <input type="text" [(ngModel)]="profileForm.full_name" placeholder="Your full name">
+              </label>
+              <label>Date of Birth
+                <input type="date" [(ngModel)]="profileForm.date_of_birth">
+              </label>
+              <label>Time of Birth
+                <input type="time" [(ngModel)]="profileForm.time_of_birth">
+              </label>
+              <label>Birth Place
+                <div class="place-autocomplete-wrap">
+                  <input type="text"
+                    [value]="profileForm.birth_place_label"
+                    (input)="onBirthPlaceInput($any($event.target).value)"
+                    (blur)="hidePlaceSuggestions()"
+                    placeholder="City, Country"
+                    autocomplete="off">
+                  <div class="place-autocomplete-dropdown" *ngIf="showPlaceSuggestions && placeSuggestions.length > 0">
+                    <div class="place-suggestion-item"
+                      *ngFor="let s of placeSuggestions"
+                      (mousedown)="selectPlaceSuggestion(s)">
+                      📍 {{ s.description }}
+                    </div>
+                  </div>
+                </div>
+              </label>
+              <div class="edit-actions">
+                <button class="btn-save" (click)="saveProfile()" [disabled]="savingProfile">
+                  {{ savingProfile ? 'Saving…' : 'Save' }}
+                </button>
+                <button class="btn-cancel" (click)="cancelEditProfile()">Cancel</button>
+              </div>
+            </div>
+          </ng-container>
+          <button class="cta-link" (click)="navigateToBirthChart()">Generate Birth Chart →</button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+          <div class="stat-card" (click)="setTab('charts')">
+            <div class="stat-icon">📊</div>
+            <div class="stat-num">{{ savedCharts.length }}</div>
+            <div class="stat-label">Saved Charts</div>
+          </div>
+          <div class="stat-card" (click)="setTab('reports')">
+            <div class="stat-icon">📂</div>
+            <div class="stat-num">{{ savedReports.length }}</div>
+            <div class="stat-label">Reports</div>
+          </div>
+          <div class="stat-card" (click)="setTab('subscription')">
+            <div class="stat-icon">💳</div>
+            <div class="stat-num">{{ subscription.getRemainingCredits() }}</div>
+            <div class="stat-label">Credits Left</div>
+          </div>
+          <div class="stat-card" (click)="setTab('referrals')">
+            <div class="stat-icon">🎁</div>
+            <div class="stat-num">{{ referralCount }}</div>
+            <div class="stat-label">Referrals</div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dash-card quick-actions">
+          <div class="card-title">Quick Actions</div>
+          <button class="qa-btn" (click)="navigateToBirthChart()">☿ Birth Chart</button>
+          <button class="qa-btn" (click)="navigateTo('/daily-panchang')">🌙 Panchang</button>
+          <button class="qa-btn" (click)="navigateTo('/matchmaking')">♥ Matchmaking</button>
+          <button class="qa-btn" (click)="navigateTo('/numerology')">🔢 Numerology</button>
+          <button class="qa-btn" (click)="navigateTo('/remedies')">🪬 Remedies</button>
+          <button class="qa-btn" (click)="navigateTo('/gemstones')">💎 Gemstones</button>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- ═══ CHARTS ═══ -->
+    <ng-container *ngIf="activeTab === 'charts'">
+      <div class="section-header">
+        <h2>Saved Birth Charts</h2>
+        <button class="btn-new" (click)="navigateToBirthChart()">+ New Chart</button>
+      </div>
+      <div *ngIf="loadingCharts" class="loading-row">Loading charts…</div>
+      <div *ngIf="!loadingCharts && savedCharts.length === 0" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <p>No saved charts yet.</p>
+        <button class="btn-cta" (click)="navigateToBirthChart()">Generate Your Birth Chart</button>
+      </div>
+      <div class="chart-grid" *ngIf="savedCharts.length > 0">
+        <div class="chart-card" *ngFor="let chart of savedCharts">
+          <div class="chart-label">{{ chart.label }}</div>
+          <div class="chart-meta">
+            <span>{{ formatDate(chart.date_of_birth) }}</span>
+            <span>{{ chart.time_of_birth }}</span>
+          </div>
+          <div class="chart-place">📍 {{ chart.birth_place }}</div>
+          <div class="chart-actions">
+            <button class="btn-view" (click)="loadChartIntoApp(chart)">View Chart</button>
+            <button class="btn-del" (click)="deleteChart(chart)">🗑</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══ REPORTS ═══ -->
+    <ng-container *ngIf="activeTab === 'reports'">
+      <div class="section-header">
+        <h2>Your Reports</h2>
+      </div>
+      <div *ngIf="loadingReports" class="loading-row">Loading reports…</div>
+      <div *ngIf="!loadingReports && savedReports.length === 0" class="empty-state">
+        <div class="empty-icon">📂</div>
+        <p>No saved reports yet.</p>
+        <p class="empty-sub">Reports are saved automatically after each paid analysis.</p>
+        <button class="btn-cta" (click)="navigateToBirthChart()">Run a Birth Chart Analysis</button>
+      </div>
+      <div class="report-list" *ngIf="savedReports.length > 0">
+        <div class="report-row" *ngFor="let r of savedReports">
+          <span class="report-icon">{{ getReportIcon(r.report_type) }}</span>
+          <div class="report-info">
+            <div class="report-title">{{ r.title }}</div>
+            <div class="report-meta">{{ getReportLabel(r.report_type) }} · {{ formatDate(r.created_at) }}</div>
+          </div>
+          <div class="report-actions">
+            <button class="btn-fav" [class.active]="r.is_favourite" (click)="toggleFav(r)" title="Favourite">
+              {{ r.is_favourite ? '★' : '☆' }}
+            </button>
+            <button class="btn-del" (click)="deleteReport(r)">🗑</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══ SUBSCRIPTION ═══ -->
+    <ng-container *ngIf="activeTab === 'subscription'">
+      <div class="section-header"><h2>Your Plan</h2></div>
+      <div class="sub-current-card">
+        <div class="sub-plan-name">{{ planFeatures[subscription.getCurrentPlan()]?.name }}</div>
+        <div class="sub-credits">{{ subscription.getRemainingCredits() }} credits remaining</div>
+        <div class="sub-expires" *ngIf="subscription.getCurrentSubscription()?.expires_at">
+          Expires: {{ formatDate(subscription.getCurrentSubscription()?.expires_at) }}
+        </div>
+        <div class="sub-features">
+          <div class="feature-item" *ngFor="let f of planFeatures[subscription.getCurrentPlan()]?.features">
+            ✓ {{ f }}
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-upgrade-grid" *ngIf="!subscription.isPremium()">
+        <div class="upgrade-card" *ngFor="let key of ['rhythm', 'payg']">
+          <div class="uc-name">{{ planFeatures[key]?.name }}</div>
+          <div class="uc-price">{{ planFeatures[key]?.price }}</div>
+          <div class="uc-feat" *ngFor="let f of planFeatures[key]?.features">✓ {{ f }}</div>
+          <button class="btn-upgrade-plan" (click)="navigateTo('/pricing')">Get {{ planFeatures[key]?.name }}</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══ REFERRALS ═══ -->
+    <ng-container *ngIf="activeTab === 'referrals'">
+      <div class="section-header"><h2>Refer & Earn</h2></div>
+      <div class="referral-card">
+        <div class="ref-headline">Share VedicAstro with friends</div>
+        <p class="ref-sub">When a friend signs up using your link and makes a purchase, you both get rewarded.</p>
+        <div class="ref-code-row">
+          <span class="ref-code-label">Your code</span>
+          <span class="ref-code">{{ referral.getReferralCode() || '—' }}</span>
+        </div>
+        <div class="ref-link-row">
+          <input class="ref-link-input" [value]="referral.getReferralLink()" readonly>
+          <button class="btn-copy" [class.copied]="copiedLink" (click)="copyLink()">
+            {{ copiedLink ? '✓ Copied!' : 'Copy' }}
+          </button>
+        </div>
+        <button class="btn-whatsapp" (click)="shareOnWhatsApp()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Share on WhatsApp
+        </button>
+        <div class="ref-stats">
+          <div class="ref-stat">
+            <div class="ref-stat-num">{{ referralCount }}</div>
+            <div class="ref-stat-label">Friends Referred</div>
+          </div>
+          <div class="ref-stat">
+            <div class="ref-stat-num">{{ referralCount > 0 ? '🎉' : '0' }}</div>
+            <div class="ref-stat-label">Rewards Earned</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div><!-- /dash-body -->
+
+  <ng-template #loadingTpl>
+    <div class="dash-loading">
+      <div class="loading-orb"></div>
+      <p>Loading your cosmic dashboard…</p>
+    </div>
+  </ng-template>
+
+</div>

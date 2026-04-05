@@ -38,6 +38,7 @@ import { PlanetSignListComponent } from './components/planet-sign-list/planet-si
 import { PlanetSignDetailComponent } from './components/planet-sign-detail/planet-sign-detail.component';
 import { NakshatraListComponent } from './components/nakshatra-list/nakshatra-list.component';
 import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatra-detail.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,7 +71,8 @@ import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatr
     PlanetSignListComponent,
     PlanetSignDetailComponent,
     NakshatraListComponent,
-    NakshatraDetailComponent
+    NakshatraDetailComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,

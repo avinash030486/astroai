@@ -1,0 +1,318 @@
+<div class="astrologer-shell">
+
+  <!-- ── Cosmic star background ── -->
+  <div class="cosmos-bg" aria-hidden="true">
+    <div *ngFor="let s of stars" class="cosmos-star"
+         [style.left.%]="s.x"
+         [style.top.%]="s.y"
+         [style.width.px]="s.size"
+         [style.height.px]="s.size"
+         [style.animation-delay.s]="s.delay">
+    </div>
+  </div>
+
+  <!-- ════════════════ INTAKE FORM ════════════════ -->
+  <div class="intake-overlay" *ngIf="showIntakeForm">
+    <div class="intake-card">
+
+      <!-- Mini avatar photo -->
+      <div class="intake-avatar">
+        <div class="intake-photo-wrap">
+          <img src="assets/image_18804444.png" alt="Pandit Arjun" class="intake-photo"/>
+          <div class="intake-photo-glow"></div>
+        </div>
+      </div>
+
+      <h2 class="intake-title">✦ Meet Pandit Arjun</h2>
+      <p class="intake-subtitle">
+        Share your birth details so Pandit Arjun can cast your personal horoscope and guide you with cosmic precision.
+      </p>
+
+      <!-- Loading state -->
+      <div class="intake-loading" *ngIf="isGeneratingChart">
+        <div class="chart-spinner"></div>
+        <p>The stars are aligning your chart…</p>
+      </div>
+
+      <!-- Form -->
+      <form class="intake-form" (ngSubmit)="submitBirthDetails()" *ngIf="!isGeneratingChart">
+
+        <div class="if-row">
+          <label>Your Name</label>
+          <input type="text" [(ngModel)]="intakeName" name="intakeName"
+                 placeholder="e.g. Arjun Sharma" class="if-input" autocomplete="name"/>
+        </div>
+
+        <div class="if-row if-two-col">
+          <div>
+            <label>Date of Birth</label>
+            <input type="date" [(ngModel)]="intakeDob" name="intakeDob"
+                   class="if-input" [max]="todayIso"/>
+          </div>
+          <div>
+            <label>Time of Birth</label>
+            <input type="time" [(ngModel)]="intakeTime" name="intakeTime"
+                   class="if-input"/>
+          </div>
+        </div>
+
+        <div class="if-row">
+          <label>Place of Birth</label>
+          <div class="place-autocomplete-wrap">
+            <input type="text" [ngModel]="intakePlace" name="intakePlace"
+                   (input)="onPlaceInput($any($event.target).value)"
+                   (blur)="hidePlaceSuggestions()"
+                   placeholder="e.g. Trivandrum, Kerala, India" class="if-input" autocomplete="off"/>
+            <ul class="place-suggestions" *ngIf="showPlaceSuggestions">
+              <li *ngFor="let s of placeSuggestions"
+                  (mousedown)="selectPlaceSuggestion(s.description)">
+                <span class="ps-pin">📍</span> {{ s.description }}
+              </li>
+            </ul>
+          </div>
+          <span class="if-hint">City, State, Country</span>
+        </div>
+
+        <div class="intake-error" *ngIf="intakeError">⚠️ {{ intakeError }}</div>
+
+        <button type="submit" class="btn-cast">
+          🔮 Cast My Horoscope
+        </button>
+
+        <p class="intake-note">
+          ✨ First {{ FREE_QUESTION_LIMIT }} questions are free &nbsp;·&nbsp;
+          {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}/50 questions after that
+        </p>
+      </form>
+    </div>
+  </div><!-- /.intake-overlay -->
+
+  <!-- ════════════════ MAIN LAYOUT ════════════════ -->
+  <div class="astrologer-layout">
+
+    <!-- ════════════════ LEFT: Avatar Panel ════════════════ -->
+    <aside class="avatar-panel">
+
+      <!-- Badges -->
+      <div class="session-ribbon" *ngIf="sessionActive">
+        <span class="ribbon-timer">❓ {{ sessionQuestionsRemaining }} questions left</span>
+        <span class="ribbon-cost">of {{ PAID_QUESTION_LIMIT }} paid</span>
+      </div>
+      <div class="free-ribbon" *ngIf="!sessionActive && freeQuestionsRemaining > 0">
+        ✨ {{ freeQuestionsRemaining }} free {{ freeQuestionsRemaining === 1 ? 'question' : 'questions' }} left
+      </div>
+
+      <!-- ─── Photo Avatar ─── -->
+      <div class="avatar-stage" [class.speaking]="isSpeaking" [class.loading]="isTyping">
+
+        <!-- Spinning mandala ring behind the photo -->
+        <svg class="mandala-ring" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g transform="translate(130,130)">
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(0)"/>
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(30)"/>
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(60)"/>
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(90)"/>
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(120)"/>
+            <ellipse rx="8" ry="52" fill="none" stroke="#d4a93a" stroke-width="0.8" opacity="0.25" transform="rotate(150)"/>
+          </g>
+          <!-- Orbit dot -->
+          <circle class="ring-planet" cx="130" cy="78" r="5" fill="#d4a93a" opacity="0.6"/>
+        </svg>
+
+        <!-- The actual photo, clipped to circle -->
+        <div class="avatar-photo-wrap">
+          <img src="assets/image_18804444.png" alt="Pandit Arjun" class="avatar-photo"/>
+          <div class="avatar-photo-glow"></div>
+        </div>
+
+        <!-- Speaking glow ring (shown while AI is responding) -->
+        <div class="speak-ring" *ngIf="isTyping"></div>
+      </div>
+
+      <div class="avatar-name">✦ {{ ASTROLOGER_NAME }}</div>
+      <div class="avatar-title">Vedic Astrologer &amp; Cosmic Guide</div>
+      <div class="avatar-exp">40 Years of Celestial Wisdom</div>
+
+      <!-- Chart summary strip -->
+      <div class="chart-summary" *ngIf="chartSummary">
+        <div class="cs-row"><span class="cs-label">Ascendant</span><span class="cs-val">{{ chartSummary.ascendant }}</span></div>
+        <div class="cs-row"><span class="cs-label">Moon</span><span class="cs-val">{{ chartSummary.moon }}</span></div>
+        <div class="cs-row"><span class="cs-label">Sun</span><span class="cs-val">{{ chartSummary.sun }}</span></div>
+        <div class="cs-row"><span class="cs-label">Dasha</span><span class="cs-val">{{ chartSummary.maha }}/{{ chartSummary.antar }}</span></div>
+      </div>
+      <button class="btn-recast" (click)="showIntakeForm = true" title="Re-enter birth details">
+        ↺ Change Details
+      </button>
+      <div class="pandit-typing" *ngIf="isTyping">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="typing-label">Consulting the stars…</span>
+      </div>
+
+      <!-- Start-consultation CTA (shown after free questions used) -->
+      <div class="avatar-cta" *ngIf="!isFreeSession && !sessionActive">
+        <div class="cta-rate">
+          {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}<span>/50q</span>
+        </div>
+        <button class="btn-consult" (click)="openPaymentModal()">Begin Consultation</button>
+      </div>
+
+    </aside>
+
+    <!-- ════════════════ RIGHT: Chat Panel ════════════════ -->
+    <section class="chat-panel">
+
+      <header class="chat-header">
+        <span class="chat-title">🔮 Cosmic Consultation with {{ ASTROLOGER_NAME }}</span>
+        <div class="chat-status">
+          <span class="badge-session" *ngIf="sessionActive">
+            ❓ {{ sessionQuestionsFormatted }}
+          </span>
+          <span class="badge-free" *ngIf="!sessionActive && freeQuestionsRemaining > 0">
+            ✨ {{ freeQuestionsRemaining }} free left
+          </span>
+          <span class="badge-pay" *ngIf="!sessionActive && freeQuestionsRemaining === 0">
+            {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}/50q
+          </span>
+        </div>
+      </header>
+
+      <!-- Messages -->
+      <div class="chat-messages" #chatScroll>
+        <div *ngFor="let msg of messages"
+             class="msg-row"
+             [class.msg-row--user]="msg.role === 'user'"
+             [class.msg-row--bot]="msg.role === 'assistant'">
+
+          <!-- Bot message -->
+          <ng-container *ngIf="msg.role === 'assistant'">
+            <div class="msg-avatar-icon">🔮</div>
+            <div class="bubble bubble--bot" [class]="'tone-' + (msg.tone || 'friendly')">
+              <div class="bubble-emoji" *ngIf="msg.emoji">{{ msg.emoji }}</div>
+              <p class="bubble-text">{{ msg.content }}</p>
+              <span class="bubble-time">{{ msg.timestamp | date:'h:mm a' }}</span>
+            </div>
+          </ng-container>
+
+          <!-- User message -->
+          <ng-container *ngIf="msg.role === 'user'">
+            <div class="bubble bubble--user">
+              <p class="bubble-text">{{ msg.content }}</p>
+              <span class="bubble-time">{{ msg.timestamp | date:'h:mm a' }}</span>
+            </div>
+            <div class="msg-avatar-user">
+              <img *ngIf="getUserAvatar()" [src]="getUserAvatar()!" alt="You" />
+              <span *ngIf="!getUserAvatar()">{{ getUserInitial() }}</span>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Typing dots -->
+        <div class="msg-row msg-row--bot" *ngIf="isTyping">
+          <div class="msg-avatar-icon">🔮</div>
+          <div class="bubble bubble--bot bubble--typing">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input / Paywall area -->
+      <div class="chat-input-area">
+
+        <!-- Paywall strip -->
+        <div class="paywall-strip" *ngIf="!isFreeSession && !sessionActive">
+          <span class="paywall-text">
+            🌟 Continue for {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}/50 questions
+          </span>
+          <button class="btn-begin" (click)="openPaymentModal()">Begin Consultation</button>
+        </div>
+
+        <!-- Active input -->
+        <ng-container *ngIf="isFreeSession || sessionActive">
+          <div class="input-row">
+            <textarea
+              class="chat-input"
+              [(ngModel)]="inputText"
+              (keydown)="onKeyDown($event)"
+              [placeholder]="'Ask ' + ASTROLOGER_NAME + ' anything…   (Enter to send)'"
+              [disabled]="isLoading"
+              rows="2"
+              maxlength="1000">
+            </textarea>
+            <button class="btn-send" (click)="sendMessage()" [disabled]="!canSend" title="Send">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"
+                      stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+          <div class="input-footer">
+            <span *ngIf="isFreeSession">
+              ✨ {{ freeQuestionsRemaining }} free {{ freeQuestionsRemaining === 1 ? 'question' : 'questions' }} remaining
+            </span>
+            <span *ngIf="sessionActive">
+              ⏱ {{ sessionTimeFormatted }} remaining · {{ sessionCostFormatted }} used
+            </span>
+          </div>
+        </ng-container>
+      </div>
+
+    </section>
+  </div><!-- /.astrologer-layout -->
+
+
+  <!-- ════════════════ Payment Modal ════════════════ -->
+  <div class="modal-overlay" *ngIf="showPaymentModal" (click)="closePaymentModal()">
+    <div class="payment-modal" (click)="$event.stopPropagation()">
+      <button class="modal-x" (click)="closePaymentModal()" aria-label="Close">✕</button>
+
+      <div class="modal-hero">
+        <div class="modal-orb">🔮</div>
+        <h3>Continue with {{ ASTROLOGER_NAME }}</h3>
+        <div class="modal-rate-tag">
+          {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}<span> / 50 questions</span>
+        </div>
+        <p class="modal-subtitle">50 questions of unlimited cosmic wisdom</p>
+      </div>
+
+      <div class="modal-form">
+        <div class="form-field">
+          <label>Your Name</label>
+          <input type="text" [(ngModel)]="paymentName" placeholder="Full name" class="fi"/>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="paymentEmail" placeholder="you@email.com" class="fi"/>
+        </div>
+        <!-- Google Pay / Apple Pay -->
+        <div class="google-pay-section">
+          <div id="astrologer-pr-button"></div>
+          <div *ngIf="showGooglePay" class="or-divider"><span>or pay by card</span></div>
+        </div>
+
+        <div class="form-field">
+          <label>Card Details</label>
+          <div class="stripe-card" #cardMount></div>
+          <div class="card-error" *ngIf="cardError">{{ cardError }}</div>
+        </div>
+
+        <div class="pay-error" *ngIf="paymentError">⚠️ {{ paymentError }}</div>
+
+        <button class="btn-pay" (click)="payAndStart()" [disabled]="paymentLoading">
+          <span *ngIf="!paymentLoading">
+            ⚡ Start 50-Question Session &nbsp;·&nbsp;
+            {{ currencyInfo.symbol }}{{ sessionRateConverted.toFixed(2) }}
+          </span>
+          <span *ngIf="paymentLoading" class="pay-spinner">Processing…</span>
+        </button>
+
+        <p class="modal-secure">🔒 Secured by Stripe · No subscription</p>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd, Event } from '@angular/router';
+import { Router, NavigationEnd, Event as RouterEvent } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { AnalyticsService } from './services/analytics.service';
@@ -17,6 +17,25 @@ export class AppComponent implements OnInit {
   year = new Date().getFullYear();
   showSupportModal = false;
 
+  // ─── Mobile nav state (replaces Bootstrap JS dependency) ──────────────────
+  isNavOpen = false;
+  openDropdown: string | null = null;
+
+  toggleNav(): void {
+    this.isNavOpen = !this.isNavOpen;
+    if (!this.isNavOpen) this.openDropdown = null;
+  }
+
+  toggleDropdown(name: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.openDropdown = this.openDropdown === name ? null : name;
+  }
+
+  closeAll(): void {
+    this.isNavOpen = false;
+    this.openDropdown = null;
+  }
+
   constructor(
     public authService: AuthService,
     private router: Router,
@@ -29,7 +48,7 @@ export class AppComponent implements OnInit {
     // ✅ Google Analytics route tracking
     this.router.events
       .pipe(
-        filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+        filter((event: RouterEvent): event is NavigationEnd => event instanceof NavigationEnd)
       )
       .subscribe((event: NavigationEnd) => {
         if (typeof gtag === 'function') {
@@ -61,12 +80,6 @@ export class AppComponent implements OnInit {
 
   async signOut(): Promise<void> {
     await this.authService.signOut();
-  }
-
-  closeNavbar() {
-    const navbar = document.getElementById('mainNav');
-    if (navbar?.classList.contains('show')) {
-      navbar.classList.remove('show');
-    }
+    this.closeAll();
   }
 }

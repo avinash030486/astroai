@@ -111,7 +111,6 @@ Include all 12 signs in order: Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra,
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -198,7 +197,6 @@ weeklyForecast must have exactly 7 entries (Monday through Sunday for the curren
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -340,7 +338,6 @@ Include 4 weeks. Include 3-5 important dates.";
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);

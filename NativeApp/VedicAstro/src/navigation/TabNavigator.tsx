@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeScreen } from '../screens/HomeScreen';
 import { DailyHoroscopeScreen } from '../screens/DailyHoroscopeScreen';
 import { AskAIScreen } from '../screens/AskAIScreen';
@@ -14,7 +15,9 @@ const TabIcon: React.FC<{ icon: string; focused: boolean }> = ({ icon, focused }
   <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>{icon}</Text>
 );
 
-export const TabNavigator: React.FC = () => (
+export const TabNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  return (
   <Tab.Navigator
     screenOptions={{
       headerShown: false,
@@ -22,8 +25,8 @@ export const TabNavigator: React.FC = () => (
         backgroundColor: theme.colors.navyLight,
         borderTopColor: theme.colors.goldDim,
         borderTopWidth: 1,
-        height: 64,
-        paddingBottom: 8,
+        height: 56 + insets.bottom,
+        paddingBottom: insets.bottom || 8,
       },
       tabBarActiveTintColor: theme.colors.gold,
       tabBarInactiveTintColor: theme.colors.textSecondary,
@@ -43,7 +46,8 @@ export const TabNavigator: React.FC = () => (
     <Tab.Screen name="Chart" component={BirthChartScreen} options={{ tabBarIcon: ({ focused }) => <TabIcon icon="🌐" focused={focused} />, tabBarLabel: 'Chart' }} />
     <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />, tabBarLabel: 'Profile' }} />
   </Tab.Navigator>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   askTab: {

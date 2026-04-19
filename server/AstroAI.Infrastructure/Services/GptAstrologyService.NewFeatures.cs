@@ -51,7 +51,6 @@ Return STRICT JSON:
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -130,7 +129,6 @@ Return STRICT JSON:
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -214,7 +212,6 @@ Return STRICT JSON:
                 new { role = "user", content = user }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);

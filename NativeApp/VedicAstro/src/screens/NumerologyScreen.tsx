@@ -6,9 +6,11 @@ import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
 import { PaymentModal } from '../components/PaymentModal';
 import { paymentsApi, numerologyApi } from '../api/services';
 import { theme } from '../theme/theme';
+import { useCurrency } from '../hooks/useCurrency';
 
 function getNumerologyNumber(name: string): number {
   const pythagorean: Record<string, number> = {
@@ -50,6 +52,7 @@ const NUMBER_MEANINGS: Record<number, string> = {
 
 export const NumerologyScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { format, ready } = useCurrency();
   const [form, setForm] = useState({ name: '', dateOfBirth: '' });
   const [result, setResult] = useState<{ lifePath: number; nameNumber: number } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,7 +102,7 @@ export const NumerologyScreen: React.FC = () => {
         <LoadingOverlay message={detailLoading ? 'Fetching your cosmic reading…' : 'Calculating your numbers…'} />
       )}
       <FormField label="Full Name" value={form.name} onChangeText={set('name')} placeholder="Your full name" autoCapitalize="words" />
-      <FormField label="Date of Birth (YYYY-MM-DD)" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} placeholder="1990-01-15" />
+      <DatePickerField label="Date of Birth" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} maximumDate={new Date()} />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <PrimaryButton label="Reveal My Numbers" onPress={calculate} loading={loading} style={styles.btn} />
 
@@ -132,7 +135,7 @@ export const NumerologyScreen: React.FC = () => {
               </Text>
               {detailError ? <Text style={styles.error}>{detailError}</Text> : null}
               <TouchableOpacity style={styles.premiumBtn} onPress={() => setShowPayment(true)}>
-                <Text style={styles.premiumBtnText}>Unlock Detailed Reading — $1.99</Text>
+                <Text style={styles.premiumBtnText}>{`Unlock Detailed Reading — ${ready ? format(1.99) : '...'}`}</Text>
               </TouchableOpacity>
             </LinearGradient>
           )}

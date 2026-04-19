@@ -1,0 +1,4 @@
+Start ngrok (hidden): Start-Process -FilePath "C:\Users\avina\AppData\Local\npm-cache\_npx\094a17e86d981b10\node_modules\ngrok\bin\ngrok.exe" -ArgumentList "http 8081" -WindowStyle Hidden
+Start Metro (new window): Start-Process powershell -ArgumentList '-NoExit', '-Command', '$env:REACT_NATIVE_PACKAGER_HOSTNAME = "bursiform-pseudisodomic-georgianne.ngrok-free.dev"; Push-Location "C:\Astrology\AstroAI\NativeApp\VedicAstro"; npx expo start --port 8081'
+
+Start Metro (new window): Start-Process powershell -ArgumentList '-NoExit', '-Command', '$env:REACT_NATIVE_PACKAGER_HOSTNAME = "bursiform-pseudisodomic-georgianne.ngrok-free.dev"; Push-Location "C:\Astrology\AstroAI\NativeApp\VedicAstro"; npx expo start --port 8081'

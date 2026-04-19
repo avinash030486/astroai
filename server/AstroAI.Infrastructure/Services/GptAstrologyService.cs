@@ -53,7 +53,6 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
                 new { role = "system", content = "You are an expert Vedic astrologer. Analyze the chart and dasha details and return STRICT JSON only. Keep language crisp; narrative must be <= 350 characters. No emojis, no headings, no extra prose outside JSON." },
                 new { role = "user", content = BuildChartPrompt(chart, dasha, ageYears) }
             },
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -114,7 +113,6 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
                 new { role = "system", content = "You are an expert Vedic astrologer. Produce a DETAILED prediction in STRICT JSON only, including Career, Finance, Relationships (with marriage timing), Destiny, all good/bad Yogas, and remedies for bad Yogas. Base analysis on chart and Vimshottari periods." },
                 new { role = "user", content = BuildDetailedPrompt(chart, dasha, ageYears) }
             },
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -196,7 +194,6 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
                 new { role = "system", content = systemPrompt },
                 new { role = "user", content = JsonSerializer.Serialize(userPayload) }
             },
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, request);
@@ -263,7 +260,6 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
                 new { role = "system", content = "You are an expert Vedic astrologer. Generate DAILY predictions as STRICT JSON only for each sign, with three categories: Career, Money, Love. Keep each category to max two short lines, based on current date, general planetary positions and Moon sign tendencies. No prose outside JSON." },
                 new { role = "user", content = $"Date: {today:yyyy-MM-dd}. Produce daily predictions for all 12 zodiac signs (Aries..Pisces) considering typical Moon transit influences and planetary positions for the day, grouped under Career, Money, Love. {schema}" }
             },
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -513,7 +509,6 @@ Provide practical, encouraging guidance. Return STRICT JSON with schema:
                 new { role = "user", content = $"Person 1:\n{person1Summary}\n\nPerson 2:\n{person2Summary}\n\nAnalyze marriage compatibility." }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -585,7 +580,6 @@ Provide structured, actionable insights. Return STRICT JSON with schema:
                 new { role = "user", content = chartSummary }
             },
             temperature = 0.4,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);
@@ -659,7 +653,6 @@ Return STRICT JSON with schema:
                 new { role = "user", content = chartPrompt }
             },
             temperature = 0.3,
-            response_format = new { type = "json_object" }
         };
 
         using var req = CreateRequest(url, payload);

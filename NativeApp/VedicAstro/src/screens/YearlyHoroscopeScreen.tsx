@@ -5,6 +5,8 @@ import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
+import { TimePickerField } from '../components/TimePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { yearlyApi } from '../api/services';
 import { theme } from '../theme/theme';
@@ -36,8 +38,8 @@ export const YearlyHoroscopeScreen: React.FC = () => {
     <ScreenLayout title="Yearly Horoscope" subtitle="Your cosmic forecast" onBack={() => navigation.goBack()}>
       {loading && <LoadingOverlay message="Charting your year…" />}
       <FormField label="Your Name" value={form.name} onChangeText={set('name')} placeholder="Optional" />
-      <FormField label="Date of Birth (YYYY-MM-DD)" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} placeholder="1990-01-15" />
-      <FormField label="Time of Birth (HH:MM)" value={form.timeOfBirth} onChangeText={set('timeOfBirth')} placeholder="06:30" />
+      <DatePickerField label="Date of Birth" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} maximumDate={new Date()} />
+      <TimePickerField label="Time of Birth" value={form.timeOfBirth} onChangeText={set('timeOfBirth')} />
       <PlaceInput label="Place of Birth" value={form.placeOfBirth} onChangeText={set('placeOfBirth')} placeholder="Delhi, India" />
       <FormField label="Target Year" value={form.targetYear} onChangeText={set('targetYear')} placeholder="2025" keyboardType="number-pad" />
       {error ? <Text style={styles.error}>{error}</Text> : null}

@@ -61,6 +61,10 @@ export class YogaDetailComponent implements OnInit {
     this.router.navigate(['/yogas']);
   }
 
+  goToAstrologer(): void {
+    this.router.navigate(['/astrologer']);
+  }
+
   shareYoga(): void {
     if (navigator.share && this.yoga) {
       navigator.share({

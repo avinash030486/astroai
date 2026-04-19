@@ -45,7 +45,6 @@ public sealed class GptLocationService : IGptLocationService
                 new { role = "system", content = "You convert place names to coordinates. Return strict JSON only." },
                 new { role = "user", content = $"City: {city}\nState: {state}\nCountry: {country}\nRespond only with JSON in the form {{\"lat\": 0.0, \"lon\": 0.0}}" }
             },
-            response_format = new { type = "json_object" }
         };
 
         // Allow endpoint to be either a full chat/completions URL or a base host path
@@ -118,7 +117,6 @@ public sealed class GptLocationService : IGptLocationService
                         "where timeZoneId is a valid Windows time zone ID for the given location."
                 }
             },
-            response_format = new { type = "json_object" }
         };
 
         var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)

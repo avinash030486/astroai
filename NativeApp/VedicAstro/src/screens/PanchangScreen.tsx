@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
-import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
 import { horoscopeApi } from '../api/services';
 import { theme } from '../theme/theme';
 
@@ -41,7 +41,7 @@ export const PanchangScreen: React.FC = () => {
   return (
     <ScreenLayout title="Panchang" subtitle="Daily Vedic almanac" onBack={() => navigation.goBack()}>
       {loading && <LoadingOverlay message="Calculating panchang…" />}
-      <FormField label="Date (YYYY-MM-DD)" value={date} onChangeText={setDate} placeholder="2025-01-01" />
+      <DatePickerField label="Date" value={date} onChangeText={setDate} />
       <FormField label="Latitude" value={lat} onChangeText={setLat} placeholder="28.6139" keyboardType="decimal-pad" />
       <FormField label="Longitude" value={lon} onChangeText={setLon} placeholder="77.2090" keyboardType="decimal-pad" />
       {error ? <Text style={styles.error}>{error}</Text> : null}

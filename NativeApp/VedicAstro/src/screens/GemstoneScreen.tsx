@@ -4,12 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
-import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
+import { TimePickerField } from '../components/TimePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { PaymentModal } from '../components/PaymentModal';
 import { gemstoneApi, paymentsApi, normalizeTime } from '../api/services';
 import { useAuthStore } from '../store/authStore';
 import { theme } from '../theme/theme';
+import { useCurrency } from '../hooks/useCurrency';
 
 const PRIORITY_LABELS: Record<number, string> = { 1: 'Primary', 2: 'Secondary', 3: 'Optional' };
 const PRIORITY_COLORS: Record<number, string> = { 1: theme.colors.gold, 2: '#9b59b6', 3: '#888' };
@@ -22,6 +24,7 @@ function parseBirthPlace(place: string): { city: string; state: string; country:
 export const GemstoneScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore();
+  const { format, ready } = useCurrency();
 
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('06:00');
@@ -154,11 +157,11 @@ export const GemstoneScreen: React.FC = () => {
   return (
     <ScreenLayout title="Gemstone Engine" subtitle="Chart-based gemstone recommendations" onBack={() => navigation.goBack()}>
       {loading && <LoadingOverlay message="Analyzing your birth chart…" />}
-      <FormField label="Birth Date (YYYY-MM-DD)" value={birthDate} onChangeText={setBirthDate} placeholder="1990-06-15" />
-      <FormField label="Birth Time (HH:MM)" value={birthTime} onChangeText={setBirthTime} placeholder="06:00" />
+      <DatePickerField label="Birth Date" value={birthDate} onChangeText={setBirthDate} maximumDate={new Date()} />
+      <TimePickerField label="Birth Time" value={birthTime} onChangeText={setBirthTime} />
       <PlaceInput label="Birth Place" value={birthPlace} onChangeText={setBirthPlace} placeholder="Mumbai, Maharashtra, India" />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <PrimaryButton label="💎 Analyze My Chart — $1.99" onPress={handleAnalyze} loading={loading} style={styles.btn} />
+      <PrimaryButton label={`💎 Analyze My Chart — ${ready ? format(1.99) : '...'}`} onPress={handleAnalyze} loading={loading} style={styles.btn} />
 
       <PaymentModal
         visible={showPayment}

@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
-import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { muhuratApi } from '../api/services';
 import { theme } from '../theme/theme';
@@ -111,8 +111,8 @@ export const MuhuratScreen: React.FC = () => {
       )}
 
       <PlaceInput label="Location" value={location} onChangeText={setLocation} placeholder="e.g. Mumbai, Maharashtra, India" />
-      <FormField label="From Date (YYYY-MM-DD)" value={fromDate} onChangeText={setFromDate} placeholder="2025-01-01" />
-      <FormField label="To Date (YYYY-MM-DD, max 31 days)" value={toDate} onChangeText={setToDate} placeholder="2025-01-31" />
+      <DatePickerField label="From Date" value={fromDate} onChangeText={setFromDate} />
+      <DatePickerField label="To Date (max 31 days)" value={toDate} onChangeText={setToDate} />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <PrimaryButton label="🔮 Find Auspicious Timings" onPress={calculate} loading={loading} style={styles.btn} />

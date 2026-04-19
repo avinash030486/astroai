@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Vedic Astro – Expo QR Code</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; background: #1a0a2e; color: #fff;
+      padding: 32px 16px;
+    }
+    h1 { color: #d4a93a; font-size: 26px; margin-bottom: 6px; }
+    .sub { color: #aaa; font-size: 14px; margin-bottom: 28px; }
+    .qr-wrap {
+      background: #fff; border-radius: 18px; padding: 18px;
+      box-shadow: 0 0 60px #d4a93a44; margin-bottom: 24px;
+    }
+    .qr-wrap img { display: block; border-radius: 8px; }
+    .url-box {
+      background: #2a1a4e; border: 1px solid #d4a93a55;
+      padding: 12px 22px; border-radius: 10px;
+      color: #d4a93a; font-size: 12px; word-break: break-all;
+      max-width: 360px; text-align: center; margin-bottom: 24px;
+    }
+    .steps {
+      color: #ccc; font-size: 14px; line-height: 2;
+      background: #2a1a4e; border-radius: 12px;
+      padding: 16px 24px; max-width: 360px; width: 100%;
+    }
+    .note { color: #666; font-size: 11px; margin-top: 18px; }
+  </style>
+</head>
+<body>
+  <h1>🔮 Vedic Astro App</h1>
+  <p class="sub">Scan with <strong style="color:#d4a93a">Expo Go</strong> on Android or iOS</p>
+  <div class="qr-wrap">
+    <img src="data:image/png;base64,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" width="280" height="280" alt="QR Code" />
+  </div>
+  <div class="url-box">exp://bursiform-pseudisodomic-georgianne.ngrok-free.app</div>
+  <div class="steps">
+    1️⃣ Install <strong>Expo Go</strong> from Play / App Store<br>
+    2️⃣ Android: scan QR directly in Expo Go<br>
+    2️⃣ iOS: scan with Camera app → tap link<br>
+    3️⃣ Or open Expo Go → <strong>Enter URL manually</strong>
+  </div>
+  <p class="note">⚠️ Keep the Metro bundler &amp; ngrok terminals running</p>
+</body>
+</html>

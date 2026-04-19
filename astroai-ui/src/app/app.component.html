@@ -1,73 +1,88 @@
 <header>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-		<a class="navbar-brand d-flex align-items-center" routerLink="/">
+		<a class="navbar-brand d-flex align-items-center" routerLink="/" (click)="closeAll()">
 			<img src="assets/vedicastro-logo.png" alt="VedicAstro Logo" class="navbar-logo me-2">
 			<span class="brand-text">VedicAstro</span>
 		</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+		<button class="navbar-toggler" type="button" (click)="toggleNav()" [attr.aria-expanded]="isNavOpen" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div id="mainNav" class="collapse navbar-collapse">
-			<ul class="navbar-nav ms-auto align-items-lg-center" (click)="closeNavbar()">
+		<div id="mainNav" class="collapse navbar-collapse" [class.show]="isNavOpen">
+			<ul class="navbar-nav ms-auto align-items-lg-center">
 
 				<!-- Home -->
 				<li class="nav-item">
-					<a class="nav-link" routerLink="/">Home</a>
+					<a class="nav-link" routerLink="/" (click)="closeAll()">Home</a>
 				</li>
 
 				<!-- Forecasts dropdown -->
-				<li class="nav-item dropdown nav-dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+				<li class="nav-item dropdown nav-dropdown" [class.show]="openDropdown === 'forecasts'">
+					<a class="nav-link dropdown-toggle" role="button"
+					   [class.show]="openDropdown === 'forecasts'"
+					   (click)="toggleDropdown('forecasts', $event)">
 						Forecasts
 					</a>
-					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
-						<li><a class="dropdown-item" routerLink="/daily-prediction">🌅 Daily Horoscope</a></li>
-						<li><a class="dropdown-item" routerLink="/yearly-horoscope">📅 Yearly Horoscope</a></li>
-						<li><a class="dropdown-item" routerLink="/transit-alerts">🪐 Transit Alerts</a></li>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu" [class.show]="openDropdown === 'forecasts'">
+						<li><a class="dropdown-item" routerLink="/daily-prediction" (click)="closeAll()">🌅 Daily Horoscope</a></li>
+						<li><a class="dropdown-item" routerLink="/yearly-horoscope" (click)="closeAll()">📅 Yearly Horoscope</a></li>
+						<li><a class="dropdown-item" routerLink="/transit-alerts" (click)="closeAll()">🪐 Transit Alerts</a></li>
 					</ul>
 				</li>
 
 				<!-- Panchang dropdown -->
-				<li class="nav-item dropdown nav-dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+				<li class="nav-item dropdown nav-dropdown" [class.show]="openDropdown === 'panchang'">
+					<a class="nav-link dropdown-toggle" role="button"
+					   [class.show]="openDropdown === 'panchang'"
+					   (click)="toggleDropdown('panchang', $event)">
 						Panchang
 					</a>
-					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
-						<li><a class="dropdown-item" routerLink="/daily-panchang">📆 Today's Panchang</a></li>
-						<li><a class="dropdown-item" routerLink="/city-panchang">🏙️ City Panchang</a></li>
-						<li><a class="dropdown-item" routerLink="/muhurat">✨ Muhurat</a></li>
-						<li><a class="dropdown-item" routerLink="/festivals">🪔 Festivals</a></li>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu" [class.show]="openDropdown === 'panchang'">
+						<li><a class="dropdown-item" routerLink="/daily-panchang" (click)="closeAll()">📆 Today's Panchang</a></li>
+						<li><a class="dropdown-item" routerLink="/city-panchang" (click)="closeAll()">🏙️ City Panchang</a></li>
+						<li><a class="dropdown-item" routerLink="/muhurat" (click)="closeAll()">✨ Muhurat</a></li>
+						<li><a class="dropdown-item" routerLink="/festivals" (click)="closeAll()">🪔 Festivals</a></li>
 					</ul>
 				</li>
 
 				<!-- Explore dropdown -->
-				<li class="nav-item dropdown nav-dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+				<li class="nav-item dropdown nav-dropdown" [class.show]="openDropdown === 'explore'">
+					<a class="nav-link dropdown-toggle" role="button"
+					   [class.show]="openDropdown === 'explore'"
+					   (click)="toggleDropdown('explore', $event)">
 						Explore
 					</a>
-					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
-						<li><a class="dropdown-item" routerLink="/yogas">🧘 Yogas</a></li>
-						<li><a class="dropdown-item" routerLink="/remedies">💎 Remedies</a></li>
-						<li><a class="dropdown-item" routerLink="/planets">🪐 Planets</a></li>
-						<li><a class="dropdown-item" routerLink="/nakshatras">⭐ Nakshatras</a></li>
+					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu" [class.show]="openDropdown === 'explore'">
+						<li><a class="dropdown-item" routerLink="/yogas" (click)="closeAll()">🧘 Yogas</a></li>
+						<li><a class="dropdown-item" routerLink="/remedies" (click)="closeAll()">💎 Remedies</a></li>
+						<li><a class="dropdown-item" routerLink="/planets" (click)="closeAll()">🪐 Planets</a></li>
+						<li><a class="dropdown-item" routerLink="/nakshatras" (click)="closeAll()">⭐ Nakshatras</a></li>
 					</ul>
+				</li>
+
+				<!-- Pandit Arjun – Virtual Astrologer -->
+				<li class="nav-item">
+					<a class="nav-link nav-link-pandit" routerLink="/astrologer" (click)="closeAll()">
+						🔮 Pandit Arjun
+					</a>
 				</li>
 
 				<!-- My Tools — auth only -->
 				<ng-container *ngIf="authService.isAuthenticated()">
-					<li class="nav-item dropdown nav-dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" (click)="$event.preventDefault()">
+					<li class="nav-item dropdown nav-dropdown" [class.show]="openDropdown === 'mytools'">
+						<a class="nav-link dropdown-toggle" role="button"
+						   [class.show]="openDropdown === 'mytools'"
+						   (click)="toggleDropdown('mytools', $event)">
 							My Tools
 						</a>
-						<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu">
-							<li><a class="dropdown-item" routerLink="/birth-chart">🔮 Birth Chart</a></li>
-							<li><a class="dropdown-item" routerLink="/numerology">🔢 Numerology</a></li>
-							<li><a class="dropdown-item" routerLink="/matchmaking">❤️ Matchmaking</a></li>
-							<li><a class="dropdown-item" routerLink="/gemstones">💎 Gemstones</a></li>
+						<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu" [class.show]="openDropdown === 'mytools'">
+							<li><a class="dropdown-item" routerLink="/birth-chart" (click)="closeAll()">🔮 Birth Chart</a></li>
+							<li><a class="dropdown-item" routerLink="/numerology" (click)="closeAll()">🔢 Numerology</a></li>
+							<li><a class="dropdown-item" routerLink="/matchmaking" (click)="closeAll()">❤️ Matchmaking</a></li>
+							<li><a class="dropdown-item" routerLink="/gemstones" (click)="closeAll()">💎 Gemstones</a></li>
 						</ul>
 					</li>
 					<li class="nav-item nav-dashboard-btn">
-						<a class="nav-link nav-link-dashboard" routerLink="/dashboard">⚡ Dashboard</a>
+						<a class="nav-link nav-link-dashboard" routerLink="/dashboard" (click)="closeAll()">⚡ Dashboard</a>
 					</li>
 				</ng-container>
 
@@ -89,7 +104,7 @@
 					</ng-container>
 				</ng-container>
 				<ng-template #signInButton>
-					<a class="btn btn-primary btn-sm" routerLink="/login">
+					<a class="btn btn-primary btn-sm" routerLink="/login" (click)="closeAll()">
 						Sign In
 					</a>
 				</ng-template>

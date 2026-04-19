@@ -1,0 +1,51 @@
+<div class="guide-list-page">
+
+  <!-- Hero -->
+  <div class="guide-list-hero">
+    <div class="container">
+      <h1>Vedic Astrology Guides</h1>
+      <p class="hero-sub">In-depth guides to Mahadasha periods, Saturn transits, doshas and the fundamentals of your Vedic birth chart</p>
+
+      <!-- Pandit Arjun strip -->
+      <div class="pandit-strip">
+        <span class="pandit-avatar">🧘</span>
+        <span>Still have questions? <strong>Ask Pandit Arjun</strong> — personalised Vedic guidance for $0.50 / 50 questions</span>
+        <button class="pandit-strip-btn" routerLink="/astrologer">Ask Now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container guide-list-body">
+
+    <!-- Category filter -->
+    <div class="category-tabs">
+      <button
+        class="tab-btn"
+        *ngFor="let cat of categories"
+        [class.active]="activeCategory === cat.key"
+        (click)="setCategory(cat.key)">
+        {{ cat.label }}
+      </button>
+    </div>
+
+    <!-- Grid -->
+    <div class="guides-grid">
+      <div class="guide-card" *ngFor="let g of filteredGuides" (click)="openGuide(g.slug)">
+        <div class="guide-card-header">
+          <span class="guide-cat-badge">{{ getCategoryLabel(g.category) }}</span>
+          <span class="guide-time">⏱ {{ g.readingTime }} min</span>
+        </div>
+        <h2 class="guide-card-title">{{ g.title }}</h2>
+        <p class="guide-card-sub">{{ g.subtitle }}</p>
+        <button class="read-btn">Read Guide →</button>
+      </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="bottom-cta-section">
+      <h3>Not finding your answer in these guides?</h3>
+      <p>Pandit Arjun can answer specific questions about your chart, current dasha, Sade Sati or any Vedic topic — personalised to your exact birth details.</p>
+      <button class="pandit-cta-btn" (click)="goToAstrologer()">Ask Pandit Arjun — $0.50 / 50 Questions</button>
+    </div>
+  </div>
+</div>

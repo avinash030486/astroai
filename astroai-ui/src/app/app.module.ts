@@ -39,6 +39,9 @@ import { PlanetSignDetailComponent } from './components/planet-sign-detail/plane
 import { NakshatraListComponent } from './components/nakshatra-list/nakshatra-list.component';
 import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatra-detail.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AstrologerChatComponent } from './components/astrologer-chat/astrologer-chat.component';
+import { GuideDetailComponent } from './components/guide-detail/guide-detail.component';
+import { GuideListComponent } from './components/guide-list/guide-list.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -72,7 +75,10 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     PlanetSignDetailComponent,
     NakshatraListComponent,
     NakshatraDetailComponent,
-    DashboardComponent
+    DashboardComponent,
+    AstrologerChatComponent,
+    GuideDetailComponent,
+    GuideListComponent
   ],
   imports: [
     BrowserModule,

@@ -44,4 +44,8 @@ public interface IGptAstrologyService
         SouthIndianChart chart,
         DashaStatus dasha,
         CancellationToken ct);
+
+    Task<AstrologerChatResponse> AstrologerChatAsync(
+        AstrologerChatRequest request,
+        CancellationToken ct);
 }

@@ -1,6 +1,6 @@
-mv /home/site/wwwrootvedicastro-deploy-20260405.tar /home/site/wwwroot/
+mv /home/site/wwwrootvedicastro-deploy-20260412.tar /home/site/wwwroot/
 cd /home/site/wwwroot
 rm -rf *
-tar -xf wwwrootvedicastro-deploy-20260405.tar
-rm wwwrootvedicastro-deploy-20260405.tar
+tar -xf wwwrootvedicastro-deploy-20260412.tar
+rm wwwrootvedicastro-deploy-20260405-navfix.tar
 ls

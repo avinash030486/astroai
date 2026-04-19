@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
-import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { geoApi, horoscopeApi } from '../api/services';
 import { theme } from '../theme/theme';
@@ -45,7 +45,7 @@ export const CityPanchangScreen: React.FC = () => {
     <ScreenLayout title="City Panchang" subtitle="Location-based Vedic almanac" onBack={() => navigation.goBack()}>
       {loading && <LoadingOverlay message="Fetching coordinates…" />}
       <PlaceInput label="City Name" value={city} onChangeText={setCity} placeholder="e.g. Delhi, Mumbai, London" />
-      <FormField label="Date (YYYY-MM-DD)" value={date} onChangeText={setDate} placeholder="2025-01-01" />
+      <DatePickerField label="Date" value={date} onChangeText={setDate} />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <PrimaryButton label="Get City Panchang" onPress={fetchCityPanchang} loading={loading} style={styles.btn} />
 

@@ -1,0 +1,107 @@
+<div class="guide-detail" *ngIf="!loading">
+
+  <!-- Not found -->
+  <div *ngIf="notFound" class="container not-found">
+    <h2>Guide not found</h2>
+    <button class="btn-back" (click)="goBack()">← All Guides</button>
+  </div>
+
+  <div *ngIf="guide && !notFound">
+
+    <!-- ── Hero ── -->
+    <div class="guide-hero">
+      <div class="container">
+        <button class="btn-back" (click)="goBack()">← All Guides</button>
+        <div class="hero-meta">
+          <span class="category-badge">{{ getCategoryLabel() }}</span>
+          <span class="reading-time">⏱ {{ guide.readingTime }} min read</span>
+        </div>
+        <h1>{{ guide.title }}</h1>
+        <p class="guide-subtitle">{{ guide.subtitle }}</p>
+      </div>
+    </div>
+
+    <!-- ── Article Body ── -->
+    <div class="container guide-body">
+
+      <!-- Intro -->
+      <p class="guide-intro">{{ guide.intro }}</p>
+
+      <!-- Sections -->
+      <div *ngFor="let section of guide.sections; let i = index">
+        <div class="guide-section">
+          <h2>{{ section.heading }}</h2>
+          <p>{{ section.body }}</p>
+          <ul *ngIf="section.bullets && section.bullets.length" class="section-bullets">
+            <li *ngFor="let b of section.bullets">{{ b }}</li>
+          </ul>
+        </div>
+
+        <!-- Pandit Arjun mid-article CTA after 2nd section -->
+        <div class="pandit-arjun-cta" *ngIf="i === 1">
+          <div class="pandit-cta-inner">
+            <span class="pandit-avatar">🧘</span>
+            <div class="pandit-cta-text">
+              <div class="pandit-cta-name">Have a personal question about this?</div>
+              <div class="pandit-cta-desc">Ask Pandit Arjun — our AI Vedic astrologer — specific questions about your own chart and life situation.</div>
+            </div>
+            <button class="pandit-cta-btn" (click)="goToAstrologer()">Ask Pandit Arjun · $0.50 / 50 questions</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remedies -->
+      <section class="guide-section remedies-section" *ngIf="guide.remedies && guide.remedies.length">
+        <h2>🌿 Vedic Remedies</h2>
+        <ul class="remedy-list">
+          <li *ngFor="let remedy of guide.remedies">{{ remedy }}</li>
+        </ul>
+      </section>
+
+      <!-- FAQ -->
+      <section class="guide-section faq-section" *ngIf="guide.faqs && guide.faqs.length">
+        <h2>❓ Frequently Asked Questions</h2>
+        <div class="faq-item" *ngFor="let faq of guide.faqs; let i = index" [class.open]="isFaqOpen(i)">
+          <button class="faq-question" (click)="toggleFaq(i)">
+            <span>{{ faq.q }}</span>
+            <span class="faq-icon">{{ isFaqOpen(i) ? '−' : '+' }}</span>
+          </button>
+          <div class="faq-answer" *ngIf="isFaqOpen(i)">{{ faq.a }}</div>
+        </div>
+      </section>
+
+      <!-- Bottom Pandit Arjun CTA -->
+      <div class="pandit-arjun-cta bottom-cta">
+        <div class="pandit-cta-inner">
+          <span class="pandit-avatar">🧘</span>
+          <div class="pandit-cta-text">
+            <div class="pandit-cta-name">Get Personalised Guidance from Pandit Arjun</div>
+            <div class="pandit-cta-desc">Every chart is unique. Ask Pandit Arjun how these influences play out specifically in your Vedic birth chart — 50 questions for just $0.50.</div>
+          </div>
+          <div class="pandit-cta-actions">
+            <button class="pandit-cta-btn" (click)="goToAstrologer()">Ask Pandit Arjun</button>
+            <button class="btn-chart" (click)="goToBirthChart()">Get Free Birth Chart</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Guides -->
+      <section class="related-guides" *ngIf="relatedGuides.length">
+        <h3>Related Guides</h3>
+        <div class="related-grid">
+          <div class="related-card" *ngFor="let g of relatedGuides" (click)="goToGuide(g.slug)">
+            <div class="related-cat">{{ getCategoryLabel() }}</div>
+            <div class="related-title">{{ g.title }}</div>
+            <div class="related-sub">{{ g.subtitle }}</div>
+            <div class="related-time">⏱ {{ g.readingTime }} min</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading-wrap">
+  <div class="spinner-border"></div>
+</div>

@@ -55,6 +55,24 @@ header { position: sticky; top: 0; z-index: 1030; }
 }
 
 // ─── Dashboard pill button ─────────────────────────────────────────────────
+// Pandit Arjun nav link — glowing gold pill
+.nav-link-pandit {
+  background: linear-gradient(135deg, rgba(212,169,74,0.12), rgba(240,112,32,0.1)) !important;
+  border: 1px solid rgba(212,169,74,0.45) !important;
+  border-radius: 20px !important;
+  color: #d4a93a !important;
+  padding: 5px 14px !important;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(212,169,74,0.22), rgba(240,112,32,0.18)) !important;
+    border-color: #d4a93a !important;
+    box-shadow: 0 0 10px rgba(212,169,74,0.3);
+  }
+}
+
 .nav-dashboard-btn {
   margin-left: 6px;
 }
@@ -78,6 +96,27 @@ header { position: sticky; top: 0; z-index: 1030; }
 @media (max-width: 991px) {
   .nav-dashboard-btn { margin-left: 0; margin-top: 4px; }
   .nav-link-dashboard { display: inline-block; }
+
+  // Make dropdowns expand inline on mobile instead of floating above content
+  .nav-dropdown .nav-dd-menu {
+    position: static !important;
+    float: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-left: 2px solid rgba(212, 169, 74, 0.3) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    padding: 4px 0 4px 8px !important;
+    margin-top: 0 !important;
+    min-width: unset;
+  }
+
+  // Keep the collapsed navbar from cutting off content
+  #mainNav.show {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-bottom: 12px;
+  }
 }
 
 

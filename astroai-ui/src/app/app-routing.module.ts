@@ -31,6 +31,9 @@ import { PlanetSignDetailComponent } from './components/planet-sign-detail/plane
 import { NakshatraListComponent } from './components/nakshatra-list/nakshatra-list.component';
 import { NakshatraDetailComponent } from './components/nakshatra-detail/nakshatra-detail.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { AstrologerChatComponent } from './components/astrologer-chat/astrologer-chat.component';
+import { GuideDetailComponent } from './components/guide-detail/guide-detail.component';
+import { GuideListComponent } from './components/guide-list/guide-list.component';
 const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
@@ -64,6 +67,9 @@ const routes: Routes = [
   { path: 'nakshatras', component: NakshatraListComponent },
   { path: 'nakshatra/:slug', component: NakshatraDetailComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [requireAuthGuard] },
+  { path: 'astrologer', component: AstrologerChatComponent },
+  { path: 'guides', component: GuideListComponent },
+  { path: 'guide/:slug', component: GuideDetailComponent },
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

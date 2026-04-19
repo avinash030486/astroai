@@ -65,4 +65,8 @@ export class PlanetHouseDetailComponent implements OnInit {
   gotoBirthChart(): void {
     this.router.navigate(['/birth-chart']);
   }
+
+  goToAstrologer(): void {
+    this.router.navigate(['/astrologer']);
+  }
 }

@@ -59,4 +59,5 @@ export class NakshatraDetailComponent implements OnInit {
   goBack(): void { this.router.navigate(['/nakshatras']); }
   goBirthChart(): void { this.router.navigate(['/birth-chart']); }
   goToNakshatra(slug: string): void { this.router.navigate(['/nakshatra', slug]); }
+  goToAstrologer(): void { this.router.navigate(['/astrologer']); }
 }

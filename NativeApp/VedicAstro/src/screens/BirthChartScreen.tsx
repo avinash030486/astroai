@@ -6,19 +6,22 @@ import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
+import { TimePickerField } from '../components/TimePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { PaymentModal, PlanOption } from '../components/PaymentModal';
 import { predictionsApi, paymentsApi, normalizeTime } from '../api/services';
 import { theme } from '../theme/theme';
-
-const PREMIUM_PLANS: PlanOption[] = [
-  { id: 'one-time', label: 'One Time', price: '$3.99', amountUsd: 3.99, note: 'Single detailed report' },
-  { id: 'weekly',   label: 'Weekly',   price: '$2.99', amountUsd: 2.99, note: 'Unlimited for a week', popular: true },
-  { id: 'monthly',  label: 'Monthly',  price: '$5.99', amountUsd: 5.99, note: 'Unlimited for a month' },
-];
+import { useCurrency } from '../hooks/useCurrency';
 
 export const BirthChartScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { format, ready } = useCurrency();
+  const PREMIUM_PLANS: PlanOption[] = [
+    { id: 'one-time', label: 'One Time', price: ready ? format(3.99) : '...', amountUsd: 3.99, note: 'Single detailed report' },
+    { id: 'weekly',   label: 'Weekly',   price: ready ? format(2.99) : '...', amountUsd: 2.99, note: 'Unlimited for a week', popular: true },
+    { id: 'monthly',  label: 'Monthly',  price: ready ? format(5.99) : '...', amountUsd: 5.99, note: 'Unlimited for a month' },
+  ];
   const [form, setForm] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -81,8 +84,8 @@ export const BirthChartScreen: React.FC = () => {
       )}
 
       <FormField label="Your Name" value={form.name} onChangeText={set('name')} placeholder="Optional" />
-      <FormField label="Date of Birth (YYYY-MM-DD)" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} placeholder="1990-01-15" />
-      <FormField label="Time of Birth (HH:MM)" value={form.timeOfBirth} onChangeText={set('timeOfBirth')} placeholder="06:30" />
+      <DatePickerField label="Date of Birth" value={form.dateOfBirth} onChangeText={set('dateOfBirth')} maximumDate={new Date()} />
+      <TimePickerField label="Time of Birth" value={form.timeOfBirth} onChangeText={set('timeOfBirth')} />
       <PlaceInput label="Place of Birth" value={form.placeOfBirth} onChangeText={set('placeOfBirth')} placeholder="Delhi, India" />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <PrimaryButton label="Generate Birth Chart" onPress={fetchChart} loading={loading} style={styles.btn} />
@@ -140,7 +143,7 @@ export const BirthChartScreen: React.FC = () => {
                 Unlock career, finance, relationships, destiny, yogas & remedies
               </Text>
               <TouchableOpacity style={styles.premiumBtn} onPress={() => setShowPremium(true)}>
-                <Text style={styles.premiumBtnText}>Unlock from $2.99</Text>
+                <Text style={styles.premiumBtnText}>{`Unlock from ${ready ? format(2.99) : '...'}`}</Text>
               </TouchableOpacity>
             </LinearGradient>
           )}

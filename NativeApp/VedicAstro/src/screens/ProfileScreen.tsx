@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StarField } from '../components/StarField';
 import { useAuthStore } from '../store/authStore';
 import { theme } from '../theme/theme';
@@ -9,6 +10,7 @@ import { theme } from '../theme/theme';
 export const ProfileScreen: React.FC = () => {
   const { user, signOut } = useAuthStore();
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -23,6 +25,7 @@ export const ProfileScreen: React.FC = () => {
   return (
     <LinearGradient colors={[theme.colors.navy, theme.colors.navyLight]} style={styles.root}>
       <StarField />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
       <View style={styles.header}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initial}</Text>
@@ -56,6 +59,7 @@ export const ProfileScreen: React.FC = () => {
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
     </LinearGradient>
   );
 };

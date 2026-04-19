@@ -54,6 +54,14 @@ export interface GemstonePaymentRequest {
   birthPlace: string;
 }
 
+export interface AstrologerPaymentRequest {
+  amountUsd: number;
+  name: string;
+  email: string;
+  paymentMethodId: string;
+  placeOfBirth: string;
+}
+
 export interface PaymentResult {
   success: boolean;
   error?: string | null;
@@ -83,5 +91,9 @@ export class PaymentService {
 
   chargeForGemstone(req: GemstonePaymentRequest): Observable<PaymentResult> {
     return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForGemstone`, req);
+  }
+
+  chargeForAstrologer(req: AstrologerPaymentRequest): Observable<PaymentResult> {
+    return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForAstrologer`, req);
   }
 }

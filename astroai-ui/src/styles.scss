@@ -154,6 +154,53 @@ app-pricing {
 }
 
 /* ─────────────────────────────────────────
+   PANDIT ARJUN CTA  (shared across all detail pages)
+───────────────────────────────────────── */
+.pandit-arjun-cta {
+  background: linear-gradient(135deg, #1a0a3e 0%, #2d1b69 100%);
+  border: 1px solid rgba(240, 192, 64, 0.35);
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin: 32px 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: #fff;
+
+  .pandit-avatar { font-size: 2.2rem; flex-shrink: 0; }
+
+  .pandit-cta-body { flex: 1; min-width: 180px; }
+  .pandit-cta-name {
+    font-size: 1rem; font-weight: 700; color: #f0c040; margin-bottom: 4px;
+  }
+  .pandit-cta-desc {
+    font-size: 0.88rem; color: rgba(255, 255, 255, 0.8); line-height: 1.5;
+  }
+
+  .pandit-cta-btn {
+    background: #f0c040;
+    color: #1a0a3e;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    &:hover { background: #e0b030; }
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    .pandit-cta-btn { width: 100%; text-align: center; }
+  }
+}
+
+/* ─────────────────────────────────────────
    FOOTER
 ───────────────────────────────────────── */
 .footer {

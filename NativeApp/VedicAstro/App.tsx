@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
@@ -63,9 +64,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.navy} />
-      <AppNavigator />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar barStyle="light-content" backgroundColor={theme.colors.navy} />
+        <AppNavigator />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

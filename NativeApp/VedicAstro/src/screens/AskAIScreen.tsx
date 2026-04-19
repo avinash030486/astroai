@@ -6,22 +6,25 @@ import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
+import { TimePickerField } from '../components/TimePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { PaymentModal, PlanOption } from '../components/PaymentModal';
 import { horoscopeApi, paymentsApi } from '../api/services';
 import { theme } from '../theme/theme';
+import { useCurrency } from '../hooks/useCurrency';
 
 const MAX_FREE_QUESTIONS = 1;
-
-const QNA_PLANS: PlanOption[] = [
-  { id: 'qna-10',        label: '10 Questions',  price: '$3.00', amountUsd: 3.00, note: '10 AI answers' },
-  { id: 'qna-unlimited', label: 'Unlimited',      price: '$10.00', amountUsd: 10.00, note: 'Ask anything', popular: true },
-];
 
 interface Message { role: 'user' | 'ai'; text: string }
 
 export const AskAIScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { format, ready } = useCurrency();
+  const QNA_PLANS: PlanOption[] = [
+    { id: 'qna-10',        label: '10 Questions', price: ready ? format(3.00)  : '...', amountUsd: 3.00,  note: '10 AI answers' },
+    { id: 'qna-unlimited', label: 'Unlimited',     price: ready ? format(10.00) : '...', amountUsd: 10.00, note: 'Ask anything', popular: true },
+  ];
   const [question, setQuestion]     = useState('');
   const [name, setName]             = useState('');
   const [birthDate, setBirthDate]   = useState('');
@@ -71,8 +74,8 @@ export const AskAIScreen: React.FC = () => {
       {loading && <LoadingOverlay message="Consulting the cosmos…" />}
 
       <FormField label="Your Name (optional)" value={name} onChangeText={setName} placeholder="Your name" />
-      <FormField label="Your Date of Birth (optional)" value={birthDate} onChangeText={setBirthDate} placeholder="1990-01-15" />
-      <FormField label="Time of Birth (optional)" value={timeOfBirth} onChangeText={setTimeOfBirth} placeholder="06:30" />
+      <DatePickerField label="Date of Birth (optional)" value={birthDate} onChangeText={setBirthDate} maximumDate={new Date()} />
+      <TimePickerField label="Time of Birth (optional)" value={timeOfBirth} onChangeText={setTimeOfBirth} />
       <PlaceInput label="Your Birthplace (optional)" value={birthPlace} onChangeText={setBirthPlace} placeholder="Delhi, India" />
 
       {messages.length > 0 && (
@@ -103,7 +106,7 @@ export const AskAIScreen: React.FC = () => {
           <Text style={styles.paywallText}>Unlock more questions to get personalised cosmic guidance</Text>
           {paymentError ? <Text style={styles.payError}>{paymentError}</Text> : null}
           <TouchableOpacity style={styles.paywallBtn} onPress={() => setShowPayment(true)}>
-            <Text style={styles.paywallBtnText}>Unlock Questions from $3.00</Text>
+            <Text style={styles.paywallBtnText}>{`Unlock Questions from ${ready ? format(3.00) : '...'}`}</Text>
           </TouchableOpacity>
         </LinearGradient>
       )}

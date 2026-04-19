@@ -60,6 +60,14 @@ namespace AstroAI.Api.Controllers
         string BirthDate,
         string BirthPlace);
 
+    // Dedicated DTO for Pandit Arjun consultation payment
+    public record AstrologerPaymentRequestDto(
+        decimal AmountUsd,
+        string Name,
+        string Email,
+        string PaymentMethodId,
+        string PlaceOfBirth);
+
     public record PaymentResultDto(bool Success, string? Error, string? SubscriptionId = null, string? CustomerId = null);
 
 
@@ -677,6 +685,60 @@ namespace AstroAI.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Unexpected error in chargeForGemstone: {Message}", ex.Message);
+                return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("chargeForAstrologer")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChargeForAstrologer(
+            [FromBody] AstrologerPaymentRequestDto dto,
+            CancellationToken ct)
+        {
+            _logger.LogInformation("🔮 Astrologer payment attempt for {Email}", dto.Email);
+            try
+            {
+                var amountCents = (long)(dto.AmountUsd * 100);
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    PaymentMethod = dto.PaymentMethodId,
+                    Confirm = true,
+                    Description = "Pandit Arjun – 50-Question Session",
+                    ReceiptEmail = dto.Email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "service", "astrologer-chat" },
+                        { "customer_name", dto.Name },
+                        { "customer_email", dto.Email },
+                        { "place_of_birth", dto.PlaceOfBirth }
+                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
+                var service = new PaymentIntentService();
+                var intent = await service.CreateAsync(options, cancellationToken: ct);
+                if (intent.Status == "succeeded")
+                {
+                    _logger.LogInformation("✅ Astrologer payment succeeded for {Email}", dto.Email);
+                    return Ok(new PaymentResultDto(true, null, null, null));
+                }
+                _logger.LogWarning("⚠️ Astrologer payment not completed, status: {Status}", intent.Status);
+                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "❌ Stripe error in Astrologer payment: {Message}, Code={Code}",
+                    ex.Message, ex.StripeError?.Code);
+                return BadRequest(new PaymentResultDto(false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unexpected error in chargeForAstrologer: {Message}", ex.Message);
                 return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
             }
         }

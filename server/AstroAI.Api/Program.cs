@@ -129,7 +129,14 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Swashbuckle doesn't natively support DateOnly/TimeOnly — map them explicitly
+    c.MapType<DateOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema { Type = "string", Format = "date",    Example = new Microsoft.OpenApi.Any.OpenApiString("1990-03-15") });
+    c.MapType<TimeOnly>(() => new Microsoft.OpenApi.Models.OpenApiSchema { Type = "string", Format = "time",    Example = new Microsoft.OpenApi.Any.OpenApiString("14:30:00") });
+    c.MapType<DateOnly?>(() => new Microsoft.OpenApi.Models.OpenApiSchema { Type = "string", Format = "date",   Nullable = true });
+    c.MapType<TimeOnly?>(() => new Microsoft.OpenApi.Models.OpenApiSchema { Type = "string", Format = "time",   Nullable = true });
+});
 builder.Services.Configure<AstroAiSettings>(builder.Configuration.GetSection("AstroAI"));
 
 // Stripe & Cosmos Configuration

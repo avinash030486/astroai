@@ -6,9 +6,12 @@ import { ScreenLayout } from '../components/ScreenLayout';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
+import { DatePickerField } from '../components/DatePickerField';
+import { TimePickerField } from '../components/TimePickerField';
 import { PaymentModal } from '../components/PaymentModal';
 import { matchmakingApi, paymentsApi, normalizeTime } from '../api/services';
 import { theme } from '../theme/theme';
+import { useCurrency } from '../hooks/useCurrency';
 
 const ScoreBar: React.FC<{ label: string; value: number; max?: number }> = ({ label, value, max = 100 }) => {
   const pct = Math.min((value / max) * 100, 100);
@@ -36,6 +39,7 @@ const scoreStyles = StyleSheet.create({
 
 export const MatchmakingScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { format, ready } = useCurrency();
   const [p1, setP1] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [p2, setP2] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [result, setResult] = useState<any>(null);
@@ -90,8 +94,8 @@ export const MatchmakingScreen: React.FC = () => {
       <View style={styles.personSection}>
         <Text style={styles.personLabel}>❤️ Person 1</Text>
         <FormField label="Name" value={p1.name} onChangeText={setP('p1','name')} placeholder="Name" />
-        <FormField label="Date of Birth (YYYY-MM-DD)" value={p1.dateOfBirth} onChangeText={setP('p1','dateOfBirth')} placeholder="1990-01-15" />
-        <FormField label="Time of Birth (HH:MM)" value={p1.timeOfBirth} onChangeText={setP('p1','timeOfBirth')} placeholder="06:30" />
+        <DatePickerField label="Date of Birth" value={p1.dateOfBirth} onChangeText={setP('p1','dateOfBirth')} maximumDate={new Date()} />
+        <TimePickerField label="Time of Birth" value={p1.timeOfBirth} onChangeText={setP('p1','timeOfBirth')} />
         <FormField label="Place of Birth" value={p1.placeOfBirth} onChangeText={setP('p1','placeOfBirth')} placeholder="Delhi, India" />
       </View>
 
@@ -100,13 +104,13 @@ export const MatchmakingScreen: React.FC = () => {
       <View style={styles.personSection}>
         <Text style={styles.personLabel}>💙 Person 2</Text>
         <FormField label="Name" value={p2.name} onChangeText={setP('p2','name')} placeholder="Name" />
-        <FormField label="Date of Birth (YYYY-MM-DD)" value={p2.dateOfBirth} onChangeText={setP('p2','dateOfBirth')} placeholder="1992-06-20" />
-        <FormField label="Time of Birth (HH:MM)" value={p2.timeOfBirth} onChangeText={setP('p2','timeOfBirth')} placeholder="14:00" />
+        <DatePickerField label="Date of Birth" value={p2.dateOfBirth} onChangeText={setP('p2','dateOfBirth')} maximumDate={new Date()} />
+        <TimePickerField label="Time of Birth" value={p2.timeOfBirth} onChangeText={setP('p2','timeOfBirth')} />
         <FormField label="Place of Birth" value={p2.placeOfBirth} onChangeText={setP('p2','placeOfBirth')} placeholder="Mumbai, India" />
       </View>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <PrimaryButton label="Analyze Compatibility — $1.99" onPress={handleAnalyze} loading={loading} style={styles.btn} />
+      <PrimaryButton label={`Analyze Compatibility — ${ready ? format(1.99) : '...'}`} onPress={handleAnalyze} loading={loading} style={styles.btn} />
 
       {result && (
         <View>

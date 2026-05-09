@@ -1,0 +1,179 @@
+<div *ngIf="!loading">
+
+  <!-- Not Found -->
+  <div *ngIf="notFound" class="not-found container">
+    <h2>Placement Not Found</h2>
+    <button class="btn" (click)="goBack()">Back to Debilitated Planets</button>
+  </div>
+
+  <div *ngIf="planet && !notFound" class="debilitated-detail">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="container">
+        <button class="back-btn" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i> All Debilitated Planets
+        </button>
+        <div class="hero-top">
+          <span class="planet-glyph">{{ planet.glyph }}</span>
+          <div>
+            <h1>{{ mode === 'overview' ? planet.title : selectedHouse?.title }}</h1>
+            <div class="debilitation-badge">
+              Debilitated in {{ planet.debilitationSign }} · {{ planet.debilitationDegree }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container content">
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab-btn" [class.active]="mode === 'overview'" (click)="showOverview()">
+          Overview
+        </button>
+        <button
+          class="tab-btn house-tab"
+          *ngFor="let h of houseEntries"
+          [class.active]="mode === 'house' && selectedHouse?.house === h.house"
+          (click)="selectHouse(h)">
+          H{{ h.house }}
+        </button>
+      </div>
+
+      <!-- ── OVERVIEW MODE ── -->
+      <ng-container *ngIf="mode === 'overview'">
+
+        <section class="card">
+          <h2>About Debilitated {{ planet.planet }}</h2>
+          <p>{{ planet.overview }}</p>
+        </section>
+
+        <section class="card challenges">
+          <h2>⚠️ Core Challenges</h2>
+          <ul>
+            <li *ngFor="let c of planet.challenges">{{ c }}</li>
+          </ul>
+        </section>
+
+        <section class="card neechabhanga">
+          <h2>🌟 Neechabhanga Yogas — Cancellation of Debilitation</h2>
+          <p class="nbg-explain">{{ planet.neechabhangaExplanation }}</p>
+          <ul>
+            <li *ngFor="let y of planet.cancellationYogas">{{ y }}</li>
+          </ul>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>💼 Career Challenges</h3>
+            <p>{{ planet.careerChallenges }}</p>
+          </div>
+          <div class="card-block">
+            <h3>💞 Relationship Challenges</h3>
+            <p>{{ planet.relationshipChallenges }}</p>
+          </div>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>🏥 Health Vulnerabilities</h3>
+            <p>{{ planet.healthChallenges }}</p>
+          </div>
+          <div class="card-block">
+            <h3>🕉️ Spiritual Lesson</h3>
+            <p>{{ planet.spiritualLesson }}</p>
+          </div>
+        </section>
+
+        <section class="card remedies">
+          <h2>🙏 Remedies for Debilitated {{ planet.planet }}</h2>
+          <ul>
+            <li *ngFor="let r of planet.remedies">{{ r }}</li>
+          </ul>
+        </section>
+
+        <div class="house-prompt">
+          <p>Select a house number above to see how Debilitated {{ planet.planet }} performs in each of the 12 houses.</p>
+        </div>
+
+      </ng-container>
+
+      <!-- ── HOUSE MODE ── -->
+      <ng-container *ngIf="mode === 'house' && selectedHouse">
+
+        <section class="card">
+          <h2>Overview</h2>
+          <p>{{ selectedHouse.summary }}</p>
+        </section>
+
+        <section class="card">
+          <h2>General Effects</h2>
+          <ul>
+            <li *ngFor="let e of selectedHouse.generalEffects">{{ e }}</li>
+          </ul>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>💼 Career</h3>
+            <p>{{ selectedHouse.career }}</p>
+          </div>
+          <div class="card-block">
+            <h3>💞 Relationships</h3>
+            <p>{{ selectedHouse.relationships }}</p>
+          </div>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>🏥 Health</h3>
+            <p>{{ selectedHouse.health }}</p>
+          </div>
+          <div class="card-block">
+            <h3>🕉️ Spiritual</h3>
+            <p>{{ selectedHouse.spiritual }}</p>
+          </div>
+        </section>
+
+        <section class="card neechabhanga">
+          <h2>🌟 Neechabhanga Yogas for This Placement</h2>
+          <ul>
+            <li *ngFor="let y of selectedHouse.neechabhangaYogas">{{ y }}</li>
+          </ul>
+        </section>
+
+        <section class="card remedies">
+          <h2>🙏 Remedies</h2>
+          <ul>
+            <li *ngFor="let r of selectedHouse.remedies">{{ r }}</li>
+          </ul>
+        </section>
+
+      </ng-container>
+
+      <!-- CTA -->
+      <div class="cta">
+        <h3>See this placement in your own chart</h3>
+        <p>Generate your Vedic birth chart and discover which planets are debilitated — and whether Neechabhanga is active.</p>
+        <button class="btn primary" (click)="gotoBirthChart()">Get My Birth Chart</button>
+        <button class="btn ghost" (click)="goBack()">Back to all debilitated planets</button>
+      </div>
+
+      <div class="pandit-arjun-cta">
+        <span class="pandit-avatar">🧘</span>
+        <div class="pandit-cta-body">
+          <div class="pandit-cta-name">Ask Pandit Arjun About This Placement</div>
+          <div class="pandit-cta-desc">Have personal questions about Neechabhanga in your chart or which remedies will be most effective? Get answers from our AI Vedic astrologer.</div>
+        </div>
+        <button class="pandit-cta-btn" (click)="goToAstrologer()">Ask Now · $0.50 / 50 questions</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading">
+  <div class="spinner-border"></div>
+</div>

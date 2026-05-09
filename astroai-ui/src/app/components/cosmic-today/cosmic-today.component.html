@@ -1,0 +1,103 @@
+<div class="cosmic-wrapper">
+
+  <!-- Hero -->
+  <section class="cosmic-hero text-center">
+    <div class="free-badge">{{ t.freeNoLogin }}</div>
+    <div class="hero-emoji">{{ vara.emoji }}</div>
+    <h1 class="cosmic-title">{{ t.cosmicTodayTitle }}</h1>
+    <p class="cosmic-sub">{{ t.cosmicTodaySubtitle }}</p>
+    <div class="today-date">{{ today | date:'EEEE, MMMM d, y' }}</div>
+  </section>
+
+  <!-- Main Cards Grid -->
+  <section class="container cosmic-grid py-4">
+
+    <!-- Vara / Weekday Card -->
+    <div class="cosmic-card card-vara {{ vara.bgClass }}">
+      <div class="card-icon">{{ vara.emoji }}</div>
+      <div class="card-label">{{ t.vara }}</div>
+      <div class="card-value">{{ currentVaraName }}</div>
+      <div class="card-sub">{{ t.moonNakshatra }}: <strong>{{ currentNakshatra }}</strong></div>
+      <div class="card-sub">{{ t.moonInSign }}: <strong>{{ currentMoonSign }}</strong></div>
+    </div>
+
+    <!-- Energy Card -->
+    <div class="cosmic-card card-energy">
+      <div class="card-icon">⚡</div>
+      <div class="card-label">{{ t.dayEnergy }}</div>
+      <div class="card-value">{{ currentEnergy }}</div>
+    </div>
+
+    <!-- Lucky Color -->
+    <div class="cosmic-card card-color">
+      <div class="card-icon">🎨</div>
+      <div class="card-label">{{ t.luckyColor }}</div>
+      <div class="card-value">{{ currentLuckyColor }}</div>
+    </div>
+
+    <!-- Lucky Number -->
+    <div class="cosmic-card card-number">
+      <div class="card-icon">🔢</div>
+      <div class="card-label">{{ t.luckyNumber }}</div>
+      <div class="card-value num-big">{{ vara.number }}</div>
+    </div>
+
+    <!-- Lucky Gem -->
+    <div class="cosmic-card card-gem">
+      <div class="card-icon">💎</div>
+      <div class="card-label">{{ t.luckyGem }}</div>
+      <div class="card-value">{{ currentGem }}</div>
+    </div>
+
+    <!-- Rahu Kalam -->
+    <div class="cosmic-card card-rahu">
+      <div class="card-icon">⚠️</div>
+      <div class="card-label">{{ t.rahuKalamTitle }}</div>
+      <div class="card-value rahu-time">{{ panchangLoading ? 'Loading...' : rahuKalam }}</div>
+      <div class="card-sub avoid-label">{{ t.avoidTime }}</div>
+    </div>
+
+  </section>
+
+  <!-- Auspicious Times -->
+  <section class="container muhurat-section mb-4">
+    <h2 class="section-head">✨ {{ t.auspiciousTime }}</h2>
+    <div class="muhurat-grid">
+      <div class="muhurat-card">
+        <div class="m-icon">🌅</div>
+        <div class="m-title">{{ t.brahmaTitle }}</div>
+        <div class="m-time">4:30 AM – 6:00 AM</div>
+        <div class="m-desc">Best time for meditation & prayers</div>
+      </div>
+      <div class="muhurat-card">
+        <div class="m-icon">☀️</div>
+        <div class="m-title">{{ t.abhijitTitle }}</div>
+        <div class="m-time">11:48 AM – 12:36 PM</div>
+        <div class="m-desc">Powerful time for important decisions</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cosmic Tip -->
+  <section class="container tip-section mb-4">
+    <div class="tip-card">
+      <div class="tip-header">
+        <span class="tip-star">✦</span>
+        {{ t.todayTip }}
+        <span class="tip-star">✦</span>
+      </div>
+      <p class="tip-body">{{ currentTip }}</p>
+    </div>
+  </section>
+
+  <!-- Share + CTA -->
+  <section class="container cta-section mb-5">
+    <button class="btn-whatsapp" (click)="shareOnWhatsApp()">
+      {{ t.shareWhatsApp }}
+    </button>
+    <a class="btn-fullchart" routerLink="/birth-chart">
+      {{ t.getFullChart }}
+    </a>
+  </section>
+
+</div>

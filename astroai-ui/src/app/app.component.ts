@@ -4,6 +4,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { AnalyticsService } from './services/analytics.service';
 import { ReferralService } from './services/referral.service';
+import { LanguageService } from './services/language.service';
 
 declare let gtag: Function;
 
@@ -40,7 +41,8 @@ export class AppComponent implements OnInit {
     public authService: AuthService,
     private router: Router,
     private analytics: AnalyticsService,
-    private referral: ReferralService
+    private referral: ReferralService,
+    public langSvc: LanguageService
   ) {
     this.referral.checkReferralInUrl();
     console.log('🚀 AppComponent initialized, AuthService injected');

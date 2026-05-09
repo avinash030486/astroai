@@ -1,0 +1,248 @@
+.exalted-list-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
+  color: #e5e7eb;
+  padding-bottom: 64px;
+}
+
+.hero-section {
+  padding: 64px 20px 48px;
+  text-align: center;
+  background: radial-gradient(ellipse at top center, rgba(250, 204, 21, 0.12) 0%, transparent 65%);
+
+  .hero-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    background: linear-gradient(120deg, #facc15, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-subtitle {
+    max-width: 680px;
+    margin: 0 auto 20px;
+    font-size: 1.05rem;
+    color: #d1d5db;
+    line-height: 1.65;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.badge {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  background: rgba(250, 204, 21, 0.08);
+  color: #fbbf24;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.intro-card {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(250, 204, 21, 0.2);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin-bottom: 36px;
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #facc15;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #d1d5db;
+    line-height: 1.7;
+    font-size: 0.97rem;
+
+    em {
+      color: #fbbf24;
+      font-style: normal;
+    }
+
+    strong {
+      color: #facc15;
+    }
+  }
+}
+
+.planets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 22px;
+  margin-bottom: 48px;
+}
+
+.planet-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 18px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &:hover {
+    border-color: rgba(250, 204, 21, 0.5);
+    background: rgba(20, 30, 55, 0.98);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(250, 204, 21, 0.08);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .planet-glyph {
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+
+  .planet-identity {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .planet-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f9fafb;
+    margin: 0;
+  }
+
+  .planet-sanskrit {
+    font-size: 0.85rem;
+    color: #9ca3af;
+  }
+
+  .exaltation-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: #fbbf24;
+    font-weight: 500;
+    width: fit-content;
+  }
+
+  .planet-overview {
+    font-size: 0.9rem;
+    color: #d1d5db;
+    line-height: 1.6;
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  .strengths-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    li {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      display: flex;
+      gap: 7px;
+      align-items: flex-start;
+    }
+
+    .bullet {
+      color: #facc15;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  }
+
+  .card-footer {
+    border-top: 1px solid rgba(55, 65, 81, 0.6);
+    padding-top: 12px;
+  }
+
+  .explore-link {
+    font-size: 0.85rem;
+    color: #facc15;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.seo-section {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  border-radius: 16px;
+  padding: 32px;
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #f9fafb;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #d1d5db;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .seo-link {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+.link-btn {
+  background: none;
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  color: #facc15;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(250, 204, 21, 0.1);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-section .hero-title {
+    font-size: 2rem;
+  }
+
+  .planets-grid {
+    grid-template-columns: 1fr;
+  }
+}

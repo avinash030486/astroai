@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ActivityIndicator, FlatList,
+  StyleSheet, ActivityIndicator, Modal, ScrollView,
 } from 'react-native';
 import { geoApi } from '../api/services';
 import { theme } from '../theme/theme';
@@ -60,22 +60,37 @@ export const PlaceInput: React.FC<Props> = ({ label, value, onChangeText, placeh
           <ActivityIndicator size="small" color={theme.colors.gold} style={styles.spinner} />
         )}
       </View>
-      {suggestions.length > 0 && (
-        <FlatList
-          data={suggestions}
-          keyExtractor={(_, i) => String(i)}
-          keyboardShouldPersistTaps="always"
-          style={styles.dropdown}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity
-              style={[styles.item, index < suggestions.length - 1 && styles.itemBorder]}
-              onPress={() => select(item)}
+      {/* Modal keeps suggestions outside any ScrollView/FlatList tree, fixing the nested VirtualizedList warning */}
+      <Modal
+        visible={suggestions.length > 0}
+        transparent
+        animationType="none"
+        onRequestClose={() => setSuggestions([])}
+      >
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={() => setSuggestions([])}
+        >
+          <View style={styles.dropdownWrap}>
+            <ScrollView
+              keyboardShouldPersistTaps="always"
+              style={styles.dropdown}
+              bounces={false}
             >
-              <Text style={styles.itemText}>📍 {item}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      )}
+              {suggestions.map((item, index) => (
+                <TouchableOpacity
+                  key={String(index)}
+                  style={[styles.item, index < suggestions.length - 1 && styles.itemBorder]}
+                  onPress={() => select(item)}
+                >
+                  <Text style={styles.itemText}>📍 {item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -104,6 +119,21 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   spinner: { position: 'absolute', right: 14 },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  dropdownWrap: {
+    borderRadius: theme.radius.md,
+    overflow: 'hidden',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+  },
   dropdown: {
     backgroundColor: theme.colors.card,
     borderWidth: 1,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,16 +13,29 @@ import { PaymentModal, PlanOption } from '../components/PaymentModal';
 import { predictionsApi, paymentsApi, normalizeTime } from '../api/services';
 import { theme } from '../theme/theme';
 import { useCurrency } from '../hooks/useCurrency';
+import { useProfileAutofill } from '../hooks/useProfileAutofill';
 
 export const BirthChartScreen: React.FC = () => {
   const navigation = useNavigation();
   const { format, ready } = useCurrency();
+  const { autofill } = useProfileAutofill();
   const PREMIUM_PLANS: PlanOption[] = [
     { id: 'one-time', label: 'One Time', price: ready ? format(3.99) : '...', amountUsd: 3.99, note: 'Single detailed report' },
     { id: 'weekly',   label: 'Weekly',   price: ready ? format(2.99) : '...', amountUsd: 2.99, note: 'Unlimited for a week', popular: true },
     { id: 'monthly',  label: 'Monthly',  price: ready ? format(5.99) : '...', amountUsd: 5.99, note: 'Unlimited for a month' },
   ];
   const [form, setForm] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
+
+  useEffect(() => {
+    if (autofill.dateOfBirth || autofill.name) {
+      setForm(f => ({
+        name:         autofill.name        || f.name,
+        dateOfBirth:  autofill.dateOfBirth  || f.dateOfBirth,
+        timeOfBirth:  autofill.timeOfBirth  || f.timeOfBirth,
+        placeOfBirth: autofill.placeOfBirth || f.placeOfBirth,
+      }));
+    }
+  }, [autofill.dateOfBirth, autofill.name]);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

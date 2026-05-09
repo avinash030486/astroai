@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&display=swap');
+
+.cosmic-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #0d2b1a 0%, #071a0f 60%);
+  padding-bottom: 60px;
+}
+
+/* ── Hero ── */
+.cosmic-hero {
+  padding: 48px 20px 32px;
+  border-bottom: 1px solid rgba(212,169,74,0.15);
+
+  .free-badge {
+    display: inline-block;
+    background: rgba(46,213,115,0.15);
+    border: 1px solid #2ed573;
+    color: #2ed573;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 16px;
+    margin-bottom: 18px;
+    letter-spacing: 0.04em;
+  }
+
+  .hero-emoji {
+    font-size: 4rem;
+    margin-bottom: 8px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .cosmic-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: #ECC76A;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .cosmic-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .today-date {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+  }
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ── Cards Grid ── */
+.cosmic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.cosmic-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+
+  .card-icon { font-size: 2rem; margin-bottom: 8px; }
+
+  .card-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 6px;
+  }
+
+  .card-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ECC76A;
+    line-height: 1.3;
+  }
+
+  .card-sub {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    margin-top: 4px;
+  }
+
+  .num-big {
+    font-size: 2.4rem;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .rahu-time {
+    color: #ff6b6b;
+  }
+
+  .avoid-label {
+    font-size: 0.7rem;
+    color: #ff6b6b;
+  }
+}
+
+/* Vara colour accents */
+.vara-sun  { border-color: rgba(255,165,0,0.4);  background: rgba(255,140,0,0.08); }
+.vara-moon { border-color: rgba(192,192,192,0.4); background: rgba(200,200,220,0.07); }
+.vara-mars { border-color: rgba(220,50,50,0.4);   background: rgba(220,50,50,0.08); }
+.vara-mercury { border-color: rgba(50,200,100,0.4); background: rgba(50,200,100,0.07); }
+.vara-jupiter { border-color: rgba(255,215,0,0.4);  background: rgba(255,215,0,0.08); }
+.vara-venus { border-color: rgba(255,192,203,0.4);  background: rgba(255,192,203,0.07); }
+.vara-saturn { border-color: rgba(70,70,140,0.5);   background: rgba(50,50,100,0.12); }
+
+/* ── Muhurat ── */
+.muhurat-section {
+  max-width: 900px;
+
+  .section-head {
+    color: #ECC76A;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+  }
+
+  .muhurat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .muhurat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(212,169,74,0.25);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+
+    .m-icon { font-size: 1.8rem; margin-bottom: 6px; }
+    .m-title { color: #ECC76A; font-weight: 600; margin-bottom: 4px; }
+    .m-time { font-size: 1.05rem; color: #fff; font-weight: 600; }
+    .m-desc { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
+  }
+}
+
+/* ── Tip Card ── */
+.tip-section {
+  max-width: 900px;
+
+  .tip-card {
+    background: linear-gradient(135deg, rgba(212,169,74,0.12), rgba(46,213,115,0.06));
+    border: 1px solid rgba(212,169,74,0.3);
+    border-radius: 18px;
+    padding: 24px 28px;
+    text-align: center;
+
+    .tip-header {
+      color: #ECC76A;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      font-weight: 600;
+
+      .tip-star { margin: 0 8px; }
+    }
+
+    .tip-body {
+      color: rgba(255,255,255,0.85);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin: 0;
+    }
+  }
+}
+
+/* ── CTA ── */
+.cta-section {
+  max-width: 900px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  .btn-whatsapp {
+    background: #25d366;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37,211,102,0.4);
+    }
+  }
+
+  .btn-fullchart {
+    background: linear-gradient(135deg, #ECC76A, #c49b3c);
+    color: #071a0f;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(236,199,106,0.35);
+      color: #071a0f;
+    }
+  }
+}
+
+/* Multilingual font support */
+:lang(hi), .lang-hi { font-family: 'Noto Sans Devanagari', sans-serif; }
+:lang(ml), .lang-ml { font-family: 'Noto Sans Malayalam', sans-serif; }
+
+/* Mobile */
+@media (max-width: 576px) {
+  .cosmic-grid { grid-template-columns: repeat(2, 1fr); }
+  .cta-section { flex-direction: column; align-items: center; }
+  .btn-whatsapp, .btn-fullchart { width: 100%; justify-content: center; }
+}

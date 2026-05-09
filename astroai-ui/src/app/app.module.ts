@@ -42,6 +42,11 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AstrologerChatComponent } from './components/astrologer-chat/astrologer-chat.component';
 import { GuideDetailComponent } from './components/guide-detail/guide-detail.component';
 import { GuideListComponent } from './components/guide-list/guide-list.component';
+import { CosmicTodayComponent } from './components/cosmic-today/cosmic-today.component';
+import { ExaltedPlanetListComponent } from './components/exalted-planet-list/exalted-planet-list.component';
+import { ExaltedPlanetDetailComponent } from './components/exalted-planet-detail/exalted-planet-detail.component';
+import { DebilitatedPlanetListComponent } from './components/debilitated-planet-list/debilitated-planet-list.component';
+import { DebilitatedPlanetDetailComponent } from './components/debilitated-planet-detail/debilitated-planet-detail.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -78,7 +83,12 @@ import { GuideListComponent } from './components/guide-list/guide-list.component
     DashboardComponent,
     AstrologerChatComponent,
     GuideDetailComponent,
-    GuideListComponent
+    GuideListComponent,
+    CosmicTodayComponent,
+    ExaltedPlanetListComponent,
+    ExaltedPlanetDetailComponent,
+    DebilitatedPlanetListComponent,
+    DebilitatedPlanetDetailComponent,
   ],
   imports: [
     BrowserModule,

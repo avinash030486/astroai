@@ -25,8 +25,7 @@
 					<ul class="dropdown-menu dropdown-menu-dark nav-dd-menu" [class.show]="openDropdown === 'forecasts'">
 						<li><a class="dropdown-item" routerLink="/daily-prediction" (click)="closeAll()">🌅 Daily Horoscope</a></li>
 						<li><a class="dropdown-item" routerLink="/yearly-horoscope" (click)="closeAll()">📅 Yearly Horoscope</a></li>
-						<li><a class="dropdown-item" routerLink="/transit-alerts" (click)="closeAll()">🪐 Transit Alerts</a></li>
-					</ul>
+						<li><a class="dropdown-item" routerLink="/transit-alerts" (click)="closeAll()">🪐 Transit Alerts</a></li>					<li><a class="dropdown-item" routerLink="/cosmic-today" (click)="closeAll()">🌌 Cosmic Today</a></li>					</ul>
 				</li>
 
 				<!-- Panchang dropdown -->
@@ -88,6 +87,12 @@
 
 			</ul>
 			<div class="d-flex align-items-center gap-2 ms-lg-3">
+				<!-- Language Switcher -->
+				<div class="lang-switcher d-flex gap-1">
+					<button class="lang-btn" [class.active]="langSvc.current === 'en'" (click)="langSvc.setLang('en')" title="English">EN</button>
+					<button class="lang-btn" [class.active]="langSvc.current === 'hi'" (click)="langSvc.setLang('hi')" title="हिंदी">हिं</button>
+					<button class="lang-btn" [class.active]="langSvc.current === 'ml'" (click)="langSvc.setLang('ml')" title="മലയാളം">മ</button>
+				</div>
 				<ng-container *ngIf="(authService.user$ | async) as user; else signInButton">
 					<ng-container *ngIf="!user.is_anonymous; else signInButton">
 						<div class="user-info d-flex align-items-center gap-2">

@@ -109,4 +109,17 @@ export class PredictionsService {
     if (dateUtc) body.dateUtc = dateUtc;
     return this.http.post<DailyPanchangResponse>(`${this.baseUrl}/predictions/get-daily-panchang`, body);
   }
+
+  getMoonPosition(): Observable<MoonPositionResponse> {
+    return this.http.get<MoonPositionResponse>(`${this.baseUrl}/predictions/get-moon-position`);
+  }
+}
+
+export interface MoonPositionResponse {
+  nakshatra: string;
+  moonSign: string;
+  moonSiderealDegrees: number;
+  ayanamsha: number;
+  rahuKalam: string;
+  computedAtUtc: string;
 }

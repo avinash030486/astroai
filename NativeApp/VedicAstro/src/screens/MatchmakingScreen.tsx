@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
+import { useProfileAutofill } from '../hooks/useProfileAutofill';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
@@ -40,9 +41,22 @@ const scoreStyles = StyleSheet.create({
 export const MatchmakingScreen: React.FC = () => {
   const navigation = useNavigation();
   const { format, ready } = useCurrency();
+  const { autofill } = useProfileAutofill();
   const [p1, setP1] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [p2, setP2] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [result, setResult] = useState<any>(null);
+
+  // Pre-fill Person 1 from saved profile
+  useEffect(() => {
+    if (autofill.dateOfBirth || autofill.name) {
+      setP1(f => ({
+        name:         autofill.name        || f.name,
+        dateOfBirth:  autofill.dateOfBirth  || f.dateOfBirth,
+        timeOfBirth:  autofill.timeOfBirth  || f.timeOfBirth,
+        placeOfBirth: autofill.placeOfBirth || f.placeOfBirth,
+      }));
+    }
+  }, [autofill.dateOfBirth, autofill.name]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

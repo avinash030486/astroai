@@ -34,6 +34,11 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AstrologerChatComponent } from './components/astrologer-chat/astrologer-chat.component';
 import { GuideDetailComponent } from './components/guide-detail/guide-detail.component';
 import { GuideListComponent } from './components/guide-list/guide-list.component';
+import { CosmicTodayComponent } from './components/cosmic-today/cosmic-today.component';
+import { ExaltedPlanetListComponent } from './components/exalted-planet-list/exalted-planet-list.component';
+import { ExaltedPlanetDetailComponent } from './components/exalted-planet-detail/exalted-planet-detail.component';
+import { DebilitatedPlanetListComponent } from './components/debilitated-planet-list/debilitated-planet-list.component';
+import { DebilitatedPlanetDetailComponent } from './components/debilitated-planet-detail/debilitated-planet-detail.component';
 const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
@@ -70,6 +75,11 @@ const routes: Routes = [
   { path: 'astrologer', component: AstrologerChatComponent },
   { path: 'guides', component: GuideListComponent },
   { path: 'guide/:slug', component: GuideDetailComponent },
+  { path: 'cosmic-today', component: CosmicTodayComponent },
+  { path: 'exalted-planets', component: ExaltedPlanetListComponent },
+  { path: 'exalted-planet/:slug', component: ExaltedPlanetDetailComponent },
+  { path: 'debilitated-planets', component: DebilitatedPlanetListComponent },
+  { path: 'debilitated-planet/:slug', component: DebilitatedPlanetDetailComponent },
   { path: '**', redirectTo: '' }                     // ← wildcard always last
 ];
 

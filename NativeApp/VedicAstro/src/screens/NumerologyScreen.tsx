@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
+import { useProfileAutofill } from '../hooks/useProfileAutofill';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
@@ -53,10 +54,20 @@ const NUMBER_MEANINGS: Record<number, string> = {
 export const NumerologyScreen: React.FC = () => {
   const navigation = useNavigation();
   const { format, ready } = useCurrency();
+  const { autofill } = useProfileAutofill();
   const [form, setForm] = useState({ name: '', dateOfBirth: '' });
   const [result, setResult] = useState<{ lifePath: number; nameNumber: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (autofill.dateOfBirth || autofill.name) {
+      setForm(f => ({
+        name:        autofill.name       || f.name,
+        dateOfBirth: autofill.dateOfBirth || f.dateOfBirth,
+      }));
+    }
+  }, [autofill.dateOfBirth, autofill.name]);
 
   // Premium state
   const [showPayment, setShowPayment]     = useState(false);

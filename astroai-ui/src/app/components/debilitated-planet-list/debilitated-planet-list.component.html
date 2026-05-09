@@ -1,0 +1,78 @@
+<div class="debilitated-list-container">
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">⚖️ Debilitated Planets (Neecha Graha)</h1>
+      <p class="hero-subtitle">
+        When a planet occupies its sign of debilitation, its natural energy is weakened — creating specific
+        karmic challenges that, when addressed through remedies and Neechabhanga yoga, can be transformed
+        into extraordinary strengths.
+      </p>
+      <div class="hero-meta">
+        <span class="badge">9 Planets</span>
+        <span class="badge">108 House Placements</span>
+        <span class="badge">Neechabhanga Yogas</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="neechabhanga-banner">
+      <div class="banner-icon">🌟</div>
+      <div class="banner-content">
+        <h2>What is Neechabhanga Yoga?</h2>
+        <p>
+          <strong>Neechabhanga</strong> means "cancellation of debilitation." When specific planetary
+          conditions exist in a birth chart — such as the debilitation sign's lord being in a powerful
+          position — the weakness of a debilitated planet is neutralised or even reversed into extraordinary
+          strength. Many great leaders, scientists and saints were born with debilitated planets that
+          carried strong Neechabhanga conditions.
+        </p>
+      </div>
+    </div>
+
+    <div class="planets-grid">
+      <div
+        class="planet-card"
+        *ngFor="let planet of planets"
+        (click)="navigateToPlanet(planet.slug)">
+        <div class="card-top">
+          <span class="planet-glyph">{{ planet.glyph }}</span>
+          <div class="planet-identity">
+            <h2 class="planet-name">{{ planet.planet }}</h2>
+            <span class="planet-sanskrit">{{ planet.planetSanskrit }}</span>
+          </div>
+        </div>
+        <div class="debilitation-badge">
+          Debilitated in {{ planet.debilitationSign }} · {{ planet.debilitationDegree }}
+        </div>
+        <p class="planet-overview">{{ planet.overview | slice:0:180 }}…</p>
+        <div class="neechabhanga-hint">
+          <span class="hint-label">🌟 Key Neechabhanga:</span>
+          <span class="hint-text">{{ planet.cancellationYogas[0] }}</span>
+        </div>
+        <div class="card-footer">
+          <span class="explore-link">Explore Effects in All 12 Houses <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seo-section">
+      <h2>Why Study Debilitated Planets?</h2>
+      <p>
+        In Vedic astrology, debilitated planets are not simply "bad" placements to be feared. They represent
+        areas of karmic learning, growth and eventual mastery. Classical texts emphasise that a debilitated
+        planet with Neechabhanga conditions can produce individuals of remarkable achievement — precisely
+        because they have overcome the planet's challenges through disciplined effort and divine grace.
+      </p>
+      <p>
+        Understanding debilitated planets in your chart helps you identify areas needing conscious attention,
+        choose the most effective remedies and recognise the hidden gifts within apparent weaknesses.
+      </p>
+      <p class="seo-link">
+        Also explore
+        <button class="link-btn" routerLink="/exalted-planets">Exalted Planets (Uccha Graha)</button>
+        to discover which planets are operating at maximum strength in your chart.
+      </p>
+    </div>
+  </div>
+</div>

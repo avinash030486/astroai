@@ -1,0 +1,76 @@
+<div class="exalted-list-container">
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">✨ Exalted Planets (Uccha Graha)</h1>
+      <p class="hero-subtitle">
+        When a planet occupies its sign of exaltation, it operates at its absolute maximum strength —
+        bestowing extraordinary gifts, grace and fulfilment in every area of life it governs.
+      </p>
+      <div class="hero-meta">
+        <span class="badge">9 Planets</span>
+        <span class="badge">108 House Placements</span>
+        <span class="badge">Classical Vedic Astrology</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="intro-card">
+      <h2>What is an Exalted Planet?</h2>
+      <p>
+        In Vedic astrology, each planet has a specific zodiac sign where its energy flows most freely and powerfully —
+        called its <em>Uccha Rashi</em> (sign of exaltation). When a planet is placed in this sign at birth,
+        it is said to be <strong>exalted (Uccha)</strong> and capable of bestowing its finest qualities
+        with full strength and grace. An exalted planet is one of the most powerful indicators of
+        exceptional talent, achievement and divine favour in a birth chart.
+      </p>
+    </div>
+
+    <div class="planets-grid">
+      <div
+        class="planet-card"
+        *ngFor="let planet of planets"
+        (click)="navigateToPlanet(planet.slug)">
+        <div class="card-top">
+          <span class="planet-glyph">{{ planet.glyph }}</span>
+          <div class="planet-identity">
+            <h2 class="planet-name">{{ planet.planet }}</h2>
+            <span class="planet-sanskrit">{{ planet.planetSanskrit }}</span>
+          </div>
+        </div>
+        <div class="exaltation-badge">
+          Exalted in {{ planet.exaltationSign }} · {{ planet.exaltationDegree }}
+        </div>
+        <p class="planet-overview">{{ planet.overview | slice:0:180 }}…</p>
+        <ul class="strengths-list">
+          <li *ngFor="let s of planet.keyStrengths | slice:0:3">
+            <span class="bullet">▸</span> {{ s }}
+          </li>
+        </ul>
+        <div class="card-footer">
+          <span class="explore-link">Explore Effects in All 12 Houses <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seo-section">
+      <h2>Why Exalted Planets Are Powerful</h2>
+      <p>
+        Classical Vedic texts like Brihat Parashara Hora Shastra describe a planet in its Uccha Rashi as operating
+        with full, unobstructed vitality. Unlike planets placed in challenging signs, an exalted planet channels
+        its full spectrum of qualities — whether it is the Sun's authority, the Moon's emotional peace,
+        Jupiter's wisdom or Venus's love — without resistance or distortion.
+      </p>
+      <p>
+        The house in which an exalted planet sits is equally important — it determines which specific area of life
+        receives the most extraordinary blessings. Select any planet above to explore its exalted effects in
+        all twelve houses of the horoscope.
+      </p>
+      <p class="seo-link">
+        Also explore
+        <button class="link-btn" routerLink="/debilitated-planets">Debilitated Planets (Neecha Graha)</button>
+        and learn how debilitation challenges can be reversed through Neechabhanga yoga.
+      </p>
+    </div>
+  </div>
+</div>

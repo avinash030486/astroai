@@ -38,6 +38,16 @@ const planetSigns = planetSignsModule.PLANET_SIGN_DATA || [];
 const nakshatrasModule = require('../src/app/data/nakshatras.ts');
 const nakshatras = nakshatrasModule.NAKSHATRA_DATA || [];
 
+// Import exalted planets data
+const exaltedModule = require('../src/app/data/exalted-planets.ts');
+const exaltedPlanets = exaltedModule.EXALTED_PLANET_DATA || [];
+const exaltedPlanetHouses = exaltedModule.EXALTED_PLANET_HOUSE_DATA || [];
+
+// Import debilitated planets data
+const debilitatedModule = require('../src/app/data/debilitated-planets.ts');
+const debilitatedPlanets = debilitatedModule.DEBILITATED_PLANET_DATA || [];
+const debilitatedPlanetHouses = debilitatedModule.DEBILITATED_PLANET_HOUSE_DATA || [];
+
 class SitemapGenerator {
   private baseUrl = 'https://vedicastro.app';
   private urls: SitemapUrl[] = [];
@@ -49,6 +59,8 @@ class SitemapGenerator {
     this.generatePlanetHousePages();
     this.generatePlanetSignPages();
     this.generateNakshatraPages();
+    this.generateExaltedPlanetPages();
+    this.generateDebilitatedPlanetPages();
   }
 
   private generateStaticPages(): void {
@@ -70,6 +82,13 @@ class SitemapGenerator {
     
     // City directory
     this.addUrl('/city-panchang', today, 'weekly', 0.9);
+
+    // Cosmic Today — free daily page, high shareability
+    this.addUrl('/cosmic-today', today, 'daily', 0.95);
+
+    // Exalted & Debilitated planet list pages
+    this.addUrl('/exalted-planets', today, 'monthly', 0.9);
+    this.addUrl('/debilitated-planets', today, 'monthly', 0.9);
   }
 
   private generateCityPages(): void {
@@ -134,6 +153,38 @@ class SitemapGenerator {
     });
 
     console.log(`✅ Generated ${planetSigns.length + 1} planet-in-sign URLs (1 list + ${planetSigns.length} detail pages)`);
+  }
+
+  private generateExaltedPlanetPages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Overview pages
+    exaltedPlanets.forEach((p: any) => {
+      this.addUrl(`/exalted-planet/${p.slug}`, today, 'monthly', 0.85);
+    });
+
+    // House placement pages
+    exaltedPlanetHouses.forEach((h: any) => {
+      this.addUrl(`/exalted-planet/${h.slug}`, today, 'monthly', 0.8);
+    });
+
+    console.log(`✅ Generated ${exaltedPlanets.length} exalted overview + ${exaltedPlanetHouses.length} exalted house URLs`);
+  }
+
+  private generateDebilitatedPlanetPages(): void {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Overview pages
+    debilitatedPlanets.forEach((p: any) => {
+      this.addUrl(`/debilitated-planet/${p.slug}`, today, 'monthly', 0.85);
+    });
+
+    // House placement pages
+    debilitatedPlanetHouses.forEach((h: any) => {
+      this.addUrl(`/debilitated-planet/${h.slug}`, today, 'monthly', 0.8);
+    });
+
+    console.log(`✅ Generated ${debilitatedPlanets.length} debilitated overview + ${debilitatedPlanetHouses.length} debilitated house URLs`);
   }
 
   private addUrl(

@@ -1,0 +1,162 @@
+<div *ngIf="!loading">
+
+  <!-- Not Found -->
+  <div *ngIf="notFound" class="not-found container">
+    <h2>Placement Not Found</h2>
+    <button class="btn" (click)="goBack()">Back to Exalted Planets</button>
+  </div>
+
+  <div *ngIf="planet && !notFound" class="exalted-detail">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="container">
+        <button class="back-btn" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i> All Exalted Planets
+        </button>
+        <div class="hero-top">
+          <span class="planet-glyph">{{ planet.glyph }}</span>
+          <div>
+            <h1>{{ mode === 'overview' ? planet.title : selectedHouse?.title }}</h1>
+            <div class="exaltation-badge">
+              Exalted in {{ planet.exaltationSign }} · {{ planet.exaltationDegree }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container content">
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <button class="tab-btn" [class.active]="mode === 'overview'" (click)="showOverview()">
+          Overview
+        </button>
+        <button
+          class="tab-btn house-tab"
+          *ngFor="let h of houseEntries"
+          [class.active]="mode === 'house' && selectedHouse?.house === h.house"
+          (click)="selectHouse(h)">
+          H{{ h.house }}
+        </button>
+      </div>
+
+      <!-- ── OVERVIEW MODE ── -->
+      <ng-container *ngIf="mode === 'overview'">
+
+        <section class="card">
+          <h2>About Exalted {{ planet.planet }}</h2>
+          <p>{{ planet.overview }}</p>
+        </section>
+
+        <section class="card">
+          <h2>🌟 Key Strengths of Exalted {{ planet.planet }}</h2>
+          <ul>
+            <li *ngFor="let s of planet.keyStrengths">{{ s }}</li>
+          </ul>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>💼 Career & Vocation</h3>
+            <p>{{ planet.careerAreas }}</p>
+          </div>
+          <div class="card-block">
+            <h3>💞 Relationships</h3>
+            <p>{{ planet.relationshipTone }}</p>
+          </div>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>🏥 Health Blessings</h3>
+            <p>{{ planet.healthBenefits }}</p>
+          </div>
+          <div class="card-block">
+            <h3>🕉️ Spiritual Theme</h3>
+            <p>{{ planet.spiritualTheme }}</p>
+          </div>
+        </section>
+
+        <section class="card notable" *ngIf="planet.famousPersonalities">
+          <h3>🌍 Notable Personalities</h3>
+          <p>{{ planet.famousPersonalities }}</p>
+        </section>
+
+        <div class="house-prompt">
+          <p>Select a house number above to see how Exalted {{ planet.planet }} performs in each of the 12 houses.</p>
+        </div>
+
+      </ng-container>
+
+      <!-- ── HOUSE MODE ── -->
+      <ng-container *ngIf="mode === 'house' && selectedHouse">
+
+        <section class="card">
+          <h2>Overview</h2>
+          <p>{{ selectedHouse.summary }}</p>
+        </section>
+
+        <section class="card">
+          <h2>General Effects</h2>
+          <ul>
+            <li *ngFor="let e of selectedHouse.generalEffects">{{ e }}</li>
+          </ul>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>💼 Career</h3>
+            <p>{{ selectedHouse.career }}</p>
+          </div>
+          <div class="card-block">
+            <h3>💞 Relationships</h3>
+            <p>{{ selectedHouse.relationships }}</p>
+          </div>
+        </section>
+
+        <section class="card two-col">
+          <div class="card-block">
+            <h3>🏥 Health</h3>
+            <p>{{ selectedHouse.health }}</p>
+          </div>
+          <div class="card-block">
+            <h3>🕉️ Spiritual</h3>
+            <p>{{ selectedHouse.spiritual }}</p>
+          </div>
+        </section>
+
+        <section class="card remedies">
+          <h2>🙏 Remedies to Sustain This Placement's Blessings</h2>
+          <ul>
+            <li *ngFor="let r of selectedHouse.remedies">{{ r }}</li>
+          </ul>
+        </section>
+
+      </ng-container>
+
+      <!-- CTA -->
+      <div class="cta">
+        <h3>See this placement in your own chart</h3>
+        <p>Generate your Vedic birth chart and discover where each planet truly sits in your horoscope.</p>
+        <button class="btn primary" (click)="gotoBirthChart()">Get My Birth Chart</button>
+        <button class="btn ghost" (click)="goBack()">Back to all exalted planets</button>
+      </div>
+
+      <div class="pandit-arjun-cta">
+        <span class="pandit-avatar">🧘</span>
+        <div class="pandit-cta-body">
+          <div class="pandit-cta-name">Ask Pandit Arjun About This Placement</div>
+          <div class="pandit-cta-desc">Have personal questions about how this exalted placement manifests in your chart? Get answers from our AI Vedic astrologer.</div>
+        </div>
+        <button class="pandit-cta-btn" (click)="goToAstrologer()">Ask Now · $0.50 / 50 questions</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading" class="container loading">
+  <div class="spinner-border"></div>
+</div>

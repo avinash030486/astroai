@@ -1,6 +1,39 @@
 header { position: sticky; top: 0; z-index: 1030; }
 .brand-text { font-weight: 600; }
 
+// ─── Language Switcher ────────────────────────────────────────────────────
+.lang-switcher {
+  display: flex;
+  gap: 2px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  letter-spacing: 0.03em;
+
+  &.active {
+    background: #ECC76A;
+    color: #071a0f;
+  }
+
+  &:hover:not(.active) {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+}
+
 .navbar-logo {
   height: 50px;
   width: auto;

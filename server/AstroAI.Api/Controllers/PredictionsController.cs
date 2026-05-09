@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using AstroAI.Core.Services;
+using AstroAI.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AstroAI.Api.Controllers;
@@ -11,13 +12,71 @@ public sealed class PredictionsController : ControllerBase
 {
     private readonly IGptAstrologyService _gpt;
     private readonly IVimshottariDashaService _dasha;
+    private readonly IEphemerisService _ephemeris;
 
-    public PredictionsController(IGptAstrologyService gpt, IVimshottariDashaService dasha)
+    public PredictionsController(IGptAstrologyService gpt, IVimshottariDashaService dasha, IEphemerisService ephemeris)
     {
         _gpt = gpt;
         _dasha = dasha;
+        _ephemeris = ephemeris;
     }
 
+    /// <summary>
+    /// Returns accurate Moon nakshatra, sign and Rahu Kalam for today using Swiss Ephemeris.
+    /// No auth required — used by the public Cosmic Today page.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("get-moon-position")]
+    [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
+    public async Task<IActionResult> GetMoonPosition(CancellationToken ct)
+    {
+        var utcNow = DateTime.UtcNow;
+        var lons = await _ephemeris.GetTropicalLongitudesAsync(utcNow, ct);
+
+        double moonTropical = lons["Moon"];
+        // Lahiri ayanamsha to convert tropical → sidereal
+        double ayanamsha = AyanamshaCalculator.ComputeKpAyanamshaDegrees(utcNow);
+        double moonSidereal = (moonTropical - ayanamsha + 360.0) % 360.0;
+
+        // Nakshatra (27 equal divisions of 360° = 13°20’ each)
+        int nakIdx = (int)(moonSidereal / (360.0 / 27.0));
+        string[] nakshatras = {
+            "Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra",
+            "Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni",
+            "Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha",
+            "Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishtha","Shatabhisha",
+            "Purva Bhadrapada","Uttara Bhadrapada","Revati"
+        };
+        string nakshatra = nakshatras[Math.Clamp(nakIdx, 0, 26)];
+
+        // Rashi / Moon sign (12 equal divisions of 360° = 30° each)
+        string[] signs = {
+            "Aries","Taurus","Gemini","Cancer","Leo","Virgo",
+            "Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"
+        };
+        int signIdx = (int)(moonSidereal / 30.0);
+        string moonSign = signs[Math.Clamp(signIdx, 0, 11)];
+
+        // Rahu Kalam (approximate; based on weekday + sunrise ~6 AM)
+        // Offsets in 90-min slots: Sun=8th, Mon=2nd, Tue=7th, Wed=5th, Thu=6th, Fri=4th, Sat=3rd
+        int[] rahuSlots = { 7, 1, 6, 4, 5, 3, 2 }; // index by DayOfWeek (0=Sun)
+        int slot = rahuSlots[(int)utcNow.DayOfWeek];
+        // Approximate local sunrise at 6:00, each slot is 90 min
+        int rahuStartMin = 6 * 60 + slot * 90;
+        int rahuEndMin   = rahuStartMin + 90;
+        string FormatTime(int totalMin) => $"{totalMin / 60:D2}:{totalMin % 60:D2}";
+        string rahuKalam = $"{FormatTime(rahuStartMin)}–{FormatTime(rahuEndMin)}";
+
+        return Ok(new
+        {
+            nakshatra,
+            moonSign,
+            moonSiderealDegrees = Math.Round(moonSidereal, 4),
+            ayanamsha = Math.Round(ayanamsha, 4),
+            rahuKalam,
+            computedAtUtc = utcNow
+        });
+    }
     [HttpPost("natal")]
     public async Task<IActionResult> Natal([FromBody] NatalRequest req, CancellationToken ct)
         => Ok(new { summary = await _gpt.GenerateNatalReadingAsync(req.FullName, req.BirthDate, req.BirthTime, req.BirthPlace, req.FocusArea, ct) });

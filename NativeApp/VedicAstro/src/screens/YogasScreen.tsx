@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../components/ScreenLayout';
+import { useProfileAutofill } from '../hooks/useProfileAutofill';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { LoadingOverlay } from '../components/LoadingOverlay';
 import { FormField } from '../components/FormField';
@@ -13,10 +14,22 @@ import { theme } from '../theme/theme';
 
 export const YogasScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { autofill } = useProfileAutofill();
   const [form, setForm] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (autofill.dateOfBirth || autofill.name) {
+      setForm(f => ({
+        name:         autofill.name        || f.name,
+        dateOfBirth:  autofill.dateOfBirth  || f.dateOfBirth,
+        timeOfBirth:  autofill.timeOfBirth  || f.timeOfBirth,
+        placeOfBirth: autofill.placeOfBirth || f.placeOfBirth,
+      }));
+    }
+  }, [autofill.dateOfBirth, autofill.name]);
 
   const set = (k: string) => (v: string) => setForm(f => ({ ...f, [k]: v }));
 

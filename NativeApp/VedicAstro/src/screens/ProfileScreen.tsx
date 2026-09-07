@@ -12,6 +12,8 @@ import { TimePickerField } from '../components/TimePickerField';
 import { PlaceInput } from '../components/PlaceInput';
 import { useAuthStore } from '../store/authStore';
 import { useProfileStore } from '../store/profileStore';
+import { useCreditsStore } from '../store/creditsStore';
+import { CreditsBadge } from '../components/CreditsBadge';
 import { theme } from '../theme/theme';
 
 const ASTRO_TOOLS = [
@@ -24,11 +26,13 @@ const ASTRO_TOOLS = [
   { label: '💊  Remedies', screen: 'Remedies' },
   { label: '🔢  Numerology', screen: 'Numerology' },
   { label: '❤️  Matchmaking', screen: 'Matchmaking' },
+  { label: '💰  Credits & Referrals', screen: 'Credits' },
 ];
 
 export const ProfileScreen: React.FC = () => {
   const { user, signOut } = useAuthStore();
   const { profile, loading, saving, error, loadProfile, updateProfile, clearProfile } = useProfileStore();
+  const { balance } = useCreditsStore();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
@@ -110,6 +114,11 @@ export const ProfileScreen: React.FC = () => {
           </View>
           <Text style={styles.name}>{displayName}</Text>
           <Text style={styles.email}>{user?.email ?? ''}</Text>
+          {balance > 0 && (
+            <TouchableOpacity onPress={() => navigation.navigate('Credits')} style={{ marginTop: 10 }}>
+              <CreditsBadge />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ── Birth Details ── */}

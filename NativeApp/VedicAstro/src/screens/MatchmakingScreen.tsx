@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
@@ -71,18 +71,20 @@ export const MatchmakingScreen: React.FC = () => {
   };
 
   const handlePaymentSuccess = async (pmId: string, _planId: string, amountUsd: number, name: string, email: string) => {
-    const chargeRes = await paymentsApi.chargeForMatchmaking({
-      amountUsd, name, email, paymentMethodId: pmId,
-      person1Name: p1.name || 'Person 1',
-      person1BirthDate: p1.dateOfBirth,
-      person1BirthTime: normalizeTime(p1.timeOfBirth),
-      person1BirthPlace: p1.placeOfBirth,
-      person2Name: p2.name || 'Person 2',
-      person2BirthDate: p2.dateOfBirth,
-      person2BirthTime: normalizeTime(p2.timeOfBirth),
-      person2BirthPlace: p2.placeOfBirth,
-    });
-    if (!chargeRes.success) throw new Error(chargeRes.error ?? 'Payment failed. Please try again.');
+    if (Platform.OS !== 'android' && pmId !== 'credits_only') {
+      const chargeRes = await paymentsApi.chargeForMatchmaking({
+        amountUsd, name, email, paymentMethodId: pmId,
+        person1Name: p1.name || 'Person 1',
+        person1BirthDate: p1.dateOfBirth,
+        person1BirthTime: normalizeTime(p1.timeOfBirth),
+        person1BirthPlace: p1.placeOfBirth,
+        person2Name: p2.name || 'Person 2',
+        person2BirthDate: p2.dateOfBirth,
+        person2BirthTime: normalizeTime(p2.timeOfBirth),
+        person2BirthPlace: p2.placeOfBirth,
+      });
+      if (!chargeRes.success) throw new Error(chargeRes.error ?? 'Payment failed. Please try again.');
+    }
 
     setShowPayment(false);
     setLoading(true);
@@ -168,6 +170,7 @@ export const MatchmakingScreen: React.FC = () => {
         title="Unlock Compatibility Analysis"
         subtitle="Get your full Kundali Milan with Kuta scoring, synastry & recommendations"
         fixedAmountUsd={1.99}
+        googlePlayProductId="matchmaking_analysis"
         onSuccess={handlePaymentSuccess}
         onClose={() => setShowPayment(false)}
       />

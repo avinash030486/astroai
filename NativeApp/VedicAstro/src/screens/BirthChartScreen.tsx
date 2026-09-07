@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
@@ -19,11 +19,16 @@ export const BirthChartScreen: React.FC = () => {
   const navigation = useNavigation();
   const { format, ready } = useCurrency();
   const { autofill } = useProfileAutofill();
-  const PREMIUM_PLANS: PlanOption[] = [
-    { id: 'one-time', label: 'One Time', price: ready ? format(3.99) : '...', amountUsd: 3.99, note: 'Single detailed report' },
-    { id: 'weekly',   label: 'Weekly',   price: ready ? format(2.99) : '...', amountUsd: 2.99, note: 'Unlimited for a week', popular: true },
-    { id: 'monthly',  label: 'Monthly',  price: ready ? format(5.99) : '...', amountUsd: 5.99, note: 'Unlimited for a month' },
-  ];
+  const isAndroidPlayFlow = Platform.OS === 'android';
+  const PREMIUM_PLANS: PlanOption[] = isAndroidPlayFlow
+    ? [
+        { id: 'one-time', label: 'One Time', price: ready ? format(3.99) : '...', amountUsd: 3.99, note: 'Single detailed report' },
+      ]
+    : [
+        { id: 'one-time', label: 'One Time', price: ready ? format(3.99) : '...', amountUsd: 3.99, note: 'Single detailed report' },
+        { id: 'weekly',   label: 'Weekly',   price: ready ? format(2.99) : '...', amountUsd: 2.99, note: 'Unlimited for a week', popular: true },
+        { id: 'monthly',  label: 'Monthly',  price: ready ? format(5.99) : '...', amountUsd: 5.99, note: 'Unlimited for a month' },
+      ];
   const [form, setForm] = useState({ name: '', dateOfBirth: '', timeOfBirth: '', placeOfBirth: '' });
 
   useEffect(() => {
@@ -64,13 +69,16 @@ export const BirthChartScreen: React.FC = () => {
   };
 
   const handlePremiumSuccess = async (pmId: string, planId: string, amountUsd: number, name: string, email: string) => {
-    const chargeRes = await paymentsApi.chargeForPremium({
-      plan: planId, amountUsd, name, email, paymentMethodId: pmId,
-      dateOfBirth: form.dateOfBirth,
-      timeOfBirth: normalizeTime(form.timeOfBirth),
-      placeOfBirth: form.placeOfBirth,
-    });
-    if (!chargeRes.success) throw new Error(chargeRes.error ?? 'Payment failed. Please try again.');
+    if (Platform.OS !== 'android' && pmId !== 'credits_only') {
+      const chargeRes = await paymentsApi.chargeForPremium({
+        plan: planId, amountUsd, name, email, paymentMethodId: pmId,
+        dateOfBirth: form.dateOfBirth,
+        timeOfBirth: normalizeTime(form.timeOfBirth),
+        placeOfBirth: form.placeOfBirth,
+      });
+      if (!chargeRes.success) throw new Error(chargeRes.error ?? 'Payment failed. Please try again.');
+    }
+
     // Close modal and fetch detailed prediction
     setShowPremium(false);
     setPremiumLoading(true);
@@ -219,6 +227,7 @@ export const BirthChartScreen: React.FC = () => {
         title="Unlock Premium Prediction"
         subtitle="In-depth reading: career, finance, relationships, destiny & yogas"
         plans={PREMIUM_PLANS}
+        googlePlayProductId="premium_birth_chart"
         onSuccess={handlePremiumSuccess}
         onClose={() => setShowPremium(false)}
       />

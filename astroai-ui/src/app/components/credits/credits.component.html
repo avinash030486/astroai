@@ -1,0 +1,76 @@
+<div class="credits-page">
+  <div class="container">
+
+    <!-- Balance card -->
+    <div class="balance-card">
+      <p class="balance-label">YOUR CREDIT BALANCE</p>
+      <div *ngIf="credits.loading(); else balVal" class="spinner"></div>
+      <ng-template #balVal>
+        <p class="balance-amount">{{ credits.formattedBalance }}</p>
+      </ng-template>
+      <p class="balance-sub">Usable on any paid feature</p>
+    </div>
+
+    <!-- How it works -->
+    <div class="card how-card">
+      <h3 class="card-title">🎁 Earn Free Credits</h3>
+      <div class="how-step">
+        <span class="step-num">1.</span>
+        <span>Share your unique referral link with a friend</span>
+      </div>
+      <div class="how-step">
+        <span class="step-num">2.</span>
+        <span>They sign up on VedicAstro Web or Native App</span>
+      </div>
+      <div class="how-step">
+        <span class="step-num">3.</span>
+        <span>
+          You receive <strong class="gold">$5.00</strong> &amp; they get
+          <strong class="teal">$2.00</strong> welcome bonus — automatically!
+        </span>
+      </div>
+    </div>
+
+    <!-- Referral link -->
+    <div class="card ref-card">
+      <p class="section-label">YOUR REFERRAL LINK</p>
+      <div class="link-box">
+        <span class="link-text">{{ referralLink }}</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" (click)="copyLink()">
+          {{ copied ? '✅ Copied!' : '📋 Copy Link' }}
+        </button>
+        <button class="btn-primary" (click)="shareWhatsApp()">
+          💬 Share on WhatsApp
+        </button>
+      </div>
+    </div>
+
+    <!-- Transaction history -->
+    <p class="section-label">TRANSACTION HISTORY</p>
+    <div class="card tx-card">
+      <div *ngIf="credits.loading()" class="spinner center-spinner"></div>
+
+      <div *ngIf="!credits.loading() && credits.transactions().length === 0" class="empty-state">
+        No transactions yet.<br />Invite a friend to earn your first credit!
+      </div>
+
+      <div
+        *ngFor="let tx of credits.transactions(); let last = last"
+        class="tx-row"
+        [class.tx-border]="!last"
+      >
+        <div class="tx-icon" [style.color]="txColor(tx.type)">{{ txIcon(tx.type) }}</div>
+        <div class="tx-info">
+          <p class="tx-desc">{{ tx.description || tx.type }}</p>
+          <p class="tx-date">{{ tx.created_at | date:'d MMM yyyy' }}</p>
+        </div>
+        <span class="tx-amount" [style.color]="txColor(tx.type)">
+          {{ tx.amount_usd > 0 ? '+' : '' }}${{ tx.amount_usd | number:'1.2-2' }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>

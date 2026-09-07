@@ -1,14 +1,19 @@
 using AstroAI.Api.Models;
 using AstroAI.Core.Services;
+using Google.Apis.AndroidPublisher.v3;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -60,6 +65,13 @@ namespace AstroAI.Api.Controllers
         string BirthDate,
         string BirthPlace);
 
+    public record FeaturePaymentRequestDto(
+        string Feature,
+        decimal AmountUsd,
+        string Name,
+        string Email,
+        string PaymentMethodId);
+
     // Dedicated DTO for Pandit Arjun consultation payment
     public record AstrologerPaymentRequestDto(
         decimal AmountUsd,
@@ -68,7 +80,17 @@ namespace AstroAI.Api.Controllers
         string PaymentMethodId,
         string PlaceOfBirth);
 
-    public record PaymentResultDto(bool Success, string? Error, string? SubscriptionId = null, string? CustomerId = null);
+    public record PaymentResultDto(
+        bool Success,
+        string? Error,
+        string? SubscriptionId = null,
+        string? CustomerId = null,
+        bool RequiresAction = false,
+        string? ClientSecret = null,
+        string? PaymentIntentId = null,
+        string? PaymentStatus = null);
+
+    public record GooglePlayValidationDto(string ProductId, string PurchaseToken);
 
 
     [Authorize]
@@ -79,10 +101,36 @@ namespace AstroAI.Api.Controllers
         private readonly Container _subscriptions;
         private readonly IKpHoroscopeService _kpHoroscope;
         private readonly ILogger<PaymentsController> _logger;
+        private readonly IConfiguration _configuration;
+
+        private static readonly HashSet<string> KnownGooglePlayProducts = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "premium_birth_chart",
+            "matchmaking_analysis",
+            "numerology_reading",
+            "gemstone_report",
+            "palmistry_reading",
+            "nakshatra_aura_ar",
+            "gemstone_tryon_ar",
+            "soul_sketch",
+            "past_life_reading",
+            "yearly_horoscope",
+            "qna_10_questions",
+            "astrologer_session",
+            "seeker_monthly",
+            "rhythm_monthly"
+        };
+
+        private static readonly HashSet<string> GooglePlaySubscriptionProducts = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "seeker_monthly",
+            "rhythm_monthly"
+        };
 
         public PaymentsController(
             CosmosClient cosmosClient, 
             IKpHoroscopeService kpHoroscope,
+            IConfiguration configuration,
             ILogger<PaymentsController> logger)
         {
             _logger = logger;
@@ -90,6 +138,94 @@ namespace AstroAI.Api.Controllers
             // database: vedicastro, container: vedicastroai
             _subscriptions = cosmosClient.GetContainer("vedicastro", "vedicastroai");
             _kpHoroscope = kpHoroscope;
+            _configuration = configuration;
+        }
+
+        private async Task<(bool Verified, string Status, string? Error)> VerifyGooglePlayPurchaseAsync(
+            string productId,
+            string purchaseToken,
+            CancellationToken ct)
+        {
+            var packageName = _configuration["GooglePlay:PackageName"];
+            var serviceAccountJsonPath = _configuration["GooglePlay:ServiceAccountJsonPath"];
+            var serviceAccountJson = _configuration["GooglePlay:ServiceAccountJson"];
+
+            if (string.IsNullOrWhiteSpace(packageName))
+            {
+                return (false, "not_configured", "GooglePlay:PackageName is missing.");
+            }
+
+            try
+            {
+                GoogleCredential credential;
+                if (!string.IsNullOrWhiteSpace(serviceAccountJsonPath) && System.IO.File.Exists(serviceAccountJsonPath))
+                {
+                    credential = GoogleCredential.FromFile(serviceAccountJsonPath);
+                }
+                else if (!string.IsNullOrWhiteSpace(serviceAccountJson))
+                {
+                    credential = GoogleCredential.FromJson(serviceAccountJson);
+                }
+                else
+                {
+                    return (false, "not_configured", "Google Play service account credentials are missing.");
+                }
+
+                var scopedCredential = credential.CreateScoped(AndroidPublisherService.Scope.Androidpublisher);
+                using var publisher = new AndroidPublisherService(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = scopedCredential,
+                    ApplicationName = "AstroAI Google Play Validation"
+                });
+
+                if (GooglePlaySubscriptionProducts.Contains(productId))
+                {
+                    var sub = await publisher.Purchases.Subscriptions
+                        .Get(packageName, productId, purchaseToken)
+                        .ExecuteAsync(ct);
+
+                    if (sub is null)
+                    {
+                        return (false, "not_found", "Subscription purchase not found.");
+                    }
+
+                    var isPaidState = sub.PaymentState is 1 or 2;
+                    var expiryUtc = DateTimeOffset.MinValue;
+                    if (sub.ExpiryTimeMillis.HasValue)
+                    {
+                        expiryUtc = DateTimeOffset.FromUnixTimeMilliseconds(sub.ExpiryTimeMillis.Value);
+                    }
+
+                    var isActive = expiryUtc > DateTimeOffset.UtcNow;
+                    if (isPaidState && isActive)
+                    {
+                        return (true, "verified", null);
+                    }
+
+                    return (false, "not_active", "Subscription is not active.");
+                }
+
+                var product = await publisher.Purchases.Products
+                    .Get(packageName, productId, purchaseToken)
+                    .ExecuteAsync(ct);
+
+                if (product is null)
+                {
+                    return (false, "not_found", "In-app purchase not found.");
+                }
+
+                if (product.PurchaseState == 0)
+                {
+                    return (true, "verified", null);
+                }
+
+                return (false, "invalid_state", $"In-app purchase state is {product.PurchaseState}.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Google Play verification exception for ProductId={ProductId}", productId);
+                return (false, "verification_error", ex.Message);
+            }
         }
 
         private async Task<SubscriptionRecord?> GetActiveWeeklySubscriptionAsync(string email, CancellationToken ct)
@@ -134,6 +270,142 @@ namespace AstroAI.Api.Controllers
                 _           => "O"
             };
 
+        private static bool IsActionRequiredStatus(string? status) =>
+            status is "requires_action" or "requires_source_action";
+
+        private static PaymentResultDto BuildPaymentResultFromIntent(PaymentIntent intent)
+        {
+            var status = intent.Status ?? "unknown";
+            if (status == "succeeded")
+            {
+                return new PaymentResultDto(
+                    Success: true,
+                    Error: null,
+                    RequiresAction: false,
+                    ClientSecret: intent.ClientSecret,
+                    PaymentIntentId: intent.Id,
+                    PaymentStatus: status);
+            }
+
+            if (IsActionRequiredStatus(status))
+            {
+                return new PaymentResultDto(
+                    Success: false,
+                    Error: "Additional authentication is required to complete this payment.",
+                    RequiresAction: true,
+                    ClientSecret: intent.ClientSecret,
+                    PaymentIntentId: intent.Id,
+                    PaymentStatus: status);
+            }
+
+            return new PaymentResultDto(
+                Success: false,
+                Error: $"Payment not completed. Stripe status: {status}.",
+                RequiresAction: false,
+                ClientSecret: intent.ClientSecret,
+                PaymentIntentId: intent.Id,
+                PaymentStatus: status);
+        }
+
+        private static PaymentResultDto BuildPaymentResultFromSubscription(
+            Subscription subscription,
+            string? customerId)
+        {
+            var status = subscription.Status ?? "unknown";
+            if (status is "active" or "trialing")
+            {
+                return new PaymentResultDto(
+                    Success: true,
+                    Error: null,
+                    SubscriptionId: subscription.Id,
+                    CustomerId: customerId,
+                    PaymentStatus: status);
+            }
+
+            return new PaymentResultDto(
+                Success: false,
+                Error: $"Subscription not active. Stripe status: {status}.",
+                SubscriptionId: subscription.Id,
+                CustomerId: customerId,
+                RequiresAction: false,
+                PaymentStatus: status);
+        }
+
+        private static bool IsTransientException(Exception ex)
+        {
+            if (ex is TimeoutException)
+            {
+                return true;
+            }
+
+            if (ex is TaskCanceledException)
+            {
+                return true;
+            }
+
+            if (ex is CosmosException cosmosEx)
+            {
+                return cosmosEx.StatusCode is HttpStatusCode.RequestTimeout
+                    or HttpStatusCode.TooManyRequests
+                    or HttpStatusCode.InternalServerError
+                    or HttpStatusCode.BadGateway
+                    or HttpStatusCode.ServiceUnavailable
+                    or HttpStatusCode.GatewayTimeout;
+            }
+
+            if (ex is StripeException stripeEx)
+            {
+                var code = stripeEx.StripeError?.Type;
+                var status = stripeEx.HttpStatusCode;
+
+                if (code is "api_connection_error" or "api_error" or "rate_limit_error")
+                {
+                    return true;
+                }
+
+                return status is HttpStatusCode.RequestTimeout
+                    or HttpStatusCode.TooManyRequests
+                    or HttpStatusCode.InternalServerError
+                    or HttpStatusCode.BadGateway
+                    or HttpStatusCode.ServiceUnavailable
+                    or HttpStatusCode.GatewayTimeout;
+            }
+
+            return false;
+        }
+
+        private async Task<T> ExecuteWithRetryAsync<T>(
+            Func<CancellationToken, Task<T>> operation,
+            CancellationToken ct,
+            string operationName,
+            int maxAttempts = 3,
+            int initialDelayMs = 300)
+        {
+            var delayMs = initialDelayMs;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    return await operation(ct);
+                }
+                catch (Exception ex) when (IsTransientException(ex) && attempt < maxAttempts && !ct.IsCancellationRequested)
+                {
+                    _logger.LogWarning(ex,
+                        "⏳ Transient failure during {Operation}. Attempt {Attempt}/{MaxAttempts}. Retrying in {DelayMs}ms.",
+                        operationName,
+                        attempt,
+                        maxAttempts,
+                        delayMs);
+
+                    await Task.Delay(delayMs, ct);
+                    delayMs *= 2;
+                }
+            }
+
+            return await operation(ct);
+        }
+
         [HttpPost("charge")]
         public async Task<ActionResult<PaymentResultDto>> Charge(
             [FromBody] PaymentRequestDto request,
@@ -160,9 +432,13 @@ namespace AstroAI.Api.Controllers
                 return BadRequest(new PaymentResultDto(false, "Name and Email are required."));
             }
 
-            var paymentMethodId = string.IsNullOrWhiteSpace(request.PaymentMethodId)
-                ? "pm_card_visa"
-                : request.PaymentMethodId;
+            if (string.IsNullOrWhiteSpace(request.PaymentMethodId))
+            {
+                _logger.LogWarning("❌ Missing payment method id for charge request.");
+                return BadRequest(new PaymentResultDto(false, "Payment method is required."));
+            }
+
+            var paymentMethodId = request.PaymentMethodId;
 
             _logger.LogInformation("💳 Using payment method: {PaymentMethodId}", paymentMethodId);
 
@@ -197,11 +473,26 @@ namespace AstroAI.Api.Controllers
                     };
 
                     _logger.LogInformation("🔄 Creating Stripe PaymentIntent...");
-                    var intent = await paymentIntentService.CreateAsync(options, null, ct);
+                    var intent = await ExecuteWithRetryAsync(
+                        token => paymentIntentService.CreateAsync(options, null, token),
+                        ct,
+                        "Stripe PaymentIntent creation");
                     _logger.LogInformation("✅ PaymentIntent created: ID={IntentId}, Status={Status}", 
                         intent.Id, intent.Status);
 
-                    paymentSucceeded = intent.Status == "succeeded";
+                    var paymentResult = BuildPaymentResultFromIntent(intent);
+                    if (!paymentResult.Success)
+                    {
+                        if (paymentResult.RequiresAction)
+                        {
+                            return Ok(paymentResult);
+                        }
+
+                        _logger.LogWarning("⚠️ One-time payment not completed. Status={Status}", paymentResult.PaymentStatus);
+                        return BadRequest(paymentResult);
+                    }
+
+                    paymentSucceeded = true;
                 }
                 else
                 {
@@ -242,7 +533,10 @@ namespace AstroAI.Api.Controllers
                     };
 
                     _logger.LogInformation("👤 Creating Stripe Customer...");
-                    var customer = await customerService.CreateAsync(customerOptions, null, ct);
+                    var customer = await ExecuteWithRetryAsync(
+                        token => customerService.CreateAsync(customerOptions, null, token),
+                        ct,
+                        "Stripe Customer creation");
                     customerId = customer.Id;
                     _logger.LogInformation("✅ Customer created: ID={CustomerId}", customerId);
 
@@ -268,7 +562,10 @@ namespace AstroAI.Api.Controllers
                     };
 
                     _logger.LogInformation("💵 Creating Stripe Price for {Interval} subscription...", interval);
-                    var price = await priceService.CreateAsync(priceOptions, null, ct);
+                    var price = await ExecuteWithRetryAsync(
+                        token => priceService.CreateAsync(priceOptions, null, token),
+                        ct,
+                        "Stripe Price creation");
                     _logger.LogInformation("✅ Price created: ID={PriceId}", price.Id);
 
                     // Step 3: Create Subscription
@@ -293,12 +590,27 @@ namespace AstroAI.Api.Controllers
                     };
 
                     _logger.LogInformation("🔄 Creating Stripe Subscription...");
-                    var subscription = await subscriptionService.CreateAsync(subscriptionOptions, null, ct);
+                    var subscription = await ExecuteWithRetryAsync(
+                        token => subscriptionService.CreateAsync(subscriptionOptions, null, token),
+                        ct,
+                        "Stripe Subscription creation");
                     subscriptionId = subscription.Id;
                     _logger.LogInformation("✅ Subscription created: ID={SubscriptionId}, Status={Status}", 
                         subscription.Id, subscription.Status);
 
-                    paymentSucceeded = subscription.Status == "active" || subscription.Status == "trialing";
+                    var subscriptionPaymentResult = BuildPaymentResultFromSubscription(subscription, customerId);
+                    if (!subscriptionPaymentResult.Success)
+                    {
+                        if (subscriptionPaymentResult.RequiresAction)
+                        {
+                            return Ok(subscriptionPaymentResult);
+                        }
+
+                        _logger.LogWarning("⚠️ Subscription not active. Status={Status}", subscriptionPaymentResult.PaymentStatus);
+                        return BadRequest(subscriptionPaymentResult);
+                    }
+
+                    paymentSucceeded = true;
                 }
 
                 if (paymentSucceeded)
@@ -340,7 +652,20 @@ namespace AstroAI.Api.Controllers
                                 TimeZoneId: null
                             );
 
-                            horoscopeChart = await _kpHoroscope.GenerateSouthIndianChartAsync(birthChartRequest, ct);
+                            var horoscopeTimeoutSeconds = Math.Max(
+                                3,
+                                _configuration.GetValue<int?>("Payments:HoroscopeTimeoutSeconds") ?? 8);
+
+                            using var horoscopeCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                            horoscopeCts.CancelAfter(TimeSpan.FromSeconds(horoscopeTimeoutSeconds));
+
+                            horoscopeChart = await ExecuteWithRetryAsync(
+                                token => _kpHoroscope.GenerateSouthIndianChartAsync(birthChartRequest, token),
+                                horoscopeCts.Token,
+                                "Horoscope generation",
+                                maxAttempts: 2,
+                                initialDelayMs: 250);
+
                             _logger.LogInformation("✅ Horoscope generated successfully");
                         }
                         else
@@ -348,6 +673,10 @@ namespace AstroAI.Api.Controllers
                             _logger.LogWarning("⚠️ Failed to parse birth date/time: DOB={DOB}, TOB={TOB}", 
                                 request.DateOfBirth, request.TimeOfBirth);
                         }
+                    }
+                    catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+                    {
+                        _logger.LogWarning("⏱️ Horoscope generation timed out. Continuing without horoscope data.");
                     }
                     catch (Exception ex)
                     {
@@ -368,10 +697,13 @@ namespace AstroAI.Api.Controllers
 
                     try
                     {
-                        await _subscriptions.CreateItemAsync(
-                            record,
-                            new PartitionKey(record.individual),
-                            cancellationToken: ct);
+                        await ExecuteWithRetryAsync(
+                            token => _subscriptions.CreateItemAsync(
+                                record,
+                                new PartitionKey(record.individual),
+                                cancellationToken: token),
+                            ct,
+                            "Cosmos subscription record save");
                         _logger.LogInformation("✅ Subscription record saved: Email={Email}, Type={Type}", 
                             record.email, record.subscriptionType);
                     }
@@ -426,9 +758,13 @@ namespace AstroAI.Api.Controllers
                 return BadRequest(new PaymentResultDto(false, "Name and Email are required."));
             }
 
-            var paymentMethodId = string.IsNullOrWhiteSpace(request.PaymentMethodId)
-                ? "pm_card_visa"
-                : request.PaymentMethodId;
+            if (string.IsNullOrWhiteSpace(request.PaymentMethodId))
+            {
+                _logger.LogWarning("❌ Missing payment method id for QNA charge request.");
+                return BadRequest(new PaymentResultDto(false, "Payment method is required."));
+            }
+
+            var paymentMethodId = request.PaymentMethodId;
 
             _logger.LogInformation("💳 Using payment method: {PaymentMethodId}", paymentMethodId);
 
@@ -458,11 +794,27 @@ namespace AstroAI.Api.Controllers
                 };
 
                 _logger.LogInformation("🔄 Creating Stripe PaymentIntent for QNA...");
-                var intent = await paymentIntentService.CreateAsync(options, null, ct);
+                var intent = await ExecuteWithRetryAsync(
+                    token => paymentIntentService.CreateAsync(options, null, token),
+                    ct,
+                    "Stripe QNA PaymentIntent creation");
                 _logger.LogInformation("✅ PaymentIntent created: ID={IntentId}, Status={Status}", 
                     intent.Id, intent.Status);
 
-                var paymentSucceeded = intent.Status == "succeeded";
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (!paymentResult.Success)
+                {
+                    if (paymentResult.RequiresAction)
+                    {
+                        return Ok(paymentResult);
+                    }
+
+                    _logger.LogWarning("⚠️ QNA payment not completed. Status={Status}", paymentResult.PaymentStatus);
+                    return BadRequest(paymentResult);
+                }
+
+                var paymentSucceeded = true;
 
                 if (paymentSucceeded)
                 {
@@ -482,10 +834,13 @@ namespace AstroAI.Api.Controllers
 
                     try
                     {
-                        await _subscriptions.CreateItemAsync(
-                            record,
-                            new PartitionKey(record.individual),
-                            cancellationToken: ct);
+                        await ExecuteWithRetryAsync(
+                            token => _subscriptions.CreateItemAsync(
+                                record,
+                                new PartitionKey(record.individual),
+                                cancellationToken: token),
+                            ct,
+                            "Cosmos QNA record save");
                         _logger.LogInformation("✅ QNA purchase record saved: Email={Email}, Type={Type}", 
                             record.email, record.subscriptionType);
                     }
@@ -551,16 +906,26 @@ namespace AstroAI.Api.Controllers
                 };
 
                 var service = new PaymentIntentService();
-                var intent = await service.CreateAsync(paymentIntentOptions, cancellationToken: ct);
+                var intent = await ExecuteWithRetryAsync(
+                    token => service.CreateAsync(paymentIntentOptions, cancellationToken: token),
+                    ct,
+                    "Stripe Matchmaking PaymentIntent creation");
 
-                if (intent.Status == "succeeded")
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (paymentResult.Success)
                 {
                     _logger.LogInformation("✅ Matchmaking payment succeeded for {Email}", dto.Email);
                     return Ok(new PaymentResultDto(true, null, null, null));
                 }
 
-                _logger.LogWarning("⚠️ Matchmaking payment not completed, status: {Status}", intent.Status);
-                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+                if (paymentResult.RequiresAction)
+                {
+                    return Ok(paymentResult);
+                }
+
+                _logger.LogWarning("⚠️ Matchmaking payment not completed, status: {Status}", paymentResult.PaymentStatus);
+                return BadRequest(paymentResult);
             }
             catch (StripeException ex)
             {
@@ -610,16 +975,26 @@ namespace AstroAI.Api.Controllers
                 };
 
                 var service = new PaymentIntentService();
-                var intent = await service.CreateAsync(paymentIntentOptions, cancellationToken: ct);
+                var intent = await ExecuteWithRetryAsync(
+                    token => service.CreateAsync(paymentIntentOptions, cancellationToken: token),
+                    ct,
+                    "Stripe Numerology PaymentIntent creation");
 
-                if (intent.Status == "succeeded")
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (paymentResult.Success)
                 {
                     _logger.LogInformation("✅ Numerology payment succeeded for {Email}", dto.Email);
                     return Ok(new PaymentResultDto(true, null, null, null));
                 }
 
-                _logger.LogWarning("⚠️ Numerology payment not completed, status: {Status}", intent.Status);
-                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+                if (paymentResult.RequiresAction)
+                {
+                    return Ok(paymentResult);
+                }
+
+                _logger.LogWarning("⚠️ Numerology payment not completed, status: {Status}", paymentResult.PaymentStatus);
+                return BadRequest(paymentResult);
             }
             catch (StripeException ex)
             {
@@ -667,14 +1042,25 @@ namespace AstroAI.Api.Controllers
                     }
                 };
                 var service = new PaymentIntentService();
-                var intent = await service.CreateAsync(options, cancellationToken: ct);
-                if (intent.Status == "succeeded")
+                var intent = await ExecuteWithRetryAsync(
+                    token => service.CreateAsync(options, cancellationToken: token),
+                    ct,
+                    "Stripe Gemstone PaymentIntent creation");
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (paymentResult.Success)
                 {
                     _logger.LogInformation("✅ Gemstone payment succeeded for {Email}", dto.Email);
                     return Ok(new PaymentResultDto(true, null, null, null));
                 }
-                _logger.LogWarning("⚠️ Gemstone payment not completed, status: {Status}", intent.Status);
-                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+
+                if (paymentResult.RequiresAction)
+                {
+                    return Ok(paymentResult);
+                }
+
+                _logger.LogWarning("⚠️ Gemstone payment not completed, status: {Status}", paymentResult.PaymentStatus);
+                return BadRequest(paymentResult);
             }
             catch (StripeException ex)
             {
@@ -685,6 +1071,105 @@ namespace AstroAI.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Unexpected error in chargeForGemstone: {Message}", ex.Message);
+                return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("chargeForFeature")]
+        public async Task<IActionResult> ChargeForFeature(
+            [FromBody] FeaturePaymentRequestDto dto,
+            CancellationToken ct)
+        {
+            _logger.LogInformation("🪙 Feature payment attempt for {Feature} by {Email}", dto.Feature, dto.Email);
+
+            if (dto.AmountUsd <= 0)
+            {
+                return BadRequest(new PaymentResultDto(false, "Invalid payment amount."));
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.PaymentMethodId))
+            {
+                return BadRequest(new PaymentResultDto(false, "Name, email, and payment method are required."));
+            }
+
+            var feature = dto.Feature?.Trim().ToLowerInvariant();
+            var allowedFeatures = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "palmistry",
+                "nakshatra-aura-ar",
+                "gemstone-try-ar",
+                "soul-sketch"
+            };
+
+            if (string.IsNullOrWhiteSpace(feature) || !allowedFeatures.Contains(feature))
+            {
+                return BadRequest(new PaymentResultDto(false, "Invalid feature."));
+            }
+
+            var description = feature switch
+            {
+                "palmistry" => "Palmistry Reading",
+                "nakshatra-aura-ar" => "Nakshatra Aura AR",
+                "gemstone-try-ar" => "Gemstone Try-On AR",
+                "soul-sketch" => "Soul Sketch",
+                _ => "Premium Feature"
+            };
+
+            try
+            {
+                var amountCents = (long)(dto.AmountUsd * 100m);
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = amountCents,
+                    Currency = "usd",
+                    PaymentMethod = dto.PaymentMethodId,
+                    Confirm = true,
+                    Description = $"{description} - AstroAI",
+                    ReceiptEmail = dto.Email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "service", "feature" },
+                        { "feature", feature },
+                        { "customer_name", dto.Name },
+                        { "customer_email", dto.Email }
+                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
+
+                var service = new PaymentIntentService();
+                var intent = await ExecuteWithRetryAsync(
+                    token => service.CreateAsync(options, cancellationToken: token),
+                    ct,
+                    "Stripe Feature PaymentIntent creation");
+
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (paymentResult.Success)
+                {
+                    _logger.LogInformation("✅ Feature payment succeeded for {Feature} by {Email}", feature, dto.Email);
+                    return Ok(new PaymentResultDto(true, null, null, null));
+                }
+
+                if (paymentResult.RequiresAction)
+                {
+                    return Ok(paymentResult);
+                }
+
+                _logger.LogWarning("⚠️ Feature payment not completed for {Feature}, status: {Status}", feature, paymentResult.PaymentStatus);
+                return BadRequest(paymentResult);
+            }
+            catch (StripeException ex)
+            {
+                _logger.LogError(ex, "❌ Stripe error in feature payment: {Message}, Code={Code}", ex.Message, ex.StripeError?.Code);
+                return BadRequest(new PaymentResultDto(false, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Unexpected error in chargeForFeature: {Message}", ex.Message);
                 return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
             }
         }
@@ -721,14 +1206,25 @@ namespace AstroAI.Api.Controllers
                     }
                 };
                 var service = new PaymentIntentService();
-                var intent = await service.CreateAsync(options, cancellationToken: ct);
-                if (intent.Status == "succeeded")
+                var intent = await ExecuteWithRetryAsync(
+                    token => service.CreateAsync(options, cancellationToken: token),
+                    ct,
+                    "Stripe Astrologer PaymentIntent creation");
+                var paymentResult = BuildPaymentResultFromIntent(intent);
+
+                if (paymentResult.Success)
                 {
                     _logger.LogInformation("✅ Astrologer payment succeeded for {Email}", dto.Email);
                     return Ok(new PaymentResultDto(true, null, null, null));
                 }
-                _logger.LogWarning("⚠️ Astrologer payment not completed, status: {Status}", intent.Status);
-                return BadRequest(new PaymentResultDto(false, "Payment not completed."));
+
+                if (paymentResult.RequiresAction)
+                {
+                    return Ok(paymentResult);
+                }
+
+                _logger.LogWarning("⚠️ Astrologer payment not completed, status: {Status}", paymentResult.PaymentStatus);
+                return BadRequest(paymentResult);
             }
             catch (StripeException ex)
             {
@@ -740,6 +1236,92 @@ namespace AstroAI.Api.Controllers
             {
                 _logger.LogError(ex, "❌ Unexpected error in chargeForAstrologer: {Message}", ex.Message);
                 return StatusCode(500, new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpPost("validateGooglePlay")]
+        public async Task<IActionResult> ValidateGooglePlay(
+            [FromBody] GooglePlayValidationDto dto,
+            CancellationToken ct)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dto.ProductId) || string.IsNullOrWhiteSpace(dto.PurchaseToken))
+                    return BadRequest(new { success = false, error = "ProductId and PurchaseToken are required." });
+
+                if (!KnownGooglePlayProducts.Contains(dto.ProductId))
+                {
+                    _logger.LogWarning("❌ Unknown Google Play product id: {ProductId}", dto.ProductId);
+                    return BadRequest(new { success = false, error = "Unknown Google Play product id." });
+                }
+
+                var verification = await VerifyGooglePlayPurchaseAsync(dto.ProductId, dto.PurchaseToken, ct);
+                var allowUnverifiedFallback = _configuration.GetValue<bool>("GooglePlay:AllowUnverifiedFallback");
+
+                if (!verification.Verified && !allowUnverifiedFallback)
+                {
+                    _logger.LogWarning("❌ Google Play verification failed for ProductId={ProductId}. Status={Status}. Error={Error}",
+                        dto.ProductId,
+                        verification.Status,
+                        verification.Error);
+
+                    return BadRequest(new
+                    {
+                        success = false,
+                        error = "Google Play purchase could not be verified.",
+                        verificationStatus = verification.Status
+                    });
+                }
+
+                _logger.LogInformation("✅ Google Play purchase validated: ProductId={ProductId}", dto.ProductId);
+
+                var isSubscription = dto.ProductId is "seeker_monthly" or "rhythm_monthly";
+                var planCode = dto.ProductId switch
+                {
+                    "seeker_monthly" => "seeker",
+                    "rhythm_monthly" => "rhythm",
+                    _ => null
+                };
+
+                var featureKey = dto.ProductId switch
+                {
+                    "premium_birth_chart" => "birth-chart-premium",
+                    "matchmaking_analysis" => "matchmaking",
+                    "numerology_reading" => "numerology",
+                    "gemstone_report" => "gemstone",
+                    "palmistry_reading" => "palmistry",
+                    "nakshatra_aura_ar" => "nakshatra-aura-ar",
+                    "gemstone_tryon_ar" => "gemstone-tryon-ar",
+                    "soul_sketch" => "soul-sketch",
+                    "past_life_reading" => "past-life-reading",
+                    "yearly_horoscope" => "yearly-horoscope",
+                    "astrologer_session" => "astrologer-session",
+                    _ => null
+                };
+
+                // Determine question grants for QnA products
+                int? questionsGranted = dto.ProductId switch
+                {
+                    "qna_10_questions"  => 10,
+                    _                   => null
+                };
+
+                return Ok(new
+                {
+                    success = true,
+                    productId = dto.ProductId,
+                    verified = verification.Verified,
+                    verificationStatus = verification.Status,
+                    isSubscription,
+                    planCode,
+                    featureKey,
+                    questionsGranted
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error in ValidateGooglePlay: {Message}", ex.Message);
+                return StatusCode(500, new { success = false, error = "Server error validating Google Play purchase." });
             }
         }
     }

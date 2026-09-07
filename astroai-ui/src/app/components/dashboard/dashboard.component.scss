@@ -590,6 +590,33 @@ $card-bg-hover: rgba(255,255,255,0.07);
 }
 
 // ─── Referrals ─────────────────────────────────────────────────────────────
+
+// Credit balance banner (clickable strip above referral card)
+.credit-balance-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba($gold, 0.1);
+  border: 1px solid rgba($gold, 0.3);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  max-width: 600px;
+  transition: background 0.2s;
+
+  &:hover { background: rgba($gold, 0.15); }
+
+  .credit-icon { font-size: 22px; }
+  .credit-banner-text {
+    flex: 1;
+    font-size: 14px;
+    color: rgba(#fff, 0.85);
+    strong { color: $gold-light; }
+  }
+  .credit-banner-sub { color: $muted; font-size: 12px; }
+  .credit-arrow { color: $gold-light; font-size: 22px; }
+}
+
 .referral-card {
   background: $card-bg;
   border: 1px solid $border;

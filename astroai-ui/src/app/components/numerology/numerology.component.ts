@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HoroscopeService, NumerologyDetailsResponse } from 'src/app/services/horoscope.service';
-import { PaymentService, NumerologyPaymentRequest } from '../../services/payment.service';
+import { PaymentService, NumerologyPaymentRequest, PaymentResult } from '../../services/payment.service';
 import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -279,8 +279,9 @@ export class NumerologyComponent implements OnInit, OnDestroy {
           birthDate: this.birthDate
         };
         this.payments.chargeForNumerology(request).subscribe({
-          next: result => {
-            if (result.success) {
+          next: async result => {
+            const paymentCompleted = await this.completeStripeActionIfRequired(result);
+            if (paymentCompleted) {
               ev.complete('success');
               this.paymentLoading = false;
               this.showPaymentPopup = false;
@@ -289,7 +290,7 @@ export class NumerologyComponent implements OnInit, OnDestroy {
               this.performAnalysis();
             } else {
               ev.complete('fail');
-              this.paymentError = result.error || 'Payment failed.';
+              this.paymentError = this.paymentError || result.error || 'Payment failed.';
               this.paymentLoading = false;
             }
           },
@@ -338,15 +339,16 @@ export class NumerologyComponent implements OnInit, OnDestroy {
       };
 
       this.payments.chargeForNumerology(request).subscribe({
-        next: result => {
-          if (result.success) {
+        next: async result => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(result);
+          if (paymentCompleted) {
             this.paymentLoading = false;
             this.showPaymentPopup = false;
             this.hasPaid = true;
             sessionStorage.setItem('astroai_numerology_paid', 'true');
             this.performAnalysis();
           } else {
-            this.paymentError = result.error || 'Payment failed. Please try again.';
+            this.paymentError = this.paymentError || result.error || 'Payment failed. Please try again.';
             this.paymentLoading = false;
           }
         },
@@ -366,6 +368,25 @@ export class NumerologyComponent implements OnInit, OnDestroy {
       this.paymentError = err.message || 'An error occurred during payment.';
       this.paymentLoading = false;
     }
+  }
+
+  private async completeStripeActionIfRequired(result: PaymentResult): Promise<boolean> {
+    if (!result.requiresAction) {
+      return result.success;
+    }
+
+    if (!this.stripe || !result.clientSecret) {
+      this.paymentError = 'Additional authentication is required, but checkout is not ready. Please try again.';
+      return false;
+    }
+
+    const actionResult = await this.stripe.handleCardAction(result.clientSecret);
+    if (actionResult?.error) {
+      this.paymentError = actionResult.error.message || 'Authentication failed. Please try another card.';
+      return false;
+    }
+
+    return actionResult?.paymentIntent?.status === 'succeeded';
   }
       getPersonalizedReading(): void {
     this.router.navigate(['/birth-chart']);

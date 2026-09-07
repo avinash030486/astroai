@@ -1,9 +1,9 @@
 /**
- * PaymentModal – reusable Stripe card payment sheet for Expo Go.
+ * PaymentModal – Stripe (iOS/web) + Google Play Billing (Android).
  *
- * Because @stripe/stripe-react-native requires a native development build,
- * we tokenise the card directly against Stripe's REST API using the
- * publishable key, then pass the resulting PaymentMethod ID to our backend.
+ * On Android: if `googlePlayProductId` is supplied the native Google Play
+ * purchase sheet is shown instead of the Stripe card form.
+ * On iOS / no productId: falls back to the existing Stripe card flow.
  */
 import React, { useState, useEffect } from 'react';
 import {
@@ -20,7 +20,9 @@ import {
 } from 'react-native';
 import { theme } from '../theme/theme';
 import { useAuthStore } from '../store/authStore';
+import { useCreditsStore } from '../store/creditsStore';
 import { useCurrency } from '../hooks/useCurrency';
+import { googlePlayBilling, type GPProductId } from '../services/googlePlayBilling';
 
 const STRIPE_PK =
   'pk_live_51SkYakPpSmZFXw4WZvXp8z7nLyOJmZReFnCtSqUnolgOWoDInuY8FhcJ0HRdbU5pKr3PLFSAj1ACkyktccWcdWmI00WrSAKFpD';
@@ -45,11 +47,13 @@ interface Props {
   /** Used when no plans array is given */
   fixedAmountUsd?: number;
   /**
-   * Called after card tokenisation succeeds.
-   * The parent should call the backend charge API here.
-   * Throwing causes the modal to display the error message.
-   * Resolving causes the modal to stay open until the parent
-   * calls onClose().
+   * Google Play product ID for Android in-app purchases.
+   * When provided on Android, the native Play sheet is shown instead of Stripe.
+   */
+  googlePlayProductId?: GPProductId;
+  /**
+   * Called after payment succeeds.
+   * pmId = Stripe PaymentMethod ID (iOS) OR Google Play purchase token (Android)
    */
   onSuccess: (
     pmId: string,
@@ -107,11 +111,13 @@ export const PaymentModal: React.FC<Props> = ({
   subtitle,
   plans,
   fixedAmountUsd,
+  googlePlayProductId,
   onSuccess,
   onClose,
 }) => {
   const user = useAuthStore(s => s.user);
   const { currency, format, ready } = useCurrency();
+  const { balance: creditBalance, spendCredits } = useCreditsStore();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanOption | null>(null);
   const [name, setName] = useState('');
@@ -139,8 +145,12 @@ export const PaymentModal: React.FC<Props> = ({
   const activePlan = selectedPlan ?? plans?.[0] ?? null;
   const activeAmount = plans ? (activePlan?.amountUsd ?? 0) : (fixedAmountUsd ?? 0);
   const activePlanId = plans ? (activePlan?.id ?? 'one-time') : 'one-time';
+  const useGooglePlayFlow = Platform.OS === 'android' && !!googlePlayProductId;
+  // Credits to apply (capped at total amount)
+  const creditApplied = Math.min(creditBalance, activeAmount);
+  const amountAfterCredit = Math.max(0, activeAmount - creditApplied);
   // Always format using detected local currency
-  const displayPrice = format(activeAmount);
+  const displayPrice = amountAfterCredit === 0 ? 'Free (credits)' : format(amountAfterCredit);
 
   const formatCard = (v: string) => {
     const d = v.replace(/\D/g, '').slice(0, 16);
@@ -150,6 +160,23 @@ export const PaymentModal: React.FC<Props> = ({
   const formatExpiry = (v: string) => {
     const d = v.replace(/\D/g, '').slice(0, 4);
     return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+  };
+
+  // ── Google Play Billing (Android) ─────────────────────────────────────────
+  const handleGooglePlay = async () => {
+    if (!googlePlayProductId) return;
+    setLoading(true);
+    setError('');
+    try {
+      const token = useAuthStore.getState().token ?? '';
+      const purchaseToken = await googlePlayBilling.purchase(googlePlayProductId, token);
+      await onSuccess(purchaseToken, googlePlayProductId, activeAmount, user?.name ?? '', user?.email ?? '');
+    } catch (e: any) {
+      if (e?.message !== 'Purchase cancelled.') {
+        setError(e?.message ?? 'Purchase failed. Please try again.');
+      }
+      setLoading(false);
+    }
   };
 
   const handlePay = async () => {
@@ -162,8 +189,22 @@ export const PaymentModal: React.FC<Props> = ({
     setLoading(true);
     setError('');
     try {
+      // Deduct credits first if applicable
+      if (creditApplied > 0 && user?.id) {
+        const ok = await spendCredits(user.id, creditApplied, `Credit applied to: ${title}`);
+        if (!ok) {
+          setError('Could not apply credits. Please try again.');
+          setLoading(false);
+          return;
+        }
+      }
+      // If fully covered by credits, skip Stripe
+      if (amountAfterCredit === 0) {
+        await onSuccess('credits_only', activePlanId, activeAmount, name.trim(), email.trim());
+        return;
+      }
       const pmId = await tokenizeCard(cardNumber, expiry, cvc);
-      await onSuccess(pmId, activePlanId, activeAmount, name.trim(), email.trim());
+      await onSuccess(pmId, activePlanId, amountAfterCredit, name.trim(), email.trim());
     } catch (e: any) {
       setError(e?.message ?? 'Payment failed. Please try again.');
       setLoading(false);
@@ -254,71 +295,106 @@ export const PaymentModal: React.FC<Props> = ({
 
               {error ? <Text style={s.error}>{error}</Text> : null}
 
-              {/* Card form */}
-              <Field
-                label="Name on card"
-                value={name}
-                onChange={setName}
-                placeholder="Full name"
-                disabled={loading}
-              />
-              <Field
-                label="Email"
-                value={email}
-                onChange={setEmail}
-                placeholder="you@email.com"
-                keyboard="email-address"
-                autoCapitalize="none"
-                disabled={loading}
-              />
-              <Field
-                label="Card Number"
-                value={cardNumber}
-                onChange={v => setCardNumber(formatCard(v))}
-                placeholder="1234 5678 9012 3456"
-                keyboard="number-pad"
-                maxLength={19}
-                disabled={loading}
-              />
-              <View style={s.row}>
-                <View style={s.halfLeft}>
+              {/* Credits banner */}
+              {creditBalance > 0 && (
+                <View style={s.creditBanner}>
+                  <Text style={s.creditBannerText}>
+                    💰 <Text style={{ color: theme.colors.gold }}>${creditBalance.toFixed(2)}</Text> in credits will be applied.
+                    {creditApplied >= activeAmount
+                      ? ' This purchase is fully covered!'  
+                      : ` Remaining $${amountAfterCredit.toFixed(2)} charged to card.`}
+                  </Text>
+                </View>
+              )}
+
+              {!useGooglePlayFlow && (
+                <>
+                  {/* Card form */}
                   <Field
-                    label="Expiry (MM/YY)"
-                    value={expiry}
-                    onChange={v => setExpiry(formatExpiry(v))}
-                    placeholder="MM/YY"
-                    keyboard="number-pad"
-                    maxLength={5}
+                    label="Name on card"
+                    value={name}
+                    onChange={setName}
+                    placeholder="Full name"
                     disabled={loading}
                   />
-                </View>
-                <View style={s.halfRight}>
                   <Field
-                    label="CVC"
-                    value={cvc}
-                    onChange={v => setCvc(v.replace(/\D/g, '').slice(0, 4))}
-                    placeholder="•••"
-                    keyboard="number-pad"
-                    maxLength={4}
-                    secure
+                    label="Email"
+                    value={email}
+                    onChange={setEmail}
+                    placeholder="you@email.com"
+                    keyboard="email-address"
+                    autoCapitalize="none"
                     disabled={loading}
                   />
-                </View>
-              </View>
+                  <Field
+                    label="Card Number"
+                    value={cardNumber}
+                    onChange={v => setCardNumber(formatCard(v))}
+                    placeholder="1234 5678 9012 3456"
+                    keyboard="number-pad"
+                    maxLength={19}
+                    disabled={loading}
+                  />
+                  <View style={s.row}>
+                    <View style={s.halfLeft}>
+                      <Field
+                        label="Expiry (MM/YY)"
+                        value={expiry}
+                        onChange={v => setExpiry(formatExpiry(v))}
+                        placeholder="MM/YY"
+                        keyboard="number-pad"
+                        maxLength={5}
+                        disabled={loading}
+                      />
+                    </View>
+                    <View style={s.halfRight}>
+                      <Field
+                        label="CVC"
+                        value={cvc}
+                        onChange={v => setCvc(v.replace(/\D/g, '').slice(0, 4))}
+                        placeholder="•••"
+                        keyboard="number-pad"
+                        maxLength={4}
+                        secure
+                        disabled={loading}
+                      />
+                    </View>
+                  </View>
+                </>
+              )}
 
-              <TouchableOpacity
-                style={[s.payBtn, loading && s.payBtnDisabled]}
-                onPress={handlePay}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color={theme.colors.navy} />
-                ) : (
-                  <Text style={s.payBtnText}>🔒 Pay {displayPrice}</Text>
-                )}
-              </TouchableOpacity>
-
-              <Text style={s.stripe}>🔐 Secure payment via Stripe</Text>
+              {/* ── Android: Google Play button ── */}
+              {Platform.OS === 'android' && googlePlayProductId ? (
+                <>
+                  <TouchableOpacity
+                    style={[s.gpBtn, loading && s.payBtnDisabled]}
+                    onPress={handleGooglePlay}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={s.gpBtnText}>▶ Buy with Google Play</Text>
+                    )}
+                  </TouchableOpacity>
+                  <Text style={s.stripe}>🔐 Secure payment via Google Play</Text>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    style={[s.payBtn, loading && s.payBtnDisabled]}
+                    onPress={handlePay}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color={theme.colors.navy} />
+                    ) : (
+                      <Text style={s.payBtnText}>🔒 Pay {displayPrice}</Text>
+                    )}
+                  </TouchableOpacity>
+                  <Text style={s.stripe}>🔐 Secure payment via Stripe</Text>
+                </>
+              )}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -523,11 +599,38 @@ const s = StyleSheet.create({
     fontFamily: theme.fonts.bodyBold,
     fontSize: 16,
   },
+  gpBtn: {
+    backgroundColor: '#01875F',
+    borderRadius: theme.radius.lg,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  gpBtnText: {
+    color: '#fff',
+    fontFamily: theme.fonts.bodyBold,
+    fontSize: 16,
+  },
   stripe: {
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.body,
     fontSize: 11,
     textAlign: 'center',
     marginTop: 8,
+  },
+  creditBanner: {
+    backgroundColor: theme.colors.goldPale,
+    borderWidth: 1,
+    borderColor: theme.colors.goldDim,
+    borderRadius: theme.radius.md,
+    padding: 12,
+    marginBottom: 14,
+  },
+  creditBannerText: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.body,
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

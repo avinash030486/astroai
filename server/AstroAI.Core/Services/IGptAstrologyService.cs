@@ -48,4 +48,33 @@ public interface IGptAstrologyService
     Task<AstrologerChatResponse> AstrologerChatAsync(
         AstrologerChatRequest request,
         CancellationToken ct);
+
+    /// <summary>
+    /// Analyse a palm photo using GPT-4 Vision and return a full Vedic palmistry reading.
+    /// </summary>
+    Task<PalmistryResponse> AnalyzePalmAsync(PalmistryRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Analyse a face selfie using GPT-4 Vision, cross-referenced with the user's Moon Nakshatra,
+    /// and return a Vedic Samudrika Shastra face-reading.
+    /// </summary>
+    Task<FaceReadingResponse> AnalyzeFaceAsync(FaceReadingRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Generate a Nadi Jyotisha-style past-life analysis from the natal chart.
+    /// </summary>
+    Task<PastLifeResponse> GeneratePastLifeAnalysisAsync(SouthIndianChart chart, DashaStatus dasha, CancellationToken ct);
+
+    /// <summary>
+    /// Analyse Venus, 7th house, Navamsha and Rahu to paint an AI portrait of the native's soulmate.
+    /// </summary>
+    Task<SoulSketchResponse> GenerateSoulSketchAsync(
+        SouthIndianChart chart,
+        DashaStatus dasha,
+        string gender,
+        string partnerGender,
+        string birthCity,
+        string birthState,
+        string birthCountry,
+        CancellationToken ct);
 }

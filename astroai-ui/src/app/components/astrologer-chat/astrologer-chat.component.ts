@@ -7,7 +7,7 @@ import { Subscription, Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, filter, takeUntil, catchError } from 'rxjs/operators';
 import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { AuthService } from '../../services/auth.service';
-import { PaymentService } from '../../services/payment.service';
+import { PaymentService, PaymentResult } from '../../services/payment.service';
 import { environment } from 'src/environments/environment';
 import { HoroscopeService, PlaceSuggestion } from '../../services/horoscope.service';
 
@@ -424,15 +424,16 @@ export class AstrologerChatComponent implements OnInit, OnDestroy, AfterViewChec
         paymentMethodId: ev.paymentMethod.id,
         placeOfBirth: this.intakePlace ?? ''
       }).subscribe({
-        next: r => {
-          if (r.success) {
+        next: async r => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(r);
+          if (paymentCompleted) {
             ev.complete('success');
             this.paymentLoading = false;
             this.showPaymentModal = false;
             this.activateSession();
           } else {
             ev.complete('fail');
-            this.paymentError = r.error ?? 'Payment failed.';
+            this.paymentError = this.paymentError || r.error || 'Payment failed.';
             this.paymentLoading = false;
           }
         },
@@ -466,13 +467,14 @@ export class AstrologerChatComponent implements OnInit, OnDestroy, AfterViewChec
         paymentMethodId: paymentMethod.id,
         placeOfBirth: this.intakePlace ?? ''
       }).subscribe({
-        next: res => {
+        next: async res => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(res);
           this.paymentLoading = false;
-          if (res.success) {
+          if (paymentCompleted) {
             this.showPaymentModal = false;
             this.activateSession();
           } else {
-            this.paymentError = res.error ?? 'Payment failed.';
+            this.paymentError = this.paymentError || res.error || 'Payment failed.';
           }
         },
         error: () => {
@@ -484,6 +486,25 @@ export class AstrologerChatComponent implements OnInit, OnDestroy, AfterViewChec
       this.paymentLoading = false;
       this.paymentError = 'An unexpected error occurred.';
     }
+  }
+
+  private async completeStripeActionIfRequired(result: PaymentResult): Promise<boolean> {
+    if (!result.requiresAction) {
+      return result.success;
+    }
+
+    if (!this.stripe || !result.clientSecret) {
+      this.paymentError = 'Additional authentication is required, but checkout is not ready. Please try again.';
+      return false;
+    }
+
+    const actionResult = await this.stripe.handleCardAction(result.clientSecret);
+    if (actionResult?.error) {
+      this.paymentError = actionResult.error.message || 'Authentication failed. Please try another card.';
+      return false;
+    }
+
+    return actionResult?.paymentIntent?.status === 'succeeded';
   }
 
   private activateSession(): void {

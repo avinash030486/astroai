@@ -46,35 +46,43 @@ export const predictionsApi = {
   getDailyHoroscope: (zodiacSign: string) =>
     apiPost<any>('/api/predictions/horoscope', { zodiacSign, period: 'daily' }),
 
+  // Fetch only the natal chart (Swiss Ephemeris, accurate planet signs + houses)
+  fetchBirthChart: async (input: SimplePersonInput) => {
+    const loc = parsePlaceOfBirth(input.placeOfBirth);
+    const birthTime = normalizeTime(input.timeOfBirth);
+    return apiPost<any>('/api/horoscope/south-indian', {
+      birthDate: input.dateOfBirth,
+      birthTime,
+      ...loc,
+    }, 45000);
+  },
+
+  // Generate detailed prediction from an already-fetched chart (avoids duplicate chart call)
+  generateDetailedPredictionFromChart: (chart: any) =>
+    apiPost<any>('/api/predictions/generate-detailed-prediction', chart, 60000),
+
   // Generate basic chart prediction.
-  // The predictions endpoint requires pre-calculated chart data (planets, houses,
-  // ascendant, ayanamsha). We get that by calling /horoscope/south-indian first,
-  // then pass the full chart response directly to the predictions endpoint.
   generateBasicChartPrediction: async (input: SimplePersonInput) => {
     const loc = parsePlaceOfBirth(input.placeOfBirth);
     const birthTime = normalizeTime(input.timeOfBirth);
-    // Step 1 — calculate natal chart (planetary positions, houses, ascendant)
     const chart = await apiPost<any>('/api/horoscope/south-indian', {
       birthDate: input.dateOfBirth,
       birthTime,
       ...loc,
     });
-    // Step 2 — GPT-based prediction using the computed chart
     return apiPost<any>('/api/predictions/generate-basic-chart-prediction', chart);
   },
 
-  // Generate detailed prediction (for Yogas) — same two-step approach
+  // Generate detailed prediction (legacy — kept for other callers)
   generateDetailedPrediction: async (input: SimplePersonInput) => {
     const loc = parsePlaceOfBirth(input.placeOfBirth);
     const birthTime = normalizeTime(input.timeOfBirth);
-    // Step 1 — calculate natal chart
     const chart = await apiPost<any>('/api/horoscope/south-indian', {
       birthDate: input.dateOfBirth,
       birthTime,
       ...loc,
-    });
-    // Step 2 — detailed GPT prediction
-    return apiPost<any>('/api/predictions/generate-detailed-prediction', chart);
+    }, 45000);
+    return apiPost<any>('/api/predictions/generate-detailed-prediction', chart, 60000);
   },
 };
 
@@ -117,7 +125,7 @@ export const yearlyApi = {
       birthTime: normalizeTime(input.timeOfBirth),
       year: input.targetYear,
       ...loc,
-    });
+    }, 90_000); // 90s — GPT-heavy
   },
 };
 
@@ -131,7 +139,7 @@ export const remediesApi = {
       birthTime: normalizeTime(input.timeOfBirth),
       areasOfConcern: input.concern ? [input.concern] : [],
       ...loc,
-    });
+    }, 90_000); // 90s — GPT-heavy
   },
 };
 
@@ -150,7 +158,7 @@ export const matchmakingApi = {
       person2BirthDate: input.person2.dateOfBirth,
       person2BirthTime: normalizeTime(input.person2.timeOfBirth),
       person2City: loc2.city, person2State: loc2.state, person2Country: loc2.country,
-    });
+    }, 90_000); // 90s — GPT-heavy
   },
 };
 
@@ -236,6 +244,19 @@ export const paymentsApi = {
       '/api/payments/chargeForGemstone',
       req,
     ),
+
+  /** One-time feature unlocks */
+  chargeForFeature: (req: {
+    feature: 'palmistry' | 'nakshatra-aura-ar' | 'gemstone-try-ar' | 'soul-sketch';
+    amountUsd: number;
+    name: string;
+    email: string;
+    paymentMethodId: string;
+  }) =>
+    apiPost<{ success: boolean; error?: string }>(
+      '/api/payments/chargeForFeature',
+      req,
+    ),
 };
 
 //  numerologyApi 
@@ -292,4 +313,46 @@ export const gemstoneApi = {
 export const festivalApi = {
   getCalendar: (month: number, year: number) =>
     apiGet<any>(`/api/festivals/calendar?month=${month}&year=${year}`),
+};
+
+// ─── palmistryApi ─────────────────────────────────────────────────────────────
+
+export const palmistryApi = {
+  analyzePalm: (imageBase64: string, userName?: string) =>
+    apiPost<any>('/api/palmistry/analyze', { imageBase64, userName }, 90_000), // 90s — GPT Vision takes ~40-60s
+};
+
+// ─── faceReadingApi ───────────────────────────────────────────────────────────
+
+export const faceReadingApi = {
+  analyze: (imageBase64: string, nakshatraName: string, nakshatraPlanet: string) =>
+    apiPost<any>('/api/facereading/analyze', { imageBase64, nakshatraName, nakshatraPlanet }, 90_000),
+};
+
+// ─── pastLifeApi ──────────────────────────────────────────────────────────────
+
+export const pastLifeApi = {
+  analyze: (req: { birthDate: string; birthTime: string; city: string; state: string; country: string }) =>
+    apiPost<any>('/api/pastlife/analyze', req, 90_000), // 90s — GPT past-life takes ~40s
+};
+
+// ─── soulSketchApi ────────────────────────────────────────────────────────────
+
+export const soulSketchApi = {
+  generate: (req: {
+    birthDate: string;
+    birthTime: string;
+    city: string;
+    state: string;
+    country: string;
+    gender: string;
+    partnerGender: string;
+  }) => apiPost<{
+    imageUrl: string;
+    visualDescription: string;
+    originReading: string;
+    marriageAgeReading: string;
+    soulmateNarrative: string;
+    astroTraits: { label: string; value: string }[];
+  }>('/api/soulsketch/generate', req, 120_000), // 120s — GPT + DALL-E takes ~45-90s
 };

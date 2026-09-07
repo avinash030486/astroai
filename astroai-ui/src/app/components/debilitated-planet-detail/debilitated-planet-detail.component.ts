@@ -64,8 +64,7 @@ export class DebilitatedPlanetDetailComponent implements OnInit {
       return;
     }
 
-    this.notFound = true;
-    this.loading = false;
+    this.router.navigate(['/not-found'], { replaceUrl: true });
   }
 
   private setOverviewMeta(p: DebilitatedPlanetData): void {

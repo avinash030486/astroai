@@ -11,6 +11,7 @@ interface Props {
   error?: string;
   maximumDate?: Date;
   minimumDate?: Date;
+  androidDisplay?: 'default' | 'spinner' | 'calendar';
 }
 
 function parseYMD(str: string): Date {
@@ -30,6 +31,7 @@ function toYMD(date: Date): string {
 
 export const DatePickerField: React.FC<Props> = ({
   label, value, onChangeText, placeholder = 'Select date', error, maximumDate, minimumDate,
+  androidDisplay = 'default',
 }) => {
   const [show, setShow] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(() => parseYMD(value));
@@ -71,7 +73,7 @@ export const DatePickerField: React.FC<Props> = ({
         <DateTimePicker
           value={parseYMD(value)}
           mode="date"
-          display="default"
+          display={androidDisplay}
           onChange={onAndroidChange}
           maximumDate={maximumDate}
           minimumDate={minimumDate}

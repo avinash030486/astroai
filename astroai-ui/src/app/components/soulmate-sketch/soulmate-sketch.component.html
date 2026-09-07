@@ -1,0 +1,151 @@
+<div class="sm-wrapper">
+
+  <!-- Hero -->
+  <section class="sm-hero text-center">
+    <div class="sm-badge">✨ AI-Powered · Vedic 7th House Analysis</div>
+    <div class="sm-hero-icon">💑</div>
+    <h1 class="sm-title">Soulmate Sketch</h1>
+    <p class="sm-sub">
+      Your Vedic birth chart holds a hidden portrait of your destined partner.<br>
+      Let AI decode your 7th house, Upapada Lagna & Darakaraka to paint their picture.
+    </p>
+  </section>
+
+  <!-- Form -->
+  <section class="container sm-form-section" *ngIf="!result && !loading">
+
+    <div class="sm-form-card">
+      <h2 class="sm-form-title">Enter Your Birth Details</h2>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="sm-label">Date of Birth</label>
+          <input type="date" class="sm-input" [(ngModel)]="birthDate">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="sm-label">Time of Birth</label>
+          <input type="time" class="sm-input" [(ngModel)]="birthTime">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="sm-label">Birth Place</label>
+          <div class="position-relative">
+            <input
+              type="text"
+              class="sm-input"
+              [(ngModel)]="birthPlace"
+              (input)="onPlaceInput(birthPlace)"
+              (blur)="hideSuggestions()"
+              placeholder="City, State, Country"
+              autocomplete="off">
+            <div *ngIf="showSuggestions && placeSuggestions.length > 0" class="sm-autocomplete">
+              <div *ngFor="let s of placeSuggestions" class="sm-suggestion" (click)="onPlaceSelected(s)">
+                {{ s.description }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sm-info-box">
+        <span class="info-icon">🔮</span>
+        <span>We analyse your 7th house lord, Upapada Lagna (UL), Venus placement, and Darakaraka — the four pillars of Vedic partner prediction.</span>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn-sm-generate" (click)="generateSketch()" [disabled]="!isFormValid()">
+          ✨ Reveal My Soulmate Sketch
+        </button>
+        <p class="sm-note">Uses your 1 free AI question. <a routerLink="/birth-chart" class="sm-link">Get more</a></p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Loading -->
+  <section class="container sm-loading-section" *ngIf="loading">
+    <div class="sm-loading-card text-center">
+      <div class="loading-orb">💫</div>
+      <h3>Reading the stars…</h3>
+      <p>Decoding your 7th house, Upapada Lagna, Venus & Darakaraka.<br>This usually takes 20–40 seconds.</p>
+      <div class="sm-progress">
+        <div class="sm-progress-fill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error -->
+  <section class="container" *ngIf="error">
+    <div class="sm-error-box">
+      <p>{{ error }}</p>
+      <button class="btn-sm-retry" (click)="reset()">Try Again</button>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section class="container sm-result-section" *ngIf="result && !loading">
+
+    <!-- Shareable Card -->
+    <div class="sm-result-card" #sketchCard>
+
+      <div class="sm-result-header">
+        <div class="sm-result-site">VedicAstro.app</div>
+        <div class="sm-result-icon">💑</div>
+        <h2 class="sm-result-title">Your Cosmic Soulmate Sketch</h2>
+        <p class="sm-result-sub">Decoded from your Vedic birth chart · 7th house · Upapada Lagna · Darakaraka</p>
+      </div>
+
+      <!-- Essence Tags -->
+      <div *ngIf="partnerTraits.length > 0" class="sm-traits-row">
+        <span *ngFor="let t of partnerTraits" class="sm-trait-tag">{{ t }}</span>
+      </div>
+
+      <!-- Summary -->
+      <div class="sm-section" *ngIf="result.summary">
+        <div class="sm-section-icon">⭐</div>
+        <div class="sm-section-content">
+          <div class="sm-section-title">Cosmic Overview</div>
+          <p class="sm-section-text">{{ result.summary }}</p>
+        </div>
+      </div>
+
+      <!-- Full Sketch -->
+      <div class="sm-section sm-sketch-main">
+        <div class="sm-section-icon">💖</div>
+        <div class="sm-section-content">
+          <div class="sm-section-title">Your Partner Portrait</div>
+          <p class="sm-section-text sm-answer-text">{{ result.answer }}</p>
+        </div>
+      </div>
+
+      <!-- Cautions -->
+      <div class="sm-section sm-cautions" *ngIf="result.cautions">
+        <div class="sm-section-icon">🌙</div>
+        <div class="sm-section-content">
+          <div class="sm-section-title">Things to Keep in Mind</div>
+          <p class="sm-section-text">{{ result.cautions }}</p>
+        </div>
+      </div>
+
+      <div class="sm-result-footer">Vedic Jyotish AI Analysis · vedicastro.app</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="sm-result-actions text-center mt-4">
+      <button class="btn-sm-share" (click)="downloadSketch()" [disabled]="sharing">
+        <ng-container *ngIf="!sharing && !shared">📲 Download & Share Your Soulmate Sketch</ng-container>
+        <ng-container *ngIf="sharing">⏳ Rendering…</ng-container>
+        <ng-container *ngIf="shared && !sharing">✅ Downloaded! Share on Instagram / WhatsApp</ng-container>
+      </button>
+      <button class="btn-sm-reset ms-3" (click)="reset()">🔄 Try Different Details</button>
+    </div>
+
+    <!-- Related CTAs -->
+    <div class="sm-cta-row text-center mt-4">
+      <a routerLink="/matchmaking" class="sm-cta-chip">❤️ Check Compatibility</a>
+      <a routerLink="/squad-compat" class="sm-cta-chip">👥 Squad Compat</a>
+      <a routerLink="/birth-chart" class="sm-cta-chip">🔮 Full Birth Chart</a>
+    </div>
+
+  </section>
+
+</div>

@@ -65,6 +65,10 @@ export interface AstrologerPaymentRequest {
 export interface PaymentResult {
   success: boolean;
   error?: string | null;
+  requiresAction?: boolean;
+  clientSecret?: string | null;
+  paymentIntentId?: string | null;
+  paymentStatus?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

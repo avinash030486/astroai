@@ -25,7 +25,7 @@ import { theme } from './src/theme/theme';
 WebBrowser.maybeCompleteAuthSession();
 
 export default function App() {
-  const { handleOAuthRedirect } = useAuthStore();
+  const { handleOAuthRedirect, storePendingReferral } = useAuthStore();
   const [fontsLoaded] = useFonts({
     CormorantGaramond_300Light,
     CormorantGaramond_400Regular,
@@ -45,12 +45,19 @@ export default function App() {
       if (url && url.includes('code=')) {
         handleOAuthRedirect(url);
       }
+      // Store referral code if present (e.g. vedicastro://...?ref=VA12345678)
+      if (url) {
+        const refMatch = url.match(/[?&]ref=([^&#]+)/);
+        if (refMatch) storePendingReferral(refMatch[1]);
+      }
     });
     // Handle deep links while app is already running (foreground)
     const sub = Linking.addEventListener('url', ({ url }) => {
       if (url && url.includes('code=')) {
         handleOAuthRedirect(url);
       }
+      const refMatch = url?.match(/[?&]ref=([^&#]+)/);
+      if (refMatch) storePendingReferral(refMatch[1]);
     });
     return () => sub.remove();
   }, []);

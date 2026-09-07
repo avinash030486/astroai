@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HoroscopeService, PlaceSuggestion } from '../../services/horoscope.service';
-import { PaymentService } from '../../services/payment.service';
+import { PaymentService, PaymentResult } from '../../services/payment.service';
 import { CurrencyService, CurrencyInfo } from '../../services/currency.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators';
@@ -200,14 +200,15 @@ export class GemstoneEngineComponent implements OnInit, OnDestroy {
           paymentMethodId: ev.paymentMethod.id,
           birthDate: this.birthDate, birthPlace: this.birthPlace
         }).subscribe({
-          next: r => {
-            if (r.success) {
+          next: async r => {
+            const paymentCompleted = await this.completeStripeActionIfRequired(r);
+            if (paymentCompleted) {
               ev.complete('success');
               this.paymentLoading = false;
               this.showPaymentPopup = false;
               if (this.cardElement) { try { this.cardElement.unmount(); } catch (_) {} this.cardElement = null; }
               this.performAnalysis();
-            } else { ev.complete('fail'); this.paymentError = r.error || 'Payment failed.'; this.paymentLoading = false; }
+            } else { ev.complete('fail'); this.paymentError = this.paymentError || r.error || 'Payment failed.'; this.paymentLoading = false; }
           },
           error: () => { ev.complete('fail'); this.paymentError = 'Payment failed.'; this.paymentLoading = false; }
         });
@@ -242,14 +243,15 @@ export class GemstoneEngineComponent implements OnInit, OnDestroy {
         birthDate: this.birthDate,
         birthPlace: this.birthPlace
       }).subscribe({
-        next: r => {
+        next: async r => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(r);
           this.paymentLoading = false;
-          if (r.success) {
+          if (paymentCompleted) {
             this.showPaymentPopup = false;
             if (this.cardElement) { try { this.cardElement.unmount(); } catch (_) {} this.cardElement = null; }
             this.performAnalysis();
           } else {
-            this.paymentError = r.error || 'Payment failed. Please try again.';
+            this.paymentError = this.paymentError || r.error || 'Payment failed. Please try again.';
           }
         },
         error: err => {
@@ -262,6 +264,25 @@ export class GemstoneEngineComponent implements OnInit, OnDestroy {
       this.paymentError = e.message || 'An error occurred.';
       this.paymentLoading = false;
     }
+  }
+
+  private async completeStripeActionIfRequired(result: PaymentResult): Promise<boolean> {
+    if (!result.requiresAction) {
+      return result.success;
+    }
+
+    if (!this.stripe || !result.clientSecret) {
+      this.paymentError = 'Additional authentication is required, but checkout is not ready. Please try again.';
+      return false;
+    }
+
+    const actionResult = await this.stripe.handleCardAction(result.clientSecret);
+    if (actionResult?.error) {
+      this.paymentError = actionResult.error.message || 'Authentication failed. Please try another card.';
+      return false;
+    }
+
+    return actionResult?.paymentIntent?.status === 'succeeded';
   }
 
   private parsePlace(): { city: string; state: string; country: string } {

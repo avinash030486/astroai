@@ -1,6 +1,26 @@
 .predictions-card { max-width: 1000px; }
 .form-label { font-weight: 500; }
 .btn-lg { padding: 0.75rem 1.25rem; }
+
+.conversion-panel {
+  border: 1px solid #e7ebf3;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+
+  h5 {
+    color: #0b355d;
+  }
+}
+
+.prechart-conversion {
+  border-top: 1px dashed #d6deec;
+  padding-top: 0.9rem;
+  text-align: center;
+}
+
+.prechart-conversion-text {
+  color: #4b5b77;
+  font-size: 0.92rem;
+}
 .narrative-box {
 	background: #f8f9fa;
 	border: 1px solid #e5e7eb;
@@ -250,4 +270,118 @@
 
 .text-info-emphasis {
   color: #0d6efd !important;
+}
+
+// ── Cosmic Identity Card ───────────────────────────────────────────────────────
+.cosmic-id-wrapper { max-width: 620px; margin: 0 auto; }
+
+.cosmic-id-card {
+  background: linear-gradient(145deg, #0d1220 0%, #18274a 55%, #0d1220 100%);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 20px;
+  padding: 28px 24px 20px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,215,0,0.12);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(255,215,0,0.07), transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.cid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .cid-site {
+    font-size: 0.7rem;
+    color: rgba(255,215,0,0.6);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .cid-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.06em;
+  }
+}
+
+.cid-body {
+  .cid-row {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .cid-divider {
+    height: 1px;
+    background: rgba(255,215,0,0.12);
+    margin: 16px 0;
+  }
+}
+
+.cid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 90px;
+
+  &.cid-item-wide { min-width: 120px; }
+
+  .cid-icon { font-size: 1.4rem; }
+
+  .cid-val {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #FFD700;
+  }
+
+  .cid-key {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+}
+
+.cid-footer {
+  text-align: center;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.2);
+  margin-top: 18px;
+  letter-spacing: 0.04em;
+}
+
+.btn-cid-share {
+  background: linear-gradient(135deg, #FFD700, #f5a623);
+  color: #0d1220;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+  &:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,215,0,0.45); }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.cid-hint {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 8px;
+  margin-bottom: 0;
 }

@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
@@ -17,7 +18,7 @@ public sealed class GptLocationService : IGptLocationService
 
     public GptLocationService(IHttpClientFactory httpFactory, IOptions<AstroAI.Core.Configuration.AstroAiSettings> options)
     {
-        _http = httpFactory.CreateClient();
+        _http = httpFactory.CreateClient("AstroAI.Default");
         var s = options.Value ?? throw new InvalidOperationException("AstroAI settings are not configured.");
         _endpoint = s.OpenAIEndpoint;
         _apiKey = s.OpenAIApiKey;
@@ -53,29 +54,51 @@ public sealed class GptLocationService : IGptLocationService
             : $"{_endpoint.TrimEnd('/')}/chat/completions";
 
         // Resilience: retry on 429 Too Many Requests with backoff (respect Retry-After when present)
-        HttpResponseMessage res;
+        HttpResponseMessage? res = null;
         const int maxAttempts = 3;
         for (int attempt = 1; ; attempt++)
         {
-            using var req = CreateRequest(url, request);
-            res = await _http.SendAsync(req, ct);
-            if (res.IsSuccessStatusCode)
-                break;
-
-            if (res.StatusCode == System.Net.HttpStatusCode.TooManyRequests && attempt < maxAttempts)
+            try
             {
-                var delay = TimeSpan.FromSeconds(2 * attempt);
-                if (res.Headers.RetryAfter is not null)
-                {
-                    if (res.Headers.RetryAfter.Delta is TimeSpan d) delay = d;
-                }
-                await Task.Delay(delay, ct);
-                continue;
-            }
+                using var req = CreateRequest(url, request);
+                res = await _http.SendAsync(req, ct);
 
-            // Throw with details for non-retryable status codes
-            var err = await res.Content.ReadAsStringAsync(ct);
-            throw new HttpRequestException($"GPT coordinates request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {err}");
+                if (res.IsSuccessStatusCode)
+                {
+                    break;
+                }
+
+                var isTransientStatus = res.StatusCode is HttpStatusCode.RequestTimeout
+                    or HttpStatusCode.TooManyRequests
+                    or HttpStatusCode.InternalServerError
+                    or HttpStatusCode.BadGateway
+                    or HttpStatusCode.ServiceUnavailable
+                    or HttpStatusCode.GatewayTimeout;
+
+                if (!isTransientStatus || attempt >= maxAttempts)
+                {
+                    var err = await res.Content.ReadAsStringAsync(ct);
+                    throw new HttpRequestException($"GPT coordinates request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {err}");
+                }
+
+                var delay = TimeSpan.FromMilliseconds(300 * Math.Pow(2, attempt - 1));
+                if (res.StatusCode == HttpStatusCode.TooManyRequests && res.Headers.RetryAfter?.Delta is TimeSpan retryAfter)
+                {
+                    delay = retryAfter;
+                }
+
+                await Task.Delay(delay, ct);
+            }
+            catch (Exception ex) when (ex is TaskCanceledException or HttpRequestException && attempt < maxAttempts)
+            {
+                var delay = TimeSpan.FromMilliseconds(300 * Math.Pow(2, attempt - 1));
+                await Task.Delay(delay, ct);
+            }
+        }
+
+        if (res is null)
+        {
+            throw new HttpRequestException("GPT coordinates request failed with no response.");
         }
 
         var jsonText = await res.Content.ReadAsStringAsync(ct);
@@ -123,28 +146,51 @@ public sealed class GptLocationService : IGptLocationService
             ? _endpoint
             : $"{_endpoint.TrimEnd('/')}/chat/completions";
 
-        HttpResponseMessage res;
+        HttpResponseMessage? res = null;
         const int maxAttempts = 3;
         for (int attempt = 1; ; attempt++)
         {
-            using var req = CreateRequest(url, request);
-            res = await _http.SendAsync(req, ct);
-            if (res.IsSuccessStatusCode)
-                break;
-
-            if (res.StatusCode == System.Net.HttpStatusCode.TooManyRequests && attempt < maxAttempts)
+            try
             {
-                var delay = TimeSpan.FromSeconds(2 * attempt);
-                if (res.Headers.RetryAfter is not null && res.Headers.RetryAfter.Delta is TimeSpan d)
-                {
-                    delay = d;
-                }
-                await Task.Delay(delay, ct);
-                continue;
-            }
+                using var req = CreateRequest(url, request);
+                res = await _http.SendAsync(req, ct);
 
-            var err = await res.Content.ReadAsStringAsync(ct);
-            throw new HttpRequestException($"GPT timezone request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {err}");
+                if (res.IsSuccessStatusCode)
+                {
+                    break;
+                }
+
+                var isTransientStatus = res.StatusCode is HttpStatusCode.RequestTimeout
+                    or HttpStatusCode.TooManyRequests
+                    or HttpStatusCode.InternalServerError
+                    or HttpStatusCode.BadGateway
+                    or HttpStatusCode.ServiceUnavailable
+                    or HttpStatusCode.GatewayTimeout;
+
+                if (!isTransientStatus || attempt >= maxAttempts)
+                {
+                    var err = await res.Content.ReadAsStringAsync(ct);
+                    throw new HttpRequestException($"GPT timezone request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {err}");
+                }
+
+                var delay = TimeSpan.FromMilliseconds(300 * Math.Pow(2, attempt - 1));
+                if (res.StatusCode == HttpStatusCode.TooManyRequests && res.Headers.RetryAfter?.Delta is TimeSpan retryAfter)
+                {
+                    delay = retryAfter;
+                }
+
+                await Task.Delay(delay, ct);
+            }
+            catch (Exception ex) when (ex is TaskCanceledException or HttpRequestException && attempt < maxAttempts)
+            {
+                var delay = TimeSpan.FromMilliseconds(300 * Math.Pow(2, attempt - 1));
+                await Task.Delay(delay, ct);
+            }
+        }
+
+        if (res is null)
+        {
+            throw new HttpRequestException("GPT timezone request failed with no response.");
         }
 
         var jsonText = await res.Content.ReadAsStringAsync(ct);

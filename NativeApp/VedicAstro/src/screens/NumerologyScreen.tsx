@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
@@ -88,11 +88,13 @@ export const NumerologyScreen: React.FC = () => {
   };
 
   const handlePaymentSuccess = async (pmId: string, _planId: string, amountUsd: number, name: string, email: string) => {
-    const res = await paymentsApi.chargeForNumerology({
-      amountUsd, name, email, paymentMethodId: pmId,
-      birthDate: form.dateOfBirth,
-    });
-    if (!res.success) throw new Error(res.error ?? 'Payment failed. Please try again.');
+    if (Platform.OS !== 'android' && pmId !== 'credits_only') {
+      const res = await paymentsApi.chargeForNumerology({
+        amountUsd, name, email, paymentMethodId: pmId,
+        birthDate: form.dateOfBirth,
+      });
+      if (!res.success) throw new Error(res.error ?? 'Payment failed. Please try again.');
+    }
 
     setShowPayment(false);
     setDetailLoading(true);
@@ -215,6 +217,7 @@ export const NumerologyScreen: React.FC = () => {
         title="Full Numerology Reading"
         subtitle="Career, love, money insights & Vedic remedies based on your numbers"
         fixedAmountUsd={1.99}
+        googlePlayProductId="numerology_reading"
         onSuccess={handlePaymentSuccess}
         onClose={() => setShowPayment(false)}
       />

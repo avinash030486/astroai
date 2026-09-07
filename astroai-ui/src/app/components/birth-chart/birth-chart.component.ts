@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { HoroscopeService, SouthIndianChart, AskQuestionRequest, AskQuestionResponse, PlaceSuggestion } from '../../services/horoscope.service';
 import { PredictionsService, BasicChartPredictionResponse, DetailedChartPredictionResponse } from '../../services/predictions.service';
@@ -12,6 +13,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, filter, takeUntil } from 'rxjs/operators';
 import { SeoFocusService } from '../../services/seo-focus.service';
 import { ProfileService } from '../../services/profile.service';
+import { AnalyticsService } from '../../services/analytics.service';
 
 declare const Stripe: any;
 
@@ -29,8 +31,10 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     private payments: PaymentService,
     private currencyService: CurrencyService,
     private route: ActivatedRoute,
+    private router: Router,
     private seo: SeoFocusService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private analytics: AnalyticsService
   ) {}
 
   form = this.fb.group({
@@ -49,7 +53,12 @@ export class BirthChartComponent implements OnInit, OnDestroy {
   detailedPred?: DetailedChartPredictionResponse;
   @ViewChild('basicPredSection') basicPredSection?: ElementRef<HTMLDivElement>;
   @ViewChild('detailedPredSection') detailedPredSection?: ElementRef<HTMLDivElement>;
+  @ViewChild('cosmicCard') cosmicCard?: ElementRef<HTMLDivElement>;
   longRunningNotice = false;
+
+  // Cosmic Identity Card
+  downloadingCard = false;
+  cardDownloaded  = false;
 
   // Place autocomplete state
   placeSuggestions: PlaceSuggestion[] = [];
@@ -110,6 +119,8 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       keywords: 'vedic birth chart, kundli, kundali, rashi chart, lagna, ascendant, nakshatra, sidereal birth chart, free kundli, jyotish birth chart, planetary positions',
       canonical: '/birth-chart'
     });
+
+    this.analytics.track('birth_chart_funnel_cta_shown', '/birth-chart', { placement: 'pre_chart' });
 
     // Pre-fill form from dashboard / query params
     const qp = this.route.snapshot.queryParams;
@@ -187,10 +198,54 @@ export class BirthChartComponent implements OnInit, OnDestroy {
     if (this.qnaPrButton) { try { this.qnaPrButton.unmount(); } catch (_) {} }
   }
 
+  goToAstrologer(): void {
+    this.analytics.track('birth_chart_cta_click', '/birth-chart', { cta: 'astrologer' });
+    this.router.navigate(['/astrologer']);
+  }
+
+  goToPricing(): void {
+    this.analytics.track('birth_chart_cta_click', '/birth-chart', { cta: 'pricing' });
+    this.router.navigate(['/pricing']);
+  }
+
   onPlaceSuggestionSelected(suggestion: PlaceSuggestion): void {
     this.form.patchValue({ birthPlace: suggestion.description });
     this.placeSuggestions = [];
     this.showSuggestions = false;
+  }
+
+  // ── Cosmic Identity Card helpers ────────────────────────────────────────────
+  getMoonSign(): string {
+    return this.chart?.planets.find(p => p.name === 'Moon')?.sign || '—';
+  }
+
+  getMoonNakshatra(): string {
+    return this.chart?.planets.find(p => p.name === 'Moon')?.nakshatra || '—';
+  }
+
+  getSunSign(): string {
+    return this.chart?.planets.find(p => p.name === 'Sun')?.sign || '—';
+  }
+
+  async downloadCosmicCard(): Promise<void> {
+    if (!this.cosmicCard) return;
+    this.downloadingCard = true;
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(this.cosmicCard.nativeElement, {
+        backgroundColor: '#0d1220',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link    = document.createElement('a');
+      link.download  = `cosmic-identity-${this.chart?.ascendantSign || 'chart'}-${new Date().toISOString().slice(0,10)}.png`;
+      link.href      = dataUrl;
+      link.click();
+      this.cardDownloaded = true;
+    } catch (e) { console.error(e); }
+    this.downloadingCard = false;
   }
 
   hideSuggestions(): void {
@@ -807,8 +862,9 @@ export class BirthChartComponent implements OnInit, OnDestroy {
         placeOfBirth: (v.birthPlace || '').toString()
       };
       this.payments.charge(req).subscribe({
-        next: (res: PaymentResult) => {
-          if (res.success) {
+        next: async (res: PaymentResult) => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(res, message => this.paymentError = message);
+          if (paymentCompleted) {
             ev.complete('success');
             this.paymentLoading = false;
             this.showPremiumPopup = false;
@@ -818,7 +874,7 @@ export class BirthChartComponent implements OnInit, OnDestroy {
               next: (detail) => { this.detailedPred = detail; this.predLoading = false; this.longRunningNotice = false; },
               error: () => { this.error = 'Payment succeeded, but prediction failed. Please contact support.'; this.predLoading = false; this.longRunningNotice = false; }
             });
-          } else { ev.complete('fail'); this.paymentError = res.error || 'Payment failed.'; this.paymentLoading = false; }
+          } else { ev.complete('fail'); this.paymentError = this.paymentError || res.error || 'Payment failed.'; this.paymentLoading = false; }
         },
         error: (err: any) => {
           ev.complete('fail');
@@ -902,10 +958,11 @@ export class BirthChartComponent implements OnInit, OnDestroy {
 
     // 2) Call backend to charge
     this.payments.charge(req).subscribe({
-      next: (res: PaymentResult) => {
+      next: async (res: PaymentResult) => {
+        const paymentCompleted = await this.completeStripeActionIfRequired(res, message => this.paymentError = message);
         this.paymentLoading = false;
-        if (!res.success) {
-          this.paymentError = res.error || 'Payment failed. Please try another card or plan.';
+        if (!paymentCompleted) {
+          this.paymentError = this.paymentError || res.error || 'Payment failed. Please try another card or plan.';
           return;
         }
 
@@ -1017,8 +1074,9 @@ export class BirthChartComponent implements OnInit, OnDestroy {
         paymentMethodId: ev.paymentMethod.id
       };
       this.payments.chargeForQNA(req).subscribe({
-        next: (res: PaymentResult) => {
-          if (res.success) {
+        next: async (res: PaymentResult) => {
+          const paymentCompleted = await this.completeStripeActionIfRequired(res, message => this.qnaPaymentError = message);
+          if (paymentCompleted) {
             ev.complete('success');
             this.qnaPaymentLoading = false;
             this.showQnaPopup = false;
@@ -1030,7 +1088,7 @@ export class BirthChartComponent implements OnInit, OnDestroy {
               this.remainingFreeQuestions = 999999; this.usedAskQuestions = 0;
               sessionStorage.setItem('astroai_ask_used', '0'); sessionStorage.setItem('astroai_qna_plan', 'qna-unlimited'); sessionStorage.setItem('astroai_qna_remaining', '999999');
             }
-          } else { ev.complete('fail'); this.qnaPaymentError = res.error || 'Payment failed.'; this.qnaPaymentLoading = false; }
+          } else { ev.complete('fail'); this.qnaPaymentError = this.qnaPaymentError || res.error || 'Payment failed.'; this.qnaPaymentLoading = false; }
         },
         error: (err: any) => {
           ev.complete('fail');
@@ -1058,6 +1116,25 @@ export class BirthChartComponent implements OnInit, OnDestroy {
       case 'qna-unlimited': return 10.00;
       default: return 0;
     }
+  }
+
+  private async completeStripeActionIfRequired(result: PaymentResult, setError: (message: string) => void): Promise<boolean> {
+    if (!result.requiresAction) {
+      return result.success;
+    }
+
+    if (!this.stripe || !result.clientSecret) {
+      setError('Additional authentication is required, but checkout is not ready. Please try again.');
+      return false;
+    }
+
+    const actionResult = await this.stripe.handleCardAction(result.clientSecret);
+    if (actionResult?.error) {
+      setError(actionResult.error.message || 'Authentication failed. Please try another card.');
+      return false;
+    }
+
+    return actionResult?.paymentIntent?.status === 'succeeded';
   }
 
   async confirmQnaPurchase(): Promise<void> {
@@ -1105,10 +1182,11 @@ export class BirthChartComponent implements OnInit, OnDestroy {
 
     // 2) Call backend to charge for QNA
     this.payments.chargeForQNA(req).subscribe({
-      next: (res: PaymentResult) => {
+      next: async (res: PaymentResult) => {
+        const paymentCompleted = await this.completeStripeActionIfRequired(res, message => this.qnaPaymentError = message);
         this.qnaPaymentLoading = false;
-        if (!res.success) {
-          this.qnaPaymentError = res.error || 'Payment failed. Please try another card or plan.';
+        if (!paymentCompleted) {
+          this.qnaPaymentError = this.qnaPaymentError || res.error || 'Payment failed. Please try another card or plan.';
           return;
         }
 

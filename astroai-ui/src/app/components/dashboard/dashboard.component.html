@@ -218,9 +218,22 @@
     <!-- ═══ REFERRALS ═══ -->
     <ng-container *ngIf="activeTab === 'referrals'">
       <div class="section-header"><h2>Refer & Earn</h2></div>
+
+      <!-- Credit balance banner -->
+      <div class="credit-balance-banner" [routerLink]="['/credits']" style="cursor:pointer">
+        <span class="credit-icon">💰</span>
+        <div class="credit-banner-text">
+          <strong>{{ credits.formattedBalance }}</strong> in referral credits
+          <span class="credit-banner-sub">— click to view history &amp; spend</span>
+        </div>
+        <span class="credit-arrow">›</span>
+      </div>
+
       <div class="referral-card">
         <div class="ref-headline">Share VedicAstro with friends</div>
-        <p class="ref-sub">When a friend signs up using your link and makes a purchase, you both get rewarded.</p>
+        <p class="ref-sub">
+          When a friend signs up using your link, you get <strong style="color:#c9963a">$5.00</strong> and they get <strong style="color:#2ecfb0">$2.00</strong> — automatically credited.
+        </p>
         <div class="ref-code-row">
           <span class="ref-code-label">Your code</span>
           <span class="ref-code">{{ referral.getReferralCode() || '—' }}</span>
@@ -241,8 +254,8 @@
             <div class="ref-stat-label">Friends Referred</div>
           </div>
           <div class="ref-stat">
-            <div class="ref-stat-num">{{ referralCount > 0 ? '🎉' : '0' }}</div>
-            <div class="ref-stat-label">Rewards Earned</div>
+            <div class="ref-stat-num">{{ credits.formattedBalance }}</div>
+            <div class="ref-stat-label">Credits Earned</div>
           </div>
         </div>
       </div>

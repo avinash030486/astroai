@@ -5,9 +5,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
 using Microsoft.IdentityModel.Tokens;
 using Stripe;
+using System.Net;
 using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var railwayPort = builder.Configuration["PORT"];
+if (int.TryParse(railwayPort, out var parsedRailwayPort) && parsedRailwayPort > 0)
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{parsedRailwayPort}");
+}
 
 // Add Response Caching and Memory Cache for performance
 builder.Services.AddResponseCaching();
@@ -143,19 +150,70 @@ builder.Services.Configure<AstroAiSettings>(builder.Configuration.GetSection("As
 var stripeSecret = builder.Configuration.GetValue<string>("Stripe:SecretKey");
 if (!string.IsNullOrWhiteSpace(stripeSecret)) StripeConfiguration.ApiKey = stripeSecret;
 
-var cosmosConn = builder.Configuration.GetValue<string>("Cosmos:ConnectionString");
-if (!string.IsNullOrWhiteSpace(cosmosConn)) builder.Services.AddSingleton(new CosmosClient(cosmosConn));
+// Improve Stripe resiliency for transient network failures.
+StripeConfiguration.MaxNetworkRetries = Math.Clamp(
+    builder.Configuration.GetValue<int?>("Stripe:MaxNetworkRetries") ?? 2,
+    0,
+    5);
 
-// CORS - Allow any origin
+var cosmosConn = builder.Configuration.GetValue<string>("Cosmos:ConnectionString");
+if (!string.IsNullOrWhiteSpace(cosmosConn))
+{
+    var cosmosRequestTimeoutSeconds = Math.Clamp(
+        builder.Configuration.GetValue<int?>("Cosmos:RequestTimeoutSeconds") ?? 15,
+        5,
+        120);
+
+    var cosmosMaxRateLimitRetries = Math.Clamp(
+        builder.Configuration.GetValue<int?>("Cosmos:MaxRetryAttemptsOnRateLimitedRequests") ?? 9,
+        0,
+        50);
+
+    var cosmosMaxRateLimitRetryWaitSeconds = Math.Clamp(
+        builder.Configuration.GetValue<int?>("Cosmos:MaxRetryWaitTimeOnRateLimitedRequests") ?? 30,
+        1,
+        300);
+
+    builder.Services.AddSingleton(new CosmosClient(
+        cosmosConn,
+        new CosmosClientOptions
+        {
+            RequestTimeout = TimeSpan.FromSeconds(cosmosRequestTimeoutSeconds),
+            OpenTcpConnectionTimeout = TimeSpan.FromSeconds(10),
+            MaxRetryAttemptsOnRateLimitedRequests = cosmosMaxRateLimitRetries,
+            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(cosmosMaxRateLimitRetryWaitSeconds)
+        }));
+}
+
+var allowedOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? "https://vedicastro.app,http://localhost:4200")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
 
-builder.Services.AddHttpClient();
+var outboundHttpTimeoutSeconds = Math.Clamp(
+    builder.Configuration.GetValue<int?>("HttpClient:TimeoutSeconds") ?? 100,
+    5,
+    300);
+
+builder.Services
+    .AddHttpClient("AstroAI.Default")
+    .ConfigureHttpClient(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(outboundHttpTimeoutSeconds);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        ConnectTimeout = TimeSpan.FromSeconds(10),
+        PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+        PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+    });
 builder.Services.AddScoped<IGptAstrologyService, GptAstrologyService>();
 builder.Services.AddScoped<IGptLocationService, GptLocationService>();
 builder.Services.AddScoped<IKpHoroscopeService, KpHoroscopeService>();
@@ -175,6 +233,38 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (OperationCanceledException) when (!context.RequestAborted.IsCancellationRequested)
+    {
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                success = false,
+                error = "Request timed out. Please retry."
+            });
+        }
+    }
+    catch (TimeoutException)
+    {
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                success = false,
+                error = "Request timed out. Please retry."
+            });
+        }
+    }
+});
+
 // Add response caching middleware
 app.UseResponseCaching();
 
@@ -182,5 +272,7 @@ app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
+    .WithName("Health");
 app.MapControllers();
 app.Run();

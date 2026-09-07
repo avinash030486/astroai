@@ -22,7 +22,7 @@ function parseBirthPlace(place: string): { city: string; state: string; country:
 }
 
 export const GemstoneScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { user } = useAuthStore();
   const { format, ready } = useCurrency();
 
@@ -149,6 +149,21 @@ export const GemstoneScreen: React.FC = () => {
             <Text style={styles.cardText}>{result.generalAdvice}</Text>
           </View>
         ) : null}
+        <TouchableOpacity
+          style={styles.arBtn}
+          onPress={() => navigation.navigate('ARGemstone', {
+            gemstone: result.recommendations?.[0]?.gemstoneName ?? result.primaryGemstone,
+            planet: result.recommendations?.[0]?.planet ?? '',
+            metal: result.recommendations?.[0]?.metal ?? 'Gold',
+            finger: result.recommendations?.[0]?.finger ?? 'Ring finger',
+            weight: result.recommendations?.[0]?.weight ?? '',
+            bestDay: result.recommendations?.[0]?.bestDay ?? '',
+            benefits: result.recommendations?.[0]?.benefits ?? [],
+          })}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.arBtnText}>💍  Try On in AR</Text>
+        </TouchableOpacity>
         <PrimaryButton label="← Start Over" onPress={() => setResult(null)} style={styles.btn} />
       </ScreenLayout>
     );
@@ -168,6 +183,7 @@ export const GemstoneScreen: React.FC = () => {
         title="Gemstone Prediction"
         subtitle="Chart-based gemstone analysis powered by Vedic astrology"
         fixedAmountUsd={1.99}
+        googlePlayProductId="gemstone_report"
         onSuccess={handlePaymentSuccess}
         onClose={() => setShowPayment(false)}
       />
@@ -212,4 +228,6 @@ const styles = StyleSheet.create({
   generalAdvice: { backgroundColor: 'rgba(46,204,113,0.08)', borderWidth: 1, borderColor: 'rgba(46,204,113,0.25)', borderRadius: 12, padding: 14, marginTop: 8 },
   error: { color: '#e74c3c', fontFamily: theme.fonts.body, fontSize: 13, marginBottom: 12 },
   btn: { marginTop: 8, marginBottom: 24 },
+  arBtn: { backgroundColor: 'rgba(46,207,176,0.15)', borderWidth: 1.5, borderColor: '#2ECFB0', borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8, marginBottom: 10 },
+  arBtnText: { color: '#2ECFB0', fontSize: 16, fontFamily: theme.fonts.heading, letterSpacing: 0.5 },
 });

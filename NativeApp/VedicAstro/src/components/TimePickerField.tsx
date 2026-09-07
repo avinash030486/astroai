@@ -13,6 +13,7 @@ interface Props {
 
 function parseHHMM(str: string): Date {
   const date = new Date();
+  date.setSeconds(0, 0);
   if (str) {
     const [h, m] = str.split(':').map(Number);
     if (!isNaN(h) && !isNaN(m)) {
@@ -20,7 +21,7 @@ function parseHHMM(str: string): Date {
       return date;
     }
   }
-  date.setHours(6, 0, 0, 0);
+  // Default: current time (not hardcoded 6am)
   return date;
 }
 

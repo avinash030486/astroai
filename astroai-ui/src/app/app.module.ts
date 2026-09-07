@@ -47,6 +47,10 @@ import { ExaltedPlanetListComponent } from './components/exalted-planet-list/exa
 import { ExaltedPlanetDetailComponent } from './components/exalted-planet-detail/exalted-planet-detail.component';
 import { DebilitatedPlanetListComponent } from './components/debilitated-planet-list/debilitated-planet-list.component';
 import { DebilitatedPlanetDetailComponent } from './components/debilitated-planet-detail/debilitated-planet-detail.component';
+import { PowerScoresComponent } from './components/power-scores/power-scores.component';
+import { SquadCompatComponent } from './components/squad-compat/squad-compat.component';
+import { SoulmateSketchComponent } from './components/soulmate-sketch/soulmate-sketch.component';
+import { CreditsComponent } from './components/credits/credits.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -89,6 +93,10 @@ import { DebilitatedPlanetDetailComponent } from './components/debilitated-plane
     ExaltedPlanetDetailComponent,
     DebilitatedPlanetListComponent,
     DebilitatedPlanetDetailComponent,
+    PowerScoresComponent,
+    SquadCompatComponent,
+    SoulmateSketchComponent,
+    CreditsComponent,
   ],
   imports: [
     BrowserModule,

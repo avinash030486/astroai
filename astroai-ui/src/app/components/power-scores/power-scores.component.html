@@ -1,0 +1,188 @@
+<div class="ps-wrapper">
+
+  <!-- Hero -->
+  <section class="ps-hero text-center">
+    <div class="ps-badge">✨ Free · No Login · Updated Daily</div>
+    <h1 class="ps-title">Cosmic Power Scores</h1>
+    <p class="ps-sub">Your personalised Vedic luck index for today</p>
+    <div class="ps-date">{{ todayLabel }}</div>
+    <div class="ps-day-ruler">{{ dayName }} — ruled by <strong>{{ dayName === 'Sunday' ? 'Sun ☀️' : dayName === 'Monday' ? 'Moon 🌙' : dayName === 'Tuesday' ? 'Mars 🔴' : dayName === 'Wednesday' ? 'Mercury 🟢' : dayName === 'Thursday' ? 'Jupiter 🟡' : dayName === 'Friday' ? 'Venus ⚪' : 'Saturn 🟤' }}</strong></div>
+  </section>
+
+  <!-- Sign Selector -->
+  <section class="container ps-selector-section">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-8 col-md-5">
+        <label class="selector-label">Select Your Moon / Sun Sign</label>
+        <div class="select-wrap">
+          <select class="ps-select" [(ngModel)]="selectedSign" (change)="onSignChange()">
+            <option *ngFor="let s of signs" [value]="s">{{ signEmojis[s] }} {{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shareable Score Card -->
+  <section class="container ps-card-section">
+    <div class="ps-card" #scoreCard>
+
+      <!-- Card Header -->
+      <div class="ps-card-header">
+        <div class="ps-site-name">VedicAstro.app</div>
+        <div class="ps-card-sign">{{ signEmojis[selectedSign] }} {{ selectedSign }}</div>
+        <div class="ps-card-title">Daily Cosmic Power Scores</div>
+        <div class="ps-card-date">{{ todayLabel }}</div>
+      </div>
+
+      <!-- Overall Ring -->
+      <div class="overall-ring-wrap">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="55" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12"/>
+          <circle cx="75" cy="75" r="55" fill="none"
+            [attr.stroke]="getScoreColor(overallScore)"
+            stroke-width="12"
+            stroke-linecap="round"
+            [attr.stroke-dasharray]="CIRC_LARGE"
+            [attr.stroke-dashoffset]="largeDashOffset(overallScore)"
+            transform="rotate(-90 75 75)"
+            style="transition: stroke-dashoffset 0.8s ease"/>
+          <text x="75" y="70" text-anchor="middle" fill="white" font-size="30" font-weight="700" font-family="'Segoe UI',sans-serif">{{ overallScore }}</text>
+          <text x="75" y="90" text-anchor="middle" fill="#aaa" font-size="13" font-family="'Segoe UI',sans-serif">Overall</text>
+        </svg>
+        <div class="overall-label">{{ getScoreLabel(overallScore) }}</div>
+      </div>
+
+      <!-- 3 Score Rings -->
+      <div class="ps-scores-row">
+
+        <!-- Career -->
+        <div class="ps-score-item">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+            <circle cx="55" cy="55" r="40" fill="none"
+              [attr.stroke]="getScoreColor(careerScore)"
+              stroke-width="9" stroke-linecap="round"
+              [attr.stroke-dasharray]="CIRC_SMALL"
+              [attr.stroke-dashoffset]="smallDashOffset(careerScore)"
+              transform="rotate(-90 55 55)"
+              style="transition: stroke-dashoffset 0.8s ease"/>
+            <text x="55" y="51" text-anchor="middle" fill="white" font-size="20" font-weight="700" font-family="'Segoe UI',sans-serif">{{ careerScore }}</text>
+            <text x="55" y="68" text-anchor="middle" fill="#999" font-size="10" font-family="'Segoe UI',sans-serif">%</text>
+          </svg>
+          <div class="score-label">💼 Career</div>
+          <div class="score-tag" [style.color]="getScoreColor(careerScore)">{{ getScoreLabel(careerScore) }}</div>
+        </div>
+
+        <!-- Romance -->
+        <div class="ps-score-item">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+            <circle cx="55" cy="55" r="40" fill="none"
+              [attr.stroke]="getScoreColor(romanceScore)"
+              stroke-width="9" stroke-linecap="round"
+              [attr.stroke-dasharray]="CIRC_SMALL"
+              [attr.stroke-dashoffset]="smallDashOffset(romanceScore)"
+              transform="rotate(-90 55 55)"
+              style="transition: stroke-dashoffset 0.8s ease"/>
+            <text x="55" y="51" text-anchor="middle" fill="white" font-size="20" font-weight="700" font-family="'Segoe UI',sans-serif">{{ romanceScore }}</text>
+            <text x="55" y="68" text-anchor="middle" fill="#999" font-size="10" font-family="'Segoe UI',sans-serif">%</text>
+          </svg>
+          <div class="score-label">💕 Romance</div>
+          <div class="score-tag" [style.color]="getScoreColor(romanceScore)">{{ getScoreLabel(romanceScore) }}</div>
+        </div>
+
+        <!-- Health -->
+        <div class="ps-score-item">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+            <circle cx="55" cy="55" r="40" fill="none"
+              [attr.stroke]="getScoreColor(healthScore)"
+              stroke-width="9" stroke-linecap="round"
+              [attr.stroke-dasharray]="CIRC_SMALL"
+              [attr.stroke-dashoffset]="smallDashOffset(healthScore)"
+              transform="rotate(-90 55 55)"
+              style="transition: stroke-dashoffset 0.8s ease"/>
+            <text x="55" y="51" text-anchor="middle" fill="white" font-size="20" font-weight="700" font-family="'Segoe UI',sans-serif">{{ healthScore }}</text>
+            <text x="55" y="68" text-anchor="middle" fill="#999" font-size="10" font-family="'Segoe UI',sans-serif">%</text>
+          </svg>
+          <div class="score-label">🌿 Health</div>
+          <div class="score-tag" [style.color]="getScoreColor(healthScore)">{{ getScoreLabel(healthScore) }}</div>
+        </div>
+
+      </div><!-- /ps-scores-row -->
+
+      <div class="ps-card-footer">Powered by Vedic Jyotish · vedicastro.app</div>
+    </div><!-- /ps-card -->
+
+    <!-- Share / Download Button -->
+    <div class="text-center mt-4">
+      <button class="btn-share" (click)="shareCard()" [disabled]="sharing">
+        <ng-container *ngIf="!sharing && !shared">📲 Download & Share Your Cosmic Card</ng-container>
+        <ng-container *ngIf="sharing">⏳ Rendering card…</ng-container>
+        <ng-container *ngIf="shared && !sharing">✅ Downloaded! Share on Instagram / WhatsApp</ng-container>
+      </button>
+      <p class="share-hint" *ngIf="!shared">Save as PNG — perfect for Instagram Stories & WhatsApp Status</p>
+    </div>
+  </section>
+
+  <!-- Detailed Tips -->
+  <section class="container ps-tips-section">
+    <h2 class="tips-heading">Today's Cosmic Guidance</h2>
+    <div class="row g-3">
+
+      <div class="col-12 col-md-4">
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-emoji">💼</span>
+            <span class="tip-title">Career</span>
+            <span class="tip-score-badge" [style.background]="getScoreColor(careerScore)">{{ careerScore }}%</span>
+          </div>
+          <div class="tip-bar-wrap">
+            <div class="tip-bar-fill" [style.width.%]="careerScore" [style.background]="getScoreColor(careerScore)"></div>
+          </div>
+          <p class="tip-text">{{ careerTip }}</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-emoji">💕</span>
+            <span class="tip-title">Romance</span>
+            <span class="tip-score-badge" [style.background]="getScoreColor(romanceScore)">{{ romanceScore }}%</span>
+          </div>
+          <div class="tip-bar-wrap">
+            <div class="tip-bar-fill" [style.width.%]="romanceScore" [style.background]="getScoreColor(romanceScore)"></div>
+          </div>
+          <p class="tip-text">{{ romanceTip }}</p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="tip-card">
+          <div class="tip-header">
+            <span class="tip-emoji">🌿</span>
+            <span class="tip-title">Health</span>
+            <span class="tip-score-badge" [style.background]="getScoreColor(healthScore)">{{ healthScore }}%</span>
+          </div>
+          <div class="tip-bar-wrap">
+            <div class="tip-bar-fill" [style.width.%]="healthScore" [style.background]="getScoreColor(healthScore)"></div>
+          </div>
+          <p class="tip-text">{{ healthTip }}</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="ps-cta text-center">
+    <p class="cta-sub">Want deeper, personalised predictions based on your exact birth chart?</p>
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a routerLink="/birth-chart" class="btn-cta-primary">🔮 Generate Birth Chart</a>
+      <a routerLink="/transit-alerts" class="btn-cta-outline">🪐 See Transit Alerts</a>
+    </div>
+  </section>
+
+</div>

@@ -2,6 +2,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Net;
 using Microsoft.Extensions.Options;
 using AstroAI.Core.Services;
 using AstroAI.Core.Configuration;
@@ -14,17 +15,21 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
     private readonly string _endpoint;
     private readonly string _apiKey;
     private readonly string _model;
+    private readonly string _imageModel;
+    private readonly string _geminiApiKey;
     private readonly IEphemerisService _ephemeris;
 
     public GptAstrologyService(IHttpClientFactory httpFactory, IOptions<AstroAiSettings> options, IEphemerisService ephemeris)
     {
-        _http = httpFactory.CreateClient();
+        _http = httpFactory.CreateClient("AstroAI.Default");
         // Premium detailed predictions may run longer; lift timeout to 240 seconds
         _http.Timeout = TimeSpan.FromSeconds(240);
         var s = options.Value ?? throw new InvalidOperationException("AstroAI settings are not configured.");
         _endpoint = s.OpenAIEndpoint;
         _apiKey = s.OpenAIApiKey;
         _model = string.IsNullOrWhiteSpace(s.ModelId) ? "gpt-5.1" : s.ModelId;
+        _imageModel = string.IsNullOrWhiteSpace(s.ImageModelId) ? "gpt-image-2" : s.ImageModelId;
+        _geminiApiKey = s.GeminiApiKey;
         _ephemeris = ephemeris;
     }
 
@@ -55,8 +60,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
             },
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode) throw new HttpRequestException($"GPT prediction failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
 
@@ -115,8 +119,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
             },
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode) throw new HttpRequestException($"GPT detailed prediction failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
 
@@ -196,8 +199,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
             },
         };
 
-        using var req = CreateRequest(url, request);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, request), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode)
             throw new HttpRequestException($"GPT ask-question failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
@@ -230,8 +232,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
                 new { role = "user", content = prompt }
             }
         };
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode) throw new HttpRequestException($"GPT request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
         using var doc = JsonDocument.Parse(body);
@@ -262,8 +263,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
             },
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode) throw new HttpRequestException($"GPT daily predictions failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
 
@@ -315,8 +315,7 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
             temperature = 0.2
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
         if (!res.IsSuccessStatusCode)
             throw new HttpRequestException($"GPT JSON request failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
@@ -430,6 +429,58 @@ public sealed partial class GptAstrologyService : IGptAstrologyService
         req.Content = JsonContent.Create(payload);
         return req;
     }
+
+    private static bool IsTransientStatusCode(HttpStatusCode statusCode)
+    {
+        return statusCode is HttpStatusCode.RequestTimeout
+            or HttpStatusCode.TooManyRequests
+            or HttpStatusCode.InternalServerError
+            or HttpStatusCode.BadGateway
+            or HttpStatusCode.ServiceUnavailable
+            or HttpStatusCode.GatewayTimeout;
+    }
+
+    private async Task<HttpResponseMessage> SendWithRetryAsync(
+        Func<HttpRequestMessage> requestFactory,
+        CancellationToken ct,
+        int maxAttempts = 3,
+        int initialDelayMs = 300)
+    {
+        var delayMs = initialDelayMs;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                using var req = requestFactory();
+                var res = await _http.SendAsync(req, ct);
+
+                if (IsTransientStatusCode(res.StatusCode) && attempt < maxAttempts)
+                {
+                    var delay = res.Headers.RetryAfter?.Delta ?? TimeSpan.FromMilliseconds(delayMs);
+                    res.Dispose();
+                    await Task.Delay(delay, ct);
+                    delayMs *= 2;
+                    continue;
+                }
+
+                return res;
+            }
+            catch (TaskCanceledException) when (!ct.IsCancellationRequested && attempt < maxAttempts)
+            {
+                await Task.Delay(delayMs, ct);
+                delayMs *= 2;
+            }
+            catch (HttpRequestException) when (attempt < maxAttempts)
+            {
+                await Task.Delay(delayMs, ct);
+                delayMs *= 2;
+            }
+        }
+
+        using var lastReq = requestFactory();
+        return await _http.SendAsync(lastReq, ct);
+    }
 }
 
 internal static class JsonHelpers
@@ -511,8 +562,7 @@ Provide practical, encouraging guidance. Return STRICT JSON with schema:
             temperature = 0.3,
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
 
         if (!res.IsSuccessStatusCode)
@@ -582,8 +632,7 @@ Provide structured, actionable insights. Return STRICT JSON with schema:
             temperature = 0.4,
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
 
         if (!res.IsSuccessStatusCode)
@@ -655,8 +704,7 @@ Return STRICT JSON with schema:
             temperature = 0.3,
         };
 
-        using var req = CreateRequest(url, payload);
-        var res = await _http.SendAsync(req, ct);
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
         var body = await res.Content.ReadAsStringAsync(ct);
 
         if (!res.IsSuccessStatusCode)
@@ -824,5 +872,465 @@ Return STRICT JSON with schema:
             .Select(e => e.GetString() ?? "")
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .ToList();
+    }
+}
+
+// ── Palmistry + Face Reading + Past Life Analysis ────────────────────────────
+public sealed partial class GptAstrologyService
+{
+    public async Task<FaceReadingResponse> AnalyzeFaceAsync(FaceReadingRequest request, CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        var base64 = request.ImageBase64.Contains(',')
+            ? request.ImageBase64.Split(',')[1]
+            : request.ImageBase64;
+
+        var systemPrompt = $$"""
+            You are a master of Vedic Samudrika Shastra (face reading) with 30 years of practice.
+            The user's Moon Nakshatra is {{request.NakshatraName}}, ruled by {{request.NakshatraPlanet}}.
+            Analyse the face photograph and cross-reference your observations with this Nakshatra energy.
+            If the image is clearly NOT a face selfie, return {"error": "Please provide a clear face selfie."}.
+            Return STRICT JSON only — no prose outside the JSON block.
+
+            JSON schema:
+            {
+              "cosmicSummary": string (3-4 sentences tying face features to the {{request.NakshatraName}} energy),
+              "faceShape": string (shape + Ayurvedic dosha type, e.g. "Oval – Pitta"),
+              "dominantElement": string (Fire/Earth/Air/Water),
+              "energyType": string (e.g. "Solar – radiant, commanding presence"),
+              "eyes": {"feature":"Eyes","observation":string,"vedicMeaning":string,"prediction":string},
+              "nose": {"feature":"Nose","observation":string,"vedicMeaning":string,"prediction":string},
+              "lips": {"feature":"Lips","observation":string,"vedicMeaning":string,"prediction":string},
+              "forehead": {"feature":"Forehead","observation":string,"vedicMeaning":string,"prediction":string},
+              "jawline": {"feature":"Jawline","observation":string,"vedicMeaning":string,"prediction":string},
+              "nakshatraMatch": {
+                "nakshatra": "{{request.NakshatraName}}",
+                "alignmentLevel": "Strong"|"Moderate"|"Developing",
+                "alignmentMessage": string (how face features reflect/complement the Nakshatra energy)
+              },
+              "strengths": [string] (3-4 core strengths revealed by the face),
+              "challenges": [string] (2-3 challenges to be mindful of),
+              "lifeGuidance": [string] (3 practical cosmic guidance points),
+              "luckyColor": string,
+              "powerDay": string (best day of week for this person),
+              "mantra": string (Sanskrit mantra for this Nakshatra combination),
+              "disclaimer": "This reading is for spiritual and entertainment purposes only."
+            }
+            """;
+
+        var payload = new
+        {
+            model = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new { type = "text", text = $"Please analyse this face and provide a complete Vedic Samudrika Shastra reading, cross-referenced with my {request.NakshatraName} Nakshatra energy." },
+                        new { type = "image_url", image_url = new { url = $"data:image/jpeg;base64,{base64}", detail = "high" } }
+                    }
+                }
+            },
+            max_completion_tokens = 2000,
+            temperature = 0.35
+        };
+
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"GPT Vision face analysis failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        if (content.Contains("```"))
+        {
+            var start = content.IndexOf('{');
+            var end   = content.LastIndexOf('}');
+            if (start >= 0 && end > start) content = content[start..(end + 1)];
+        }
+
+        using var parsed = JsonDocument.Parse(content);
+        var root = parsed.RootElement;
+
+        if (root.TryGetProperty("error", out var errProp))
+            throw new InvalidOperationException(errProp.GetString() ?? "Invalid image.");
+
+        static FaceFeatureReading ParseFeature(JsonElement r, string key)
+        {
+            if (!r.TryGetProperty(key, out var f)) return new FaceFeatureReading(key, "", "", "");
+            return new FaceFeatureReading(
+                f.GetPropertyOrDefault("feature", key),
+                f.GetPropertyOrDefault("observation", ""),
+                f.GetPropertyOrDefault("vedicMeaning", ""),
+                f.GetPropertyOrDefault("prediction", ""));
+        }
+
+        NakshatraAlignment nakshatraMatch = new(request.NakshatraName, "Moderate", "");
+        if (root.TryGetProperty("nakshatraMatch", out var nm))
+            nakshatraMatch = new NakshatraAlignment(
+                nm.GetPropertyOrDefault("nakshatra", request.NakshatraName),
+                nm.GetPropertyOrDefault("alignmentLevel", "Moderate"),
+                nm.GetPropertyOrDefault("alignmentMessage", ""));
+
+        return new FaceReadingResponse(
+            CosmicSummary:   root.GetPropertyOrDefault("cosmicSummary", ""),
+            FaceShape:       root.GetPropertyOrDefault("faceShape", ""),
+            DominantElement: root.GetPropertyOrDefault("dominantElement", ""),
+            EnergyType:      root.GetPropertyOrDefault("energyType", ""),
+            Eyes:            ParseFeature(root, "eyes"),
+            Nose:            ParseFeature(root, "nose"),
+            Lips:            ParseFeature(root, "lips"),
+            Forehead:        ParseFeature(root, "forehead"),
+            Jawline:         ParseFeature(root, "jawline"),
+            NakshatraMatch:  nakshatraMatch,
+            Strengths:       root.GetArrayOrDefault("strengths").ToArray(),
+            Challenges:      root.GetArrayOrDefault("challenges").ToArray(),
+            LifeGuidance:    root.GetArrayOrDefault("lifeGuidance").ToArray(),
+            LuckyColor:      root.GetPropertyOrDefault("luckyColor", ""),
+            PowerDay:        root.GetPropertyOrDefault("powerDay", ""),
+            Mantra:          root.GetPropertyOrDefault("mantra", ""),
+            Disclaimer:      root.GetPropertyOrDefault("disclaimer", "This reading is for spiritual and entertainment purposes only."));
+    }
+
+    public async Task<PalmistryResponse> AnalyzePalmAsync(PalmistryRequest request, CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        // Strip the data URI prefix if present
+        var base64 = request.ImageBase64.Contains(',')
+            ? request.ImageBase64.Split(',')[1]
+            : request.ImageBase64;
+
+        const string systemPrompt = """
+            You are an expert Vedic palmist (Hasta Samudrika Shastra) with 30 years of practice.
+            Analyse the palm photograph carefully and produce a STRICT JSON reading.
+            If the image is not of a palm, return {"error": "Please provide a clear palm photograph."}.
+            For the lifePredictions section, carefully examine the marriage line(s), fate line depth, 
+            life line branches, health line, and sun line to give age-range predictions.
+            All age fields should be concise ranges like "26–30" or "around 32".
+
+            JSON schema:
+            {
+              "overallReading": string (3-4 sentence holistic reading),
+              "dominantHand": "Left" | "Right" | "Both visible",
+              "lifeLine": {"name": "Life Line", "condition": string, "interpretation": string, "prediction": string},
+              "heartLine": {"name": "Heart Line", "condition": string, "interpretation": string, "prediction": string},
+              "headLine":  {"name": "Head Line",  "condition": string, "interpretation": string, "prediction": string},
+              "fateLine":  {"name": "Fate Line",  "condition": string, "interpretation": string, "prediction": string},
+              "mounts": [{"name": string, "development": "Prominent"|"Average"|"Weak", "meaning": string}],
+              "specialMarks": [string],
+              "personality": {
+                "element": string, "temperament": string,
+                "strengths": string, "weaknesses": string,
+                "careerSuggestions": string, "relationshipNature": string
+              },
+              "lifePredictions": {
+                "marriageAge": string (age range from marriage line, e.g. "26–29"),
+                "marriageNature": string (brief quality description of the marriage),
+                "careerBreakAge": string (age range of major career breakthrough or shift),
+                "careerField": string (most suitable career domain based on mounts + head line),
+                "healthCrisisAge": string (age range where health needs extra care),
+                "healthAdvice": string (what organ or system to watch, based on life/health line),
+                "propertyAge": string (age range for acquiring first major property),
+                "wealthPeak": string (age range of peak financial prosperity from sun/fate line),
+                "childrenCount": string (indication of number of children from children lines),
+                "spiritualAwakening": string (age range or event triggering spiritual growth),
+                "keyLifeEvents": [string] (3-4 major milestone predictions with approximate ages)
+              },
+              "luckyColor": string,
+              "luckyNumber": string,
+              "suggestedGemstone": string,
+              "remedies": [string],
+              "disclaimer": "This reading is for spiritual and entertainment purposes only."
+            }
+            """;
+
+        var payload = new
+        {
+            model = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new
+                        {
+                            type = "text",
+                            text = request.UserName is not null
+                                ? $"Please analyse the palm of {request.UserName} and provide a complete Vedic palmistry reading."
+                                : "Please analyse this palm and provide a complete Vedic palmistry reading."
+                        },
+                        new
+                        {
+                            type = "image_url",
+                            image_url = new { url = $"data:image/jpeg;base64,{base64}", detail = "high" }
+                        }
+                    }
+                }
+            },
+            max_completion_tokens = 2000,
+            temperature = 0.3
+        };
+
+        var res = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"GPT Vision palm analysis failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+
+        // Strip markdown code fences if the model wrapped it
+        if (content.Contains("```"))
+        {
+            var start = content.IndexOf('{');
+            var end   = content.LastIndexOf('}');
+            if (start >= 0 && end > start) content = content[start..(end + 1)];
+        }
+
+        using var parsed = JsonDocument.Parse(content);
+        var root = parsed.RootElement;
+
+        // If model signalled an error (not a palm image)
+        if (root.TryGetProperty("error", out var errProp))
+            throw new InvalidOperationException(errProp.GetString() ?? "Invalid image.");
+
+        static PalmLine ParseLine(JsonElement r, string key)
+        {
+            if (!r.TryGetProperty(key, out var l)) return new PalmLine(key, "", "", "");
+            return new PalmLine(
+                l.GetPropertyOrDefault("name", key),
+                l.GetPropertyOrDefault("condition", ""),
+                l.GetPropertyOrDefault("interpretation", ""),
+                l.GetPropertyOrDefault("prediction", ""));
+        }
+
+        var mounts = new List<PalmMount>();
+        if (root.TryGetProperty("mounts", out var ma) && ma.ValueKind == JsonValueKind.Array)
+            foreach (var m in ma.EnumerateArray())
+                mounts.Add(new PalmMount(
+                    m.GetPropertyOrDefault("name", ""),
+                    m.GetPropertyOrDefault("development", "Average"),
+                    m.GetPropertyOrDefault("meaning", "")));
+
+        PalmPersonality personality = new("", "", "", "", "", "");
+        if (root.TryGetProperty("personality", out var pp))
+            personality = new PalmPersonality(
+                pp.GetPropertyOrDefault("element", ""),
+                pp.GetPropertyOrDefault("temperament", ""),
+                pp.GetPropertyOrDefault("strengths", ""),
+                pp.GetPropertyOrDefault("weaknesses", ""),
+                pp.GetPropertyOrDefault("careerSuggestions", ""),
+                pp.GetPropertyOrDefault("relationshipNature", ""));
+
+        LifePredictions lifeMilestones = new("", "", "", "", "", "", "", "", "", "", []);
+        if (root.TryGetProperty("lifePredictions", out var lp))
+            lifeMilestones = new LifePredictions(
+                MarriageAge:        lp.GetPropertyOrDefault("marriageAge", ""),
+                MarriageNature:     lp.GetPropertyOrDefault("marriageNature", ""),
+                CareerBreakAge:     lp.GetPropertyOrDefault("careerBreakAge", ""),
+                CareerField:        lp.GetPropertyOrDefault("careerField", ""),
+                HealthCrisisAge:    lp.GetPropertyOrDefault("healthCrisisAge", ""),
+                HealthAdvice:       lp.GetPropertyOrDefault("healthAdvice", ""),
+                PropertyAge:        lp.GetPropertyOrDefault("propertyAge", ""),
+                WealthPeak:         lp.GetPropertyOrDefault("wealthPeak", ""),
+                ChildrenCount:      lp.GetPropertyOrDefault("childrenCount", ""),
+                SpiritualAwakening: lp.GetPropertyOrDefault("spiritualAwakening", ""),
+                KeyLifeEvents:      lp.GetArrayOrDefault("keyLifeEvents"));
+
+        return new PalmistryResponse(
+            OverallReading:    root.GetPropertyOrDefault("overallReading", ""),
+            DominantHand:      root.GetPropertyOrDefault("dominantHand", ""),
+            LifeLine:          ParseLine(root, "lifeLine"),
+            HeartLine:         ParseLine(root, "heartLine"),
+            HeadLine:          ParseLine(root, "headLine"),
+            FateLine:          ParseLine(root, "fateLine"),
+            Mounts:            mounts,
+            SpecialMarks:      root.GetArrayOrDefault("specialMarks"),
+            Personality:       personality,
+            LuckyColor:        root.GetPropertyOrDefault("luckyColor", ""),
+            LuckyNumber:       root.GetPropertyOrDefault("luckyNumber", ""),
+            SuggestedGemstone: root.GetPropertyOrDefault("suggestedGemstone", ""),
+            Remedies:          root.GetArrayOrDefault("remedies"),
+            LifeMilestones:    lifeMilestones,
+            Disclaimer:        root.GetPropertyOrDefault("disclaimer", "This reading is for spiritual and entertainment purposes only."));
+    }
+
+    public async Task<PastLifeResponse> GeneratePastLifeAnalysisAsync(
+        SouthIndianChart chart, DashaStatus dasha, CancellationToken ct)
+    {
+        if (_endpoint.Contains("your-openai-endpoint", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("ASTROAI OpenAI endpoint is not configured.");
+        if (string.IsNullOrWhiteSpace(_apiKey))
+            throw new InvalidOperationException("ASTROAI OpenAI API key is missing.");
+
+        var url = _endpoint.Contains("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? _endpoint
+            : $"{_endpoint.TrimEnd('/')}/chat/completions";
+
+        const string systemPrompt = """
+            You are a master Nadi Jyotisha astrologer with expertise in karmic astrology and past-life analysis.
+            Analyse the Vedic birth chart using these classical Nadi and karmic principles:
+            
+            1. RAHU-KETU AXIS — karmic direction; Ketu = past life mastery, Rahu = current life destiny
+            2. SATURN — karmic accountant; house/sign shows area of past-life debt
+            3. 12th HOUSE — past-life karma, moksha, hidden matters, foreign/spiritual connections
+            4. ATMAKARAKA — planet with highest sidereal longitude = soul indicator
+            5. 5th HOUSE (Putra Bhava) — past merit / purva punya
+            6. JUPITER — guru blessings accumulated over lifetimes
+            7. PLANETARY CONJUNCTIONS — Nadi-specific karmic triggers
+            
+            Produce a vivid, spiritually grounded, narrative-rich analysis. This should feel like an authentic
+            Nadi leaf reading — specific, insightful, and deeply personal. Be encouraging and dharmic.
+            
+            Return STRICT JSON only:
+            {
+              "karmicSignature": string (2-3 sentences synthesising the chart's core karmic theme),
+              "soulLesson": string (the single most important lesson of this lifetime),
+              "previousLife": {
+                "era": string (approximate historical era and region),
+                "role": string (occupation/social role in that life),
+                "region": string (geographical region),
+                "keyExperiences": [string] (2-3 key experiences or situations as array),
+                "unfinishedBusiness": string (what was left incomplete, driving rebirth)
+              },
+              "karmicDebts": [
+                {"planet": string, "house": string, "description": string, "resolution": string}
+              ],
+              "inheritedGifts": [string] (talents/abilities brought from past lives),
+              "karmicRelationships": [
+                {"type": string, "planetIndicator": string, "description": string, "lesson": string}
+              ],
+              "currentLifePurpose": string (mission of this lifetime),
+              "spiritualPath": string (suggested sadhana/path),
+              "nadiIndicators": [string] (specific chart combinations that indicate past-life themes),
+              "karmicRemedies": [string] (5-7 remedies to clear karmic debts),
+              "disclaimer": "This analysis is based on classical Vedic/Nadi astrological interpretation and is for spiritual guidance only."
+            }
+            """;
+
+        var houses  = string.Join("; ", chart.Houses.Select(h => $"H{h.Number} {h.Sign} [{string.Join(",", h.Occupants)}] RL:{h.RasiLord} Nak:{h.Nakshatra} NL:{h.NakshatraLord}"));
+        var planets = string.Join("; ", chart.Planets.Select(p => $"{p.Name} {p.Sign} H{p.House} Sid:{p.SiderealLongitude:F2} Nak:{p.Nakshatra}"));
+        var userMsg = $"Asc:{chart.AscendantSign}({chart.AscendantSiderealLongitude:F2}) Ayanamsha:{chart.AyanamshaName}. Houses:{houses}. Planets:{planets}. Current Maha:{dasha.MahaDashaLord}/{dasha.AntarDashaLord}. Birth:{chart.BirthDateTimeUtc:yyyy-MM-dd}. Produce a complete Nadi past-life analysis.";
+
+        var payload = new
+        {
+            model    = _model,
+            messages = new object[]
+            {
+                new { role = "system", content = systemPrompt },
+                new { role = "user",   content = userMsg }
+            },
+            temperature = 0.5,
+            max_completion_tokens = 4096
+        };
+
+        var res  = await SendWithRetryAsync(() => CreateRequest(url, payload), ct);
+        var body = await res.Content.ReadAsStringAsync(ct);
+        if (!res.IsSuccessStatusCode)
+            throw new HttpRequestException($"GPT past-life analysis failed: {(int)res.StatusCode} {res.ReasonPhrase}. Body: {body}");
+
+        using var doc     = JsonDocument.Parse(body);
+        var content = doc.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
+        // Strip markdown code fences and extract JSON object
+        var firstBrace = content.IndexOf('{');
+        var lastBrace  = content.LastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace)
+            content = content[firstBrace..(lastBrace + 1)];
+        else if (firstBrace >= 0)
+        {
+            // Truncated JSON — attempt to close any open arrays/objects
+            content = content[firstBrace..];
+            var stack = new System.Collections.Generic.Stack<char>();
+            var inStr = false; var esc = false;
+            foreach (var ch in content) {
+                if (esc) { esc = false; continue; }
+                if (ch == '\\') { esc = true; continue; }
+                if (ch == '"') { inStr = !inStr; continue; }
+                if (!inStr) {
+                    if (ch == '{') stack.Push('}');
+                    else if (ch == '[') stack.Push(']');
+                    else if ((ch == '}' || ch == ']') && stack.Count > 0) stack.Pop();
+                }
+            }
+            // Close unclosed strings/arrays/objects with correct closing character
+            if (inStr) content += "\"";
+            while (stack.Count > 0) content += stack.Pop();
+        }
+
+        JsonDocument parsed;
+        try { parsed = JsonDocument.Parse(content); }
+        catch (JsonException je)
+        {
+            throw new InvalidOperationException(
+                $"GPT past-life JSON could not be parsed (response may have been truncated). " +
+                $"Parse error: {je.Message}. Content start: {content[..Math.Min(300, content.Length)]}");
+        }
+        using (parsed)
+        {
+        var root = parsed.RootElement;
+
+        PastLifeNarrative prev = new("", "", "", "", "");
+        if (root.TryGetProperty("previousLife", out var pl))
+            prev = new PastLifeNarrative(
+                pl.GetPropertyOrDefault("era", ""),
+                pl.GetPropertyOrDefault("role", ""),
+                pl.GetPropertyOrDefault("region", ""),
+                pl.GetPropertyOrDefault("keyExperiences", ""),
+                pl.GetPropertyOrDefault("unfinishedBusiness", ""));
+
+        var debts = new List<KarmicDebt>();
+        if (root.TryGetProperty("karmicDebts", out var da) && da.ValueKind == JsonValueKind.Array)
+            foreach (var d in da.EnumerateArray())
+                debts.Add(new KarmicDebt(
+                    d.GetPropertyOrDefault("planet", ""),
+                    d.GetPropertyOrDefault("house", ""),
+                    d.GetPropertyOrDefault("description", ""),
+                    d.GetPropertyOrDefault("resolution", "")));
+
+        var rels = new List<KarmicRelationship>();
+        if (root.TryGetProperty("karmicRelationships", out var ra) && ra.ValueKind == JsonValueKind.Array)
+            foreach (var r in ra.EnumerateArray())
+                rels.Add(new KarmicRelationship(
+                    r.GetPropertyOrDefault("type", ""),
+                    r.GetPropertyOrDefault("planetIndicator", ""),
+                    r.GetPropertyOrDefault("description", ""),
+                    r.GetPropertyOrDefault("lesson", "")));
+
+        return new PastLifeResponse(
+            KarmicSignature:      root.GetPropertyOrDefault("karmicSignature", ""),
+            SoulLesson:           root.GetPropertyOrDefault("soulLesson", ""),
+            PreviousLife:         prev,
+            KarmicDebts:          debts,
+            InheritedGifts:       root.GetArrayOrDefault("inheritedGifts"),
+            KarmicRelationships:  rels,
+            CurrentLifePurpose:   root.GetPropertyOrDefault("currentLifePurpose", ""),
+            SpiritualPath:        root.GetPropertyOrDefault("spiritualPath", ""),
+            NadiIndicators:       root.GetArrayOrDefault("nadiIndicators"),
+            KarmicRemedies:       root.GetArrayOrDefault("karmicRemedies"),
+            Disclaimer:           root.GetPropertyOrDefault("disclaimer", "This analysis is for spiritual guidance only."));
+        } // end using parsed
     }
 }

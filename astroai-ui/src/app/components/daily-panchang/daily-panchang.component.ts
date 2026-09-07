@@ -50,16 +50,24 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
         this.cityData = getCityBySlug(citySlug);
         
         if (this.cityData) {
+          // Canonical points to the actual URL being viewed (self-referencing).
+          // city-only routes use /today; dated routes use the exact date segment.
+          const canonicalDate = dateParam || 'today';
+          const targetDate = this.parseDateParam(dateParam);
+
+          // Determine whether the date is in the past (>2 days old) → noindex
+          const isPastDate = this.isOldPastDate(dateParam);
+
           // Set SEO for city-specific page
           this.seoFocus.setPage({
             title: `Daily Panchang for ${this.cityData.city}, ${this.cityData.state} — Tithi, Nakshatra & Muhurat`,
             description: `Today's Vedic Panchang for ${this.cityData.city}, ${this.cityData.state} — Tithi, Nakshatra, Yoga, Karana, Rahu Kalam & auspicious Muhurats. Free Jyotish calendar.`,
             keywords: `panchang ${this.cityData.city.toLowerCase()}, daily panchang ${this.cityData.state.toLowerCase()}, tithi today ${this.cityData.city.toLowerCase()}, muhurat ${this.cityData.city.toLowerCase()}`,
-            canonical: `/panchang/${citySlug}`
+            canonical: `/panchang/${citySlug}/${canonicalDate}`
           });
-          
-          // Parse date parameter
-          const targetDate = this.parseDateParam(dateParam);
+
+          // Noindex past dates to avoid stale soft-404 signals
+          this.setRobotsTag(isPastDate ? 'noindex, follow' : 'index, follow');
           
           // Auto-fetch panchang for this city
           this.fetchPanchangForCity(this.cityData, targetDate);
@@ -75,11 +83,35 @@ export class DailyPanchangComponent implements OnInit, OnDestroy {
           keywords: 'daily panchang, vedic panchang, tithi today, nakshatra today, rahu kalam, muhurat today, vedic calendar, auspicious time, jyotish almanac',
           canonical: '/daily-panchang'
         });
+        this.setRobotsTag('index, follow');
         
         // Auto-fetch on page load using browser location when available
         this.getBrowserLocation(true);
       }
     });
+  }
+
+  /** Returns true if dateParam is a specific past date older than 2 days */
+  private isOldPastDate(dateParam: string | null): boolean {
+    if (!dateParam || dateParam === 'today' || dateParam === 'tomorrow' || dateParam === 'yesterday') {
+      return false;
+    }
+    const d = new Date(dateParam);
+    if (isNaN(d.getTime())) return false;
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    return d < twoDaysAgo;
+  }
+
+  /** Updates the robots meta tag */
+  private setRobotsTag(content: string): void {
+    let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute('content', content);
   }
   
   private parseDateParam(dateParam: string | null): Date {

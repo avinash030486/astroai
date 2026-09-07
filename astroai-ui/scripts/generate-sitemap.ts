@@ -95,14 +95,11 @@ class SitemapGenerator {
     const today = new Date().toISOString().split('T')[0];
 
     cities.forEach(city => {
-      // Today
+      // Canonical "today" entry — the primary landing page for each city
       this.addUrl(`/panchang/${city.slug}/today`, today, 'daily', 0.9);
       
-      // Tomorrow
-      this.addUrl(`/panchang/${city.slug}/tomorrow`, today, 'daily', 0.85);
-      
-      // Next 7 days with specific dates
-      for (let i = 0; i < 7; i++) {
+      // Next 7 days with specific dates (start from tomorrow to avoid dup with today)
+      for (let i = 1; i <= 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() + i);
         const dateStr = date.toISOString().split('T')[0];
@@ -110,7 +107,7 @@ class SitemapGenerator {
       }
     });
 
-    console.log(`✅ Generated ${cities.length * 9} city-specific URLs`);
+    console.log(`✅ Generated ${cities.length * 8} city-specific URLs`);
   }
 
   private generateYogaPages(): void {

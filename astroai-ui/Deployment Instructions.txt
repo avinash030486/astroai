@@ -1,6 +1,6 @@
-mv /home/site/wwwrootvedicastro-deploy-20260503.tar /home/site/wwwroot/
+mv /home/site/wwwrootvedicastro-deploy-20260712.tar /home/site/wwwroot/
 cd /home/site/wwwroot
 rm -rf *
-tar -xf wwwrootvedicastro-deploy-20260503.tar
-rm wwwrootvedicastro-deploy-20260503.tar
+tar -xf wwwrootvedicastro-deploy-20260712.tar
+rm wwwrootvedicastro-deploy-20260712.tar
 ls

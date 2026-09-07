@@ -3,6 +3,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { SupabaseDbService } from './supabase-db.service';
+import { User } from '@supabase/supabase-js';
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
@@ -12,6 +13,19 @@ export class AnalyticsService {
     private auth: AuthService,
     private router: Router
   ) {}
+
+  private isInternalUser(user: User): boolean {
+    const email = (user.email || '').toLowerCase();
+    const metadata = user.user_metadata || {};
+    return Boolean(
+      metadata['is_internal'] ||
+      metadata['internal_user'] ||
+      metadata['role'] === 'admin' ||
+      email.endsWith('@vedicastro.app') ||
+      email.includes('+internal@') ||
+      email.includes('+test@')
+    );
+  }
 
   /** Call once from AppComponent.ngOnInit() to start auto page-view tracking */
   init(): void {
@@ -26,11 +40,17 @@ export class AnalyticsService {
     try {
       const user = this.auth.getCurrentUser();
       if (!user) return;
+      const email = (user.email || '').toLowerCase();
+      const mergedMetadata = {
+        ...(metadata ?? {}),
+        internal_user: this.isInternalUser(user),
+        email_domain: email.includes('@') ? email.split('@')[1] : null,
+      };
       await this.db.trackEvent({
         user_id: user.id,
         event_name: eventName,
         page: page ?? this.router.url,
-        metadata: metadata ?? null,
+        metadata: mergedMetadata,
       });
     } catch {
       // Analytics should never crash the app — silently swallow

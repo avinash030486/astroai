@@ -14,8 +14,11 @@ export class ReferralService {
     private analytics: AnalyticsService
   ) {}
 
-  getReferralCode(): string | null {
-    return this.profile.getCurrentProfile()?.referral_code || null;
+  /** Derives a stable referral code from the user's UUID (same algo as native app). */
+  getReferralCode(): string {
+    const user = this.auth.getCurrentUser();
+    if (!user?.id) return '';
+    return 'VA' + user.id.replace(/-/g, '').slice(0, 8).toUpperCase();
   }
 
   getReferralLink(): string {
@@ -38,7 +41,10 @@ export class ReferralService {
 
   shareOnWhatsApp(): void {
     const link = this.getReferralLink();
-    const msg = encodeURIComponent(`✨ Join me on VedicAstro — get personalized Vedic astrology insights! Use my link: ${link}`);
+    const msg = encodeURIComponent(
+      `✨ Join me on VedicAstro — get personalised Vedic astrology insights!\n` +
+      `Sign up via my link and get $2 free credit: ${link}`
+    );
     window.open(`https://wa.me/?text=${msg}`, '_blank');
     this.analytics.trackReferralShared();
   }
@@ -50,7 +56,7 @@ export class ReferralService {
     return error ? 0 : (data?.length || 0);
   }
 
-  /** Checks URL on app load for incoming referral codes */
+  /** Checks URL on app load for incoming referral codes — stores in sessionStorage. */
   checkReferralInUrl(): void {
     const params = new URLSearchParams(window.location.search);
     const refCode = params.get('ref');
@@ -58,16 +64,5 @@ export class ReferralService {
       sessionStorage.setItem('pending_referral', refCode);
     }
   }
-
-  /** Call after user successfully signs up / converts from anonymous */
-  async processPendingReferral(): Promise<void> {
-    const pendingCode = sessionStorage.getItem('pending_referral');
-    if (!pendingCode) return;
-
-    const user = this.auth.getCurrentUser();
-    if (!user || user.is_anonymous) return;
-
-    await this.profile.updateProfile({ referred_by: pendingCode });
-    sessionStorage.removeItem('pending_referral');
-  }
 }
+

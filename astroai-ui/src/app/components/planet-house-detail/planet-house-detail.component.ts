@@ -34,8 +34,7 @@ export class PlanetHouseDetailComponent implements OnInit {
       this.setMetaTags();
       this.loading = false;
     } else {
-      this.notFound = true;
-      this.loading = false;
+      this.router.navigate(['/not-found'], { replaceUrl: true });
     }
   }
 

@@ -20,7 +20,7 @@ public sealed class GeoController : ControllerBase
     {
         _gpt = gpt;
         _googleMapsApiKey = settings.Value.GoogleMapsApiKey;
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClientFactory.CreateClient("AstroAI.Default");
     }
 
     public sealed record CoordinatesRequest(string City, string State, string Country);

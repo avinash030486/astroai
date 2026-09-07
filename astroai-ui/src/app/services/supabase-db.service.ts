@@ -92,8 +92,51 @@ export class SupabaseDbService {
     return this.db.from('referrals').select('*').eq('referrer_id', referrerId);
   }
 
+  getReferralByCode(code: string) {
+    return this.db
+      .from('referrals')
+      .select('referrer_id, reward_paid')
+      .eq('referral_code', code)
+      .single();
+  }
+
   createReferral(referral: any) {
     return this.db.from('referrals').insert(referral);
+  }
+
+  // ─── CREDITS ───────────────────────────────────────────────────────────────
+
+  getCreditBalance(userId: string) {
+    return this.db
+      .from('user_credits')
+      .select('balance_usd')
+      .eq('user_id', userId)
+      .maybeSingle();
+  }
+
+  getCreditTransactions(userId: string) {
+    return this.db
+      .from('credit_transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(30);
+  }
+
+  awardReferralCredit(referrerId: string, refereeId: string, referralCode: string) {
+    return this.db.rpc('award_referral_credit', {
+      p_referrer_id: referrerId,
+      p_referee_id: refereeId,
+      p_referral_code: referralCode,
+    });
+  }
+
+  spendCredits(userId: string, amountUsd: number, description: string) {
+    return this.db.rpc('spend_credits', {
+      p_user_id: userId,
+      p_amount_usd: amountUsd,
+      p_description: description,
+    });
   }
 
   // ─── ANALYTICS ─────────────────────────────────────────────────────────────

@@ -9,6 +9,7 @@ import { ReportService, SavedReport, REPORT_TYPE_LABELS } from '../../services/r
 import { ReferralService } from '../../services/referral.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { HoroscopeService, PlaceSuggestion } from '../../services/horoscope.service';
+import { CreditsService } from '../../services/credits.service';
 
 type DashboardTab = 'overview' | 'charts' | 'reports' | 'subscription' | 'referrals';
 
@@ -61,6 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public subscription: SubscriptionService,
     public reportService: ReportService,
     public referral: ReferralService,
+    public credits: CreditsService,
     private analytics: AnalyticsService,
     private horoscope: HoroscopeService,
     private router: Router
@@ -107,6 +109,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.loadCharts(),
       this.loadReports(),
       this.loadReferralCount(),
+      this.credits.loadCredits(),
     ]);
     this.loading = false;
   }

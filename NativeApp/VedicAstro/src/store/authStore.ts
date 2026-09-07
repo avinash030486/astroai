@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import * as Crypto from 'expo-crypto';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../constants/config';
+import { useCreditsStore } from './creditsStore';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -41,6 +42,7 @@ interface AuthState {
   handleOAuthRedirect: (url: string) => Promise<void>;
   signOut: () => Promise<void>;
   loadSession: () => Promise<void>;
+  storePendingReferral: (code: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -99,9 +101,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await SecureStore.setItemAsync('access_token', tokenData.access_token);
         if (tokenData.refresh_token) await SecureStore.setItemAsync('refresh_token', tokenData.refresh_token);
         const u = tokenData.user;
+        const userId = u.id;
         set({
           user: {
-            id: u.id,
+            id: userId,
             email: u.email,
             name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'User',
             avatarUrl: u.user_metadata?.avatar_url,
@@ -109,6 +112,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           token: tokenData.access_token,
           loading: false,
         });
+        // Process pending referral then load credit balance
+        const { processReferral, loadCredits } = useCreditsStore.getState();
+        const pendingRef = await SecureStore.getItemAsync('pending_referral_code');
+        if (pendingRef) {
+          await processReferral(userId, pendingRef);
+          await SecureStore.deleteItemAsync('pending_referral_code');
+        } else {
+          loadCredits(userId);
+        }
         return;
       }
 
@@ -152,6 +164,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     await SecureStore.deleteItemAsync('access_token');
     await SecureStore.deleteItemAsync('refresh_token');
+    useCreditsStore.getState().clear();
     set({ user: null, token: null });
   },
 
@@ -165,13 +178,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       if (!res.ok) { await SecureStore.deleteItemAsync('access_token'); set({ loading: false }); return; }
       const u = await res.json();
+      const uid = u.id;
       set({
-        user: { id: u.id, email: u.email, name: u.user_metadata?.full_name || u.email.split('@')[0], avatarUrl: u.user_metadata?.avatar_url },
+        user: { id: uid, email: u.email, name: u.user_metadata?.full_name || u.email.split('@')[0], avatarUrl: u.user_metadata?.avatar_url },
         token,
         loading: false,
       });
+      useCreditsStore.getState().loadCredits(uid);
     } catch {
       set({ loading: false });
     }
+  },
+
+  // Call on app start if a deep-link ref param is detected
+  storePendingReferral: async (code: string) => {
+    await SecureStore.setItemAsync('pending_referral_code', code);
   },
 }));

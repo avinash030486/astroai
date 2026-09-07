@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenLayout } from '../components/ScreenLayout';
@@ -21,10 +21,15 @@ interface Message { role: 'user' | 'ai'; text: string }
 export const AskAIScreen: React.FC = () => {
   const navigation = useNavigation();
   const { format, ready } = useCurrency();
-  const QNA_PLANS: PlanOption[] = [
-    { id: 'qna-10',        label: '10 Questions', price: ready ? format(3.00)  : '...', amountUsd: 3.00,  note: '10 AI answers' },
-    { id: 'qna-unlimited', label: 'Unlimited',     price: ready ? format(10.00) : '...', amountUsd: 10.00, note: 'Ask anything', popular: true },
-  ];
+  const isAndroidPlayFlow = Platform.OS === 'android';
+  const QNA_PLANS: PlanOption[] = isAndroidPlayFlow
+    ? [
+        { id: 'qna-10', label: '10 Questions', price: ready ? format(3.00) : '...', amountUsd: 3.00, note: '10 AI answers' },
+      ]
+    : [
+        { id: 'qna-10',        label: '10 Questions', price: ready ? format(3.00)  : '...', amountUsd: 3.00,  note: '10 AI answers' },
+        { id: 'qna-unlimited', label: 'Unlimited',     price: ready ? format(10.00) : '...', amountUsd: 10.00, note: 'Ask anything', popular: true },
+      ];
   const [question, setQuestion]     = useState('');
   const [name, setName]             = useState('');
   const [birthDate, setBirthDate]   = useState('');
@@ -62,6 +67,13 @@ export const AskAIScreen: React.FC = () => {
   };
 
   const handlePaymentSuccess = async (pmId: string, planId: string, amountUsd: number, name: string, email: string) => {
+    if (Platform.OS === 'android' || pmId === 'credits_only') {
+      setHasPaid(true);
+      setShowPayment(false);
+      setPaymentError('');
+      return;
+    }
+
     const res = await paymentsApi.chargeForQNA({ plan: planId, amountUsd, name, email, paymentMethodId: pmId });
     if (!res.success) throw new Error(res.error ?? 'Payment failed. Please try again.');
     setHasPaid(true);
@@ -132,6 +144,7 @@ export const AskAIScreen: React.FC = () => {
         title="Unlock AI Answers"
         subtitle="Choose a Q&A package for personalised astrology guidance"
         plans={QNA_PLANS}
+        googlePlayProductId="qna_10_questions"
         onSuccess={handlePaymentSuccess}
         onClose={() => setShowPayment(false)}
       />

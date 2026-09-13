@@ -7,6 +7,8 @@ public interface IPremiumBirthChartStore
     Task<DateTimeOffset?> GetLatestWeeklyPurchaseUtcAsync(string email, CancellationToken ct);
 
     Task<IReadOnlyList<PremiumBirthChartRecord>> GetByUserIdAsync(string userId, CancellationToken ct);
+
+    Task<string?> GetProfileUserIdByEmailAsync(string email, CancellationToken ct);
 }
 
 public sealed record PremiumBirthChartSaveRequest(

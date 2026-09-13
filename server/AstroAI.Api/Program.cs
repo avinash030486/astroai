@@ -63,6 +63,7 @@ if (!string.IsNullOrWhiteSpace(supabaseUrl) && !string.IsNullOrWhiteSpace(public
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
+                options.MapInboundClaims = false;
                 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -74,6 +75,8 @@ if (!string.IsNullOrWhiteSpace(supabaseUrl) && !string.IsNullOrWhiteSpace(public
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = securityKey,
                     ValidAlgorithms = new[] { "ES256" },
+                    NameClaimType = "sub",
+                    RoleClaimType = "role",
                     ClockSkew = TimeSpan.FromMinutes(5)
                 };
 

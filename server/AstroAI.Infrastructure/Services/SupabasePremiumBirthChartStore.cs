@@ -141,6 +141,38 @@ public sealed class SupabasePremiumBirthChartStore : IPremiumBirthChartStore
             .ToList();
     }
 
+    public async Task<string?> GetProfileUserIdByEmailAsync(string email, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return null;
+        }
+
+        var serviceRoleKey = GetSupabaseSettings().ServiceRoleKey;
+        var query =
+            $"profiles?select=id" +
+            $"&email=eq.{Uri.EscapeDataString(email)}" +
+            "&limit=1";
+
+        using var message = new HttpRequestMessage(HttpMethod.Get, query);
+        AddAuthHeaders(message, serviceRoleKey);
+        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        using var response = await _httpClient.SendAsync(message, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(ct);
+            _logger.LogError("Failed to query Supabase profile by email. StatusCode={StatusCode}, Body={Body}",
+                response.StatusCode,
+                body);
+            throw new InvalidOperationException($"Supabase profile lookup failed with status {(int)response.StatusCode}.");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(ct);
+        var rows = await JsonSerializer.DeserializeAsync<List<ProfileRow>>(stream, cancellationToken: ct);
+        return rows?.FirstOrDefault()?.Id;
+    }
+
     private (string TableName, string ServiceRoleKey) GetSupabaseSettings()
     {
         var tableName = _configuration["Supabase:PremiumBirthChartsTable"];
@@ -188,4 +220,7 @@ public sealed class SupabasePremiumBirthChartStore : IPremiumBirthChartStore
         [property: JsonPropertyName("place_of_birth")] string PlaceOfBirth,
         [property: JsonPropertyName("horoscope")] SouthIndianChart? Horoscope,
         [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt);
+
+    private sealed record ProfileRow(
+        [property: JsonPropertyName("id")] string Id);
 }

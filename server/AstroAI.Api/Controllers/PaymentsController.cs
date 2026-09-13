@@ -269,7 +269,7 @@ namespace AstroAI.Api.Controllers
         private static bool IsActionRequiredStatus(string? status) =>
             status is "requires_action" or "requires_source_action";
 
-        private string GetUserIdOrThrow()
+        private string? TryGetUserId()
         {
             var userId = User.FindFirst("sub")?.Value
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -296,6 +296,18 @@ namespace AstroAI.Api.Controllers
                         _logger.LogWarning(ex, "Failed to parse bearer token for user id fallback.");
                     }
                 }
+            }
+
+            return userId;
+        }
+
+        private async Task<string> ResolveUserIdOrThrowAsync(string? email, CancellationToken ct)
+        {
+            var userId = TryGetUserId();
+
+            if (string.IsNullOrWhiteSpace(userId) && !string.IsNullOrWhiteSpace(email))
+            {
+                userId = await _premiumBirthChartStore.GetProfileUserIdByEmailAsync(email, ct);
             }
 
             if (string.IsNullOrWhiteSpace(userId))
@@ -762,7 +774,7 @@ namespace AstroAI.Api.Controllers
 
                     _logger.LogInformation("💾 Saving premium birth chart to Supabase...");
                     var premiumBirthChartRequest = BuildPremiumBirthChartSaveRequest(
-                        GetUserIdOrThrow(),
+                        await ResolveUserIdOrThrowAsync(request.Email, ct),
                         request,
                         horoscopeChart,
                         customerId,
@@ -812,7 +824,7 @@ namespace AstroAI.Api.Controllers
         {
             try
             {
-                var userId = GetUserIdOrThrow();
+                var userId = await ResolveUserIdOrThrowAsync(null, ct);
                 var charts = await _premiumBirthChartStore.GetByUserIdAsync(userId, ct);
                 return Ok(charts.Select(MapPremiumBirthChartDto).ToList());
             }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -273,7 +274,29 @@ namespace AstroAI.Api.Controllers
             var userId = User.FindFirst("sub")?.Value
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
-                ?? User.FindFirst("user_id")?.Value;
+                ?? User.FindFirst("user_id")?.Value
+                ?? User.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                var bearerToken = Request.Headers.Authorization.FirstOrDefault();
+                var rawToken = bearerToken?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true
+                    ? bearerToken.Substring("Bearer ".Length).Trim()
+                    : bearerToken;
+
+                if (!string.IsNullOrWhiteSpace(rawToken))
+                {
+                    try
+                    {
+                        var jwt = new JsonWebToken(rawToken);
+                        userId = jwt.Claims.FirstOrDefault(claim => claim.Type == "sub")?.Value;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse bearer token for user id fallback.");
+                    }
+                }
+            }
 
             if (string.IsNullOrWhiteSpace(userId))
             {

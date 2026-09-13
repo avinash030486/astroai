@@ -69,10 +69,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         `&code_challenge=${challenge}` +
         `&code_challenge_method=S256`;
 
-      // Open full Chrome (Linking.openURL, NOT WebBrowser Custom Tab).
-      // The relay page fires an Android Intent URL → Chrome asks "Open with Expo Go?"
-      // → Expo Go receives exp://...?code= → App.tsx listener → handleOAuthRedirect.
-      await Linking.openURL(authUrl);
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, expoUrl);
+
+      if (result.type === 'success' && result.url) {
+        await get().handleOAuthRedirect(result.url);
+        return;
+      }
+
       set({ loading: false });
     } catch (e: any) {
       console.error('Google sign in failed:', e.message);

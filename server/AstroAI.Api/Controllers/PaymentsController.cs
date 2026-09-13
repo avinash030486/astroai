@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -269,9 +270,15 @@ namespace AstroAI.Api.Controllers
 
         private string GetUserIdOrThrow()
         {
-            var userId = User.FindFirst("sub")?.Value;
+            var userId = User.FindFirst("sub")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
+                ?? User.FindFirst("user_id")?.Value;
+
             if (string.IsNullOrWhiteSpace(userId))
             {
+                var claimTypes = string.Join(", ", User.Claims.Select(claim => claim.Type).Distinct().OrderBy(type => type));
+                _logger.LogError("Authenticated user id is missing from the token. Available claims: {ClaimTypes}", claimTypes);
                 throw new InvalidOperationException("Authenticated user id is missing from the token.");
             }
 

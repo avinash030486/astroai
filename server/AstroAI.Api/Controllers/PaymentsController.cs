@@ -6,7 +6,6 @@ using Google.Apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Stripe;
@@ -90,6 +89,21 @@ namespace AstroAI.Api.Controllers
         string? PaymentIntentId = null,
         string? PaymentStatus = null);
 
+    public record PremiumBirthChartDto(
+        string Id,
+        string Email,
+        string Name,
+        string Plan,
+        string SubscriptionType,
+        string PaymentProvider,
+        string? StripeCustomerId,
+        string? StripeSubscriptionId,
+        string DateOfBirth,
+        string TimeOfBirth,
+        string PlaceOfBirth,
+        SouthIndianChart? Horoscope,
+        DateTimeOffset CreatedAt);
+
     public record GooglePlayValidationDto(string ProductId, string PurchaseToken);
 
 
@@ -100,6 +114,7 @@ namespace AstroAI.Api.Controllers
     {
         private readonly Container _subscriptions;
         private readonly IKpHoroscopeService _kpHoroscope;
+        private readonly IPremiumBirthChartStore _premiumBirthChartStore;
         private readonly ILogger<PaymentsController> _logger;
         private readonly IConfiguration _configuration;
 
@@ -130,6 +145,7 @@ namespace AstroAI.Api.Controllers
         public PaymentsController(
             CosmosClient cosmosClient, 
             IKpHoroscopeService kpHoroscope,
+            IPremiumBirthChartStore premiumBirthChartStore,
             IConfiguration configuration,
             ILogger<PaymentsController> logger)
         {
@@ -138,6 +154,7 @@ namespace AstroAI.Api.Controllers
             // database: vedicastro, container: vedicastroai
             _subscriptions = cosmosClient.GetContainer("vedicastro", "vedicastroai");
             _kpHoroscope = kpHoroscope;
+            _premiumBirthChartStore = premiumBirthChartStore;
             _configuration = configuration;
         }
 
@@ -228,37 +245,14 @@ namespace AstroAI.Api.Controllers
             }
         }
 
-        private async Task<SubscriptionRecord?> GetActiveWeeklySubscriptionAsync(string email, CancellationToken ct)
+        private async Task<DateTimeOffset?> GetLatestWeeklyPremiumPurchaseUtcAsync(string email, CancellationToken ct)
         {
             if (string.IsNullOrWhiteSpace(email))
             {
                 return null;
             }
 
-            var now = DateTime.UtcNow;
-            var since = now.AddDays(-7); // weekly subscription window
-
-            var queryable = _subscriptions.GetItemLinqQueryable<SubscriptionRecord>(
-                requestOptions: new QueryRequestOptions
-                {
-                    PartitionKey = new PartitionKey("individual"),
-                    MaxItemCount = 10
-                })
-                .Where(r => r.email == email && r.subscriptionType == "W" && r.createdUtc >= since)
-                .OrderByDescending(r => r.createdUtc);
-
-            using var iterator = queryable.ToFeedIterator();
-            while (iterator.HasMoreResults)
-            {
-                var page = await iterator.ReadNextAsync(ct);
-                var record = page.Resource.FirstOrDefault();
-                if (record is not null)
-                {
-                    return record;
-                }
-            }
-
-            return null;
+            return await _premiumBirthChartStore.GetLatestWeeklyPurchaseUtcAsync(email, ct);
         }
 
         private static string MapPlanToCode(string plan) =>
@@ -272,6 +266,56 @@ namespace AstroAI.Api.Controllers
 
         private static bool IsActionRequiredStatus(string? status) =>
             status is "requires_action" or "requires_source_action";
+
+        private string GetUserIdOrThrow()
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new InvalidOperationException("Authenticated user id is missing from the token.");
+            }
+
+            return userId;
+        }
+
+        private static PremiumBirthChartSaveRequest BuildPremiumBirthChartSaveRequest(
+            string userId,
+            PaymentRequestDto request,
+            SouthIndianChart? horoscopeChart,
+            string? customerId,
+            string? subscriptionId)
+        {
+            return new PremiumBirthChartSaveRequest(
+                UserId: userId,
+                Email: request.Email,
+                Name: request.Name,
+                Plan: request.Plan,
+                SubscriptionType: MapPlanToCode(request.Plan),
+                DateOfBirth: request.DateOfBirth,
+                TimeOfBirth: request.TimeOfBirth,
+                PlaceOfBirth: request.PlaceOfBirth,
+                Horoscope: horoscopeChart,
+                StripeCustomerId: customerId,
+                StripeSubscriptionId: subscriptionId);
+        }
+
+            private static PremiumBirthChartDto MapPremiumBirthChartDto(PremiumBirthChartRecord record)
+            {
+                return new PremiumBirthChartDto(
+                record.Id,
+                record.Email,
+                record.Name,
+                record.Plan,
+                record.SubscriptionType,
+                record.PaymentProvider,
+                record.StripeCustomerId,
+                record.StripeSubscriptionId,
+                record.DateOfBirth,
+                record.TimeOfBirth,
+                record.PlaceOfBirth,
+                record.Horoscope,
+                record.CreatedAt);
+            }
 
         private static PaymentResultDto BuildPaymentResultFromIntent(PaymentIntent intent)
         {
@@ -502,14 +546,17 @@ namespace AstroAI.Api.Controllers
                     // Prevent duplicate active weekly subscriptions for the same email
                     if (request.Plan == "weekly")
                     {
-                        var existingWeekly = await GetActiveWeeklySubscriptionAsync(request.Email, ct);
-                        if (existingWeekly is not null)
+                        var latestWeeklyPurchaseUtc = await GetLatestWeeklyPremiumPurchaseUtcAsync(request.Email, ct);
+                        if (latestWeeklyPurchaseUtc is not null)
                         {
-                            var expiry = existingWeekly.createdUtc.AddDays(7);
-                            var message = $"You already have an active weekly subscription until {expiry:yyyy-MM-dd}.";
-                            _logger.LogInformation("⚠️ Active weekly subscription found for {Email} valid until {Expiry}",
-                                request.Email, expiry);
-                            return BadRequest(new PaymentResultDto(false, message));
+                            var expiry = latestWeeklyPurchaseUtc.Value.UtcDateTime.AddDays(7);
+                            if (expiry > DateTime.UtcNow)
+                            {
+                                var message = $"You already have an active weekly subscription until {expiry:yyyy-MM-dd}.";
+                                _logger.LogInformation("⚠️ Active weekly subscription found for {Email} valid until {Expiry}",
+                                    request.Email, expiry);
+                                return BadRequest(new PaymentResultDto(false, message));
+                            }
                         }
                     }
 
@@ -683,33 +730,31 @@ namespace AstroAI.Api.Controllers
                         _logger.LogError(ex, "❌ Failed to generate horoscope: {Message}", ex.Message);
                     }
 
-                    _logger.LogInformation("💾 Saving subscription record to Cosmos DB...");
-                    var record = new SubscriptionRecord
-                    {
-                        name = request.Name,
-                        email = request.Email,
-                        subscriptionType = MapPlanToCode(request.Plan),
-                        dateOfBirth = request.DateOfBirth,
-                        timeOfBirth = request.TimeOfBirth,
-                        placeOfBirth = request.PlaceOfBirth,
-                        horoscope = horoscopeChart
-                    };
+                    _logger.LogInformation("💾 Saving premium birth chart to Supabase...");
+                    var premiumBirthChartRequest = BuildPremiumBirthChartSaveRequest(
+                        GetUserIdOrThrow(),
+                        request,
+                        horoscopeChart,
+                        customerId,
+                        subscriptionId);
 
                     try
                     {
                         await ExecuteWithRetryAsync(
-                            token => _subscriptions.CreateItemAsync(
-                                record,
-                                new PartitionKey(record.individual),
-                                cancellationToken: token),
+                            async token =>
+                            {
+                                await _premiumBirthChartStore.SaveAsync(premiumBirthChartRequest, token);
+                                return true;
+                            },
                             ct,
-                            "Cosmos subscription record save");
-                        _logger.LogInformation("✅ Subscription record saved: Email={Email}, Type={Type}", 
-                            record.email, record.subscriptionType);
+                            "Supabase premium birth chart save");
+                        _logger.LogInformation("✅ Premium birth chart saved: Email={Email}, Type={Type}", 
+                            premiumBirthChartRequest.Email,
+                            premiumBirthChartRequest.SubscriptionType);
                     }
-                    catch (Exception cosmosEx)
+                    catch (Exception supabaseEx)
                     {
-                        _logger.LogError(cosmosEx, "❌ Cosmos DB save failed: {Message}", cosmosEx.Message);
+                        _logger.LogError(supabaseEx, "❌ Supabase premium birth chart save failed: {Message}", supabaseEx.Message);
                         throw;
                     }
 
@@ -729,6 +774,22 @@ namespace AstroAI.Api.Controllers
                 _logger.LogError(ex, "❌ Unexpected error in charge endpoint: {Message}", ex.Message);
                 return StatusCode(500,
                     new PaymentResultDto(false, "Payment failed due to a server error."));
+            }
+        }
+
+        [HttpGet("premiumBirthCharts")]
+        public async Task<ActionResult<IReadOnlyList<PremiumBirthChartDto>>> GetPremiumBirthCharts(CancellationToken ct)
+        {
+            try
+            {
+                var userId = GetUserIdOrThrow();
+                var charts = await _premiumBirthChartStore.GetByUserIdAsync(userId, ct);
+                return Ok(charts.Select(MapPremiumBirthChartDto).ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Failed to load premium birth charts: {Message}", ex.Message);
+                return StatusCode(500, "Failed to load premium birth charts.");
             }
         }
 

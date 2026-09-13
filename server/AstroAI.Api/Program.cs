@@ -214,6 +214,22 @@ builder.Services
         PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
         AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
     });
+builder.Services
+    .AddHttpClient<IPremiumBirthChartStore, SupabasePremiumBirthChartStore>((serviceProvider, client) =>
+    {
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var supabaseUrl = configuration["Supabase:Url"];
+        if (!string.IsNullOrWhiteSpace(supabaseUrl))
+        {
+            client.BaseAddress = new Uri($"{supabaseUrl.TrimEnd('/')}/rest/v1/");
+        }
+
+        var supabaseTimeoutSeconds = Math.Clamp(
+            configuration.GetValue<int?>("Supabase:RestTimeoutSeconds") ?? 30,
+            5,
+            120);
+        client.Timeout = TimeSpan.FromSeconds(supabaseTimeoutSeconds);
+    });
 builder.Services.AddScoped<IGptAstrologyService, GptAstrologyService>();
 builder.Services.AddScoped<IGptLocationService, GptLocationService>();
 builder.Services.AddScoped<IKpHoroscopeService, KpHoroscopeService>();
@@ -260,6 +276,19 @@ app.Use(async (context, next) =>
             {
                 success = false,
                 error = "Request timed out. Please retry."
+            });
+        }
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Unhandled API exception for {Method} {Path}", context.Request.Method, context.Request.Path);
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                success = false,
+                error = "The API could not complete this request. Check the API deployment logs."
             });
         }
     }

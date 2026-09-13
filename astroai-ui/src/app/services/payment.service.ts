@@ -71,6 +71,22 @@ export interface PaymentResult {
   paymentStatus?: string | null;
 }
 
+export interface PremiumBirthChartRecord {
+  id: string;
+  email: string;
+  name: string;
+  plan: 'one-time' | 'weekly' | 'monthly';
+  subscriptionType: 'O' | 'W' | 'M';
+  paymentProvider: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  dateOfBirth: string;
+  timeOfBirth: string;
+  placeOfBirth: string;
+  horoscope?: unknown;
+  createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
   private readonly baseUrl = `${environment.apiBaseUrl}/api/payments`;
@@ -99,5 +115,9 @@ export class PaymentService {
 
   chargeForAstrologer(req: AstrologerPaymentRequest): Observable<PaymentResult> {
     return this.http.post<PaymentResult>(`${this.baseUrl}/chargeForAstrologer`, req);
+  }
+
+  getPremiumBirthCharts(): Observable<PremiumBirthChartRecord[]> {
+    return this.http.get<PremiumBirthChartRecord[]>(`${this.baseUrl}/premiumBirthCharts`);
   }
 }

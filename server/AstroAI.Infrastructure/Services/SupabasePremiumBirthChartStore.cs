@@ -160,8 +160,14 @@ public sealed class SupabasePremiumBirthChartStore : IPremiumBirthChartStore
 
     private static void AddAuthHeaders(HttpRequestMessage message, string serviceRoleKey)
     {
-        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", serviceRoleKey);
         message.Headers.TryAddWithoutValidation("apikey", serviceRoleKey);
+
+        // New Supabase secret keys (sb_secret_...) are not JWTs and should be sent via apikey.
+        // Legacy service_role keys are JWTs and still use Authorization for compatibility.
+        if (!serviceRoleKey.StartsWith("sb_", StringComparison.OrdinalIgnoreCase))
+        {
+            message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", serviceRoleKey);
+        }
     }
 
     private sealed record LatestWeeklyPurchaseRow(

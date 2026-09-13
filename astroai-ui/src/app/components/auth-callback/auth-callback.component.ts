@@ -30,13 +30,33 @@ export class AuthCallbackComponent implements OnInit {
     return false;
   }
 
+  private isAppDeepLinkTarget(target: string | null): target is string {
+    if (!target) {
+      return false;
+    }
+
+    const lowerTarget = target.toLowerCase();
+    return !lowerTarget.startsWith('http://') && !lowerTarget.startsWith('https://');
+  }
+
+  private buildAndroidIntentUrl(deepLink: string): string | null {
+    const match = deepLink.match(/^([a-z][a-z0-9+.-]*):\/\/(.+)$/i);
+    if (!match) {
+      return null;
+    }
+
+    const [, scheme, rest] = match;
+    const packageSegment = scheme === 'exp' ? ';package=host.exp.exponent' : '';
+    return `intent://${rest}#Intent;scheme=${scheme}${packageSegment};end`;
+  }
+
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
 
     const code = urlParams.get('code');
     // expo_url is embedded in redirect_to by the native app (not in state — Supabase owns state)
-    const expoUrl = urlParams.get('expo_url');
+    const expoUrl = urlParams.get('expo_url') || hashParams.get('expo_url');
     const accessToken = hashParams.get('access_token');
     const refreshToken = hashParams.get('refresh_token');
     const oauthError = urlParams.get('error') || hashParams.get('error');
@@ -48,7 +68,7 @@ export class AuthCallbackComponent implements OnInit {
       has_error: Boolean(oauthError)
     });
 
-    if (expoUrl && (expoUrl.startsWith('exp://') || expoUrl.startsWith('vedicastro://'))) {
+    if (this.isAppDeepLinkTarget(expoUrl)) {
       let deepLink = expoUrl;
       if (code) {
         deepLink += (deepLink.includes('?') ? '&' : '?') + 'code=' + encodeURIComponent(code);
@@ -62,14 +82,16 @@ export class AuthCallbackComponent implements OnInit {
       // Use Android Intent URL which full Chrome always handles correctly.
       const isAndroid = /Android/i.test(navigator.userAgent);
 
-      if (isAndroid && deepLink.startsWith('exp://')) {
-        const withoutScheme = deepLink.replace(/^exp:\/\//, '');
-        const intentUrl = `intent://${withoutScheme}#Intent;scheme=exp;package=host.exp.exponent;end`;
-        console.log('📱 Intent URL:', intentUrl);
-        window.location.href = intentUrl;
-      } else {
-        window.location.href = deepLink;
+      if (isAndroid) {
+        const intentUrl = this.buildAndroidIntentUrl(deepLink);
+        if (intentUrl) {
+          console.log('📱 Intent URL:', intentUrl);
+          window.location.href = intentUrl;
+          return;
+        }
       }
+
+      window.location.href = deepLink;
       return;
     }
 

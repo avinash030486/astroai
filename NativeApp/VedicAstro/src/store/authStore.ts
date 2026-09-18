@@ -61,7 +61,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // We embed the Expo URL as `expo_url` query param in the redirect_to so the
       // relay page knows where to send the code back. No `state` param — Supabase
       // owns that internally and overwriting it causes bad_oauth_state errors.
-      const relay = `https://vedicastro.app/auth-callback?expo_url=${encodeURIComponent(expoUrl)}`;
+      const relay =
+        `https://vedicastro.app/auth-callback?expo_url=${encodeURIComponent(expoUrl)}` +
+        `&auth_session=1`;
 
       const authUrl =
         `${SUPABASE_URL}/auth/v1/authorize?provider=google` +

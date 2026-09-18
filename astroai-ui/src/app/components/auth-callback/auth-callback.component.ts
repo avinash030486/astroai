@@ -57,6 +57,7 @@ export class AuthCallbackComponent implements OnInit {
     const code = urlParams.get('code');
     // expo_url is embedded in redirect_to by the native app (not in state — Supabase owns state)
     const expoUrl = urlParams.get('expo_url') || hashParams.get('expo_url');
+    const usesAuthSession = urlParams.get('auth_session') === '1' || hashParams.get('auth_session') === '1';
     const accessToken = hashParams.get('access_token');
     const refreshToken = hashParams.get('refresh_token');
     const oauthError = urlParams.get('error') || hashParams.get('error');
@@ -82,7 +83,7 @@ export class AuthCallbackComponent implements OnInit {
       // Use Android Intent URL which full Chrome always handles correctly.
       const isAndroid = /Android/i.test(navigator.userAgent);
 
-      if (isAndroid) {
+      if (isAndroid && !usesAuthSession) {
         const intentUrl = this.buildAndroidIntentUrl(deepLink);
         if (intentUrl) {
           console.log('📱 Intent URL:', intentUrl);

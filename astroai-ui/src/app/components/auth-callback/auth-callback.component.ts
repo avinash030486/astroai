@@ -50,6 +50,21 @@ export class AuthCallbackComponent implements OnInit {
     return `intent://${rest}#Intent;scheme=${scheme}${packageSegment};end`;
   }
 
+  private shouldUseAndroidIntent(deepLink: string, usesAuthSession: boolean): boolean {
+    if (!/Android/i.test(navigator.userAgent)) {
+      return false;
+    }
+
+    const lowerDeepLink = deepLink.toLowerCase();
+
+    // Expo Go deep links still need an Android intent handoff from Chrome.
+    if (lowerDeepLink.startsWith('exp://')) {
+      return true;
+    }
+
+    return !usesAuthSession;
+  }
+
   ngOnInit(): void {
     const urlParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
@@ -81,9 +96,7 @@ export class AuthCallbackComponent implements OnInit {
 
       // Android Chrome 96+ blocks window.location.href = 'exp://...' (custom scheme).
       // Use Android Intent URL which full Chrome always handles correctly.
-      const isAndroid = /Android/i.test(navigator.userAgent);
-
-      if (isAndroid && !usesAuthSession) {
+      if (this.shouldUseAndroidIntent(deepLink, usesAuthSession)) {
         const intentUrl = this.buildAndroidIntentUrl(deepLink);
         if (intentUrl) {
           console.log('📱 Intent URL:', intentUrl);

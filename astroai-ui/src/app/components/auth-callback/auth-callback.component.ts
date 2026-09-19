@@ -51,18 +51,16 @@ export class AuthCallbackComponent implements OnInit {
   }
 
   private shouldUseAndroidIntent(deepLink: string, usesAuthSession: boolean): boolean {
-    if (!/Android/i.test(navigator.userAgent)) {
+    // WebBrowser.openAuthSessionAsync (native app) opens an Android Custom Tab that
+    // detects the return by matching the literal redirect URL (exp://... or the app's
+    // custom scheme). Wrapping it in an intent:// URL breaks that detection — Custom
+    // Tabs never resolves the session and Chrome is left stuck on this web page.
+    // Only use the intent:// handoff for the legacy Linking.openURL (full Chrome) flow.
+    if (usesAuthSession) {
       return false;
     }
 
-    const lowerDeepLink = deepLink.toLowerCase();
-
-    // Expo Go deep links still need an Android intent handoff from Chrome.
-    if (lowerDeepLink.startsWith('exp://')) {
-      return true;
-    }
-
-    return !usesAuthSession;
+    return /Android/i.test(navigator.userAgent);
   }
 
   ngOnInit(): void {
